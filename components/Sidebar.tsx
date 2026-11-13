@@ -11,7 +11,7 @@ import {
   Home,
   Plus,
   List,
-  LogBook,
+  BookOpen,
   LogOut,
 } from 'lucide-react'
 
@@ -19,7 +19,7 @@ const menuItems = [
   { icon: Home, label: 'Dashboard', href: '/dashboard' },
   { icon: Plus, label: 'Generate Device', href: '/dashboard/generate' },
   { icon: List, label: 'Device Inventory', href: '/dashboard/devices' },
-  { icon: LogBook, label: 'Audit Log', href: '/dashboard/audit' },
+  { icon: BookOpen, label: 'Audit Log', href: '/dashboard/audit' },
 ]
 
 export default function Sidebar() {
