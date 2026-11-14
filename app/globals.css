@@ -14,4 +14,12 @@ html {
 
 body {
   background-color: #f9fafb;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Ensure Tailwind utilities are loaded */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
 }

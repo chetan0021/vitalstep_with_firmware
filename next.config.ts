@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  experimental: {
+    // Enable CSS processing
+    optimizePackageImports: ["lucide-react"],
+    // Disable instant navigation validation for dynamic client pages
+    disableInstantPages: true,
+  },
 };
 
 export default nextConfig;

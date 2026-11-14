@@ -2,6 +2,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+export const instant = false
+
 export const metadata: Metadata = {
   title: 'VitalStep Admin Dashboard',
   description: 'Device Manufacturing & Management Dashboard',

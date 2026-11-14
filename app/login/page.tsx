@@ -40,30 +40,59 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-xl p-8">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #eff6ff, #e0e7ff)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem'
+    }}>
+      <div style={{ width: '100%', maxWidth: '28rem' }}>
+        <div style={{
+          background: 'white',
+          borderRadius: '0.5rem',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          padding: '2rem'
+        }}>
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-full mb-4">
-              <LogIn className="text-white" size={32} />
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '4rem',
+              height: '4rem',
+              background: '#4f46e5',
+              borderRadius: '9999px',
+              marginBottom: '1rem'
+            }}>
+              <LogIn color="white" size={32} />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">VitalStep</h1>
-            <p className="text-gray-600 mt-2">Admin Dashboard</p>
+            <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827' }}>VitalStep</h1>
+            <p style={{ color: '#4b5563', marginTop: '0.5rem' }}>Admin Dashboard</p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3">
-              <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-              <p className="text-red-700 text-sm">{error}</p>
+            <div style={{
+              marginBottom: '1.5rem',
+              padding: '1rem',
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '0.5rem',
+              display: 'flex',
+              gap: '0.75rem'
+            }}>
+              <AlertCircle color="#dc2626" size={20} style={{ flexShrink: 0 }} />
+              <p style={{ color: '#b91c1c', fontSize: '0.875rem' }}>{error}</p>
             </div>
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
                 Email
               </label>
               <input
@@ -71,13 +100,20 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent disabled:bg-gray-50"
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 1rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
                 placeholder="admin@vitalstep.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
                 Password
               </label>
               <input
@@ -85,7 +121,14 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent disabled:bg-gray-50"
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 1rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
                 placeholder="Enter your password"
               />
             </div>
@@ -93,14 +136,26 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+              style={{
+                width: '100%',
+                background: loading ? '#9ca3af' : '#4f46e5',
+                color: 'white',
+                fontWeight: '600',
+                padding: '0.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'background 0.2s'
+              }}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.background = '#4338ca')}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.background = '#4f46e5')}
             >
               {loading ? 'Logging in...' : 'Sign In'}
             </button>
           </form>
 
           {/* Footer */}
-          <p className="text-center text-gray-600 text-sm mt-6">
+          <p style={{ textAlign: 'center', color: '#4b5563', fontSize: '0.875rem', marginTop: '1.5rem' }}>
             VitalStep Manufacturing Admin
           </p>
         </div>
@@ -108,3 +163,4 @@ export default function LoginPage() {
     </div>
   )
 }
+
