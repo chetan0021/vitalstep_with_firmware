@@ -1,6 +1,8 @@
 // app/dashboard/layout.tsx
 'use client'
 
+export const instant = false
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
