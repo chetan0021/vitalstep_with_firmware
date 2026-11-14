@@ -18,6 +18,10 @@ echo  Repo: https://github.com/chetan0021/vitalstep_with_firmware
 echo ============================================
 echo.
 
+REM Fix git ownership issue
+echo Configuring git safe directory...
+git config --global --add safe.directory C:/Users/Appmaker/Documents/vitalstep_with_firmware-master
+
 REM Configure git user
 echo Setting git user configuration...
 git config user.email chetanv.kar@gmail.com
