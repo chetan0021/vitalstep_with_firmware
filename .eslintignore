@@ -1,0 +1,4 @@
+.backups/
+VitalStep_Mobile_App/
+*.ino
+*.sql

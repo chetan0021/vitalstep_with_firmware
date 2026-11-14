@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backups and temp files
+.backups/
+*.ino
+*.sql
+VitalStep_Mobile_App/
