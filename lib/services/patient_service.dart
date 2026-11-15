@@ -8,16 +8,17 @@ import 'package:vital_step/Model/patient_transfer_objects.dart';
 import 'package:vital_step/Model/research_patient.dart';
 import 'package:vital_step/app/app.locator.dart';
 import 'package:vital_step/app/app.logger.dart';
+import 'package:vital_step/services/supabase_service.dart';
 import 'package:vital_step/main.dart';
 import 'package:vital_step/services/hubspot_service.dart';
 import 'package:vital_step/services/login_service.dart';
 
 /// Service for managing research patients and their readings in the New Supabase Project.
-/// Uses [patientSupabaseClient] (initialized in main.dart) for all database operations.
+/// Uses [vitalstepSupabaseClient] (initialized in main.dart) for all database operations.
 class PatientService {
   final _logger = getLogger('PatientService');
   final _box = GetStorage();
-  final SupabaseClient _client = patientSupabaseClient;
+  final SupabaseClient _client = vitalstepSupabaseClient;
 
   /// GetStorage key for the retry queue (JSON-serialised list of pending readings).
   ///
@@ -579,3 +580,4 @@ class PatientService {
     return field;
   }
 }
+

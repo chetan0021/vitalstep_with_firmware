@@ -171,9 +171,9 @@ class LoginView extends StackedView<LoginViewModel> {
         width: double.infinity,
         height: 64,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [kcPrimaryColor, kcPrimaryColorDark]),
+          gradient: const LinearGradient(colors: [kcCoralColor, kcCoralDark]),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: kcPrimaryColor.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
+          boxShadow: [BoxShadow(color: kcCoralColor.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
         ),
         child: Center(
           child: vm.isBusy

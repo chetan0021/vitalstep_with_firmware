@@ -24,7 +24,7 @@ late final SupabaseClient vitalstepSupabaseClient;
 /// - POST /device → INSERT into devices
 /// - etc.
 class SupabaseService {
-  final _logger = getLogger('SupabaseService');
+  static final _logger = getLogger('SupabaseService');
   final _box = GetStorage();
 
   /// Initialize the Supabase client (called from main.dart)
@@ -32,7 +32,13 @@ class SupabaseService {
     required String url,
     required String anonKey,
   }) async {
-    vitalstepSupabaseClient = SupabaseClient(url, anonKey);
+    vitalstepSupabaseClient = SupabaseClient(
+      url,
+      anonKey,
+      authOptions: const AuthClientOptions(
+        authFlowType: AuthFlowType.implicit,
+      ),
+    );
     _logger.i('SupabaseService initialized with URL: $url');
   }
 
@@ -62,7 +68,7 @@ class SupabaseService {
     try {
       // 1. Create auth user
       final AuthResponse res = await vitalstepSupabaseClient.auth
-          .signUpWithPassword(
+          .signUp(
             email: email,
             password: password,
           );
@@ -171,7 +177,7 @@ class SupabaseService {
     try {
       // 1. Create auth user
       final AuthResponse res = await vitalstepSupabaseClient.auth
-          .signUpWithPassword(
+          .signUp(
             email: email,
             password: password,
           );
@@ -315,7 +321,7 @@ class SupabaseService {
         palmWidth: profileData['palm_width'],
         knucklesLength: profileData['knuckles_length'],
         dominantHand: profileData['dominant_hand'],
-        accessCode: profileData['access_code'],
+        access_code: profileData['access_code'],
         device: devices,
         assessment: assessments,
         city: profileData['city'],
@@ -972,3 +978,4 @@ class SupabaseService {
     }
   }
 }
+

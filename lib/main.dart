@@ -57,14 +57,8 @@ Future<void> main() async {
   //
   // For now, using placeholder - UPDATE THIS WITH YOUR ACTUAL ANON KEY
   await SupabaseService.initialize(
-    url: const String.fromEnvironment(
-      'VITALSTEP_SUPABASE_URL',
-      defaultValue: 'https://oyqecdcpicvzwwwaeka.supabase.co',
-    ),
-    anonKey: const String.fromEnvironment(
-      'VITALSTEP_SUPABASE_ANON_KEY',
-      defaultValue: 'YOUR_ANON_KEY_HERE', // TODO: Update with your actual anon key
-    ),
+    url: 'https://oyqecdcpicvzwwvwaeka.supabase.co',
+    anonKey: 'sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi',
   );
 
   setupBottomSheetUi();
@@ -75,7 +69,7 @@ Future<void> main() async {
   await deviceSelectionService.initialize();
 
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings("app_icon");
+      AndroidInitializationSettings("@mipmap/ic_launcher");
 
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
@@ -95,7 +89,7 @@ Future<void> main() async {
     initialRoute = Routes.assesmentView;
   }
 
-  runApp(MainApp(initialRoute: initialRoute));
+  runApp(VitalStepApp(initialRoute: initialRoute));
 
   // For foreground and background
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
@@ -103,4 +97,23 @@ Future<void> main() async {
           (NotificationResponse notificationResponse) async {
     await notificationsService.handleNotification();
   }, onDidReceiveBackgroundNotificationResponse: notificationTapBackground);
+}
+
+class VitalStepApp extends StatelessWidget {
+  final String initialRoute;
+  const VitalStepApp({super.key, required this.initialRoute});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'VitalStep',
+      debugShowCheckedModeBanner: false,
+      initialRoute: initialRoute,
+      onGenerateRoute: StackedRouter().onGenerateRoute,
+      navigatorKey: StackedService.navigatorKey,
+      navigatorObservers: [
+        StackedService.routeObserver,
+      ],
+    );
+  }
 }

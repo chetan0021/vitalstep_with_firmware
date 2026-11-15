@@ -1,267 +1,397 @@
-import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:vital_step/Model/accounts.dart';
+import 'package:vital_step/Model/profile.dart';
 import 'package:vital_step/Model/spcialist_profile.dart';
 import 'package:vital_step/app/app.dialogs.dart';
 import 'package:vital_step/app/app.locator.dart';
 import 'package:vital_step/app/app.logger.dart';
 import 'package:vital_step/app/app.router.dart';
 import 'package:vital_step/services/login_service.dart';
-import 'package:vital_step/ui/common/app_strings.dart';
+import 'package:vital_step/services/supabase_service.dart';
 
 class SpecialistService {
   final _logger = getLogger("SpecialistService");
-  final box = GetStorage();
+  final _box = GetStorage();
   final _loginService = locator<LoginService>();
   final _dialogService = locator<DialogService>();
-  Future<ProfileSpecialist> getSpecialistProfile() async {
-    final String userId = (await _loginService.getUserId())!;
-    final Response response = await get(
-      Uri.parse('$apiBaseUrl/specialist/$userId'),
-      headers: <String, String>{'accept': 'application/json'},
-    );
-    _logger.i(response.body);
 
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      final ProfileSpecialist profile = ProfileSpecialist.fromJson(json);
-      return profile;
-    } else {
-      _logger.e(
-          'Failed to load account details, status code: ${response.statusCode}');
+  // ─── SIGNUP ───────────────────────────────────────────────────────────────
 
-      throw Exception('Failed to load account details');
-    }
-  }
+  Future<void> signUp(ProfileSpecialist info) async {
+    try {
+      _logger.i('Specialist signup: ${info.email}');
 
-  Future<List<Accounts>> getAccounts() async {
-    final ProfileSpecialist profileSpecialist = await getSpecialistProfile();
-    return profileSpecialist.accounts!;
-    // List<Profile> patients = [];
-    // for (var account in profileSpecialist.accounts!) {
-    //   patients.add(account.user);
-    // }
-    // return patients;
-  }
+      // 1. Create Supabase auth user
+      final response = await vitalstepSupabaseClient.auth.signUp(
+        email: info.email!.trim(),
+        password: info.password!.trim(),
+      );
 
-  Future<String?> getSpecialistName() async {
-    final ProfileSpecialist profileSpecialist = await getSpecialistProfile();
-    return profileSpecialist.name;
-  }
+      if (response.user == null) {
+        _dialogService.showCustomDialog(
+          variant: DialogType.infoAlert,
+          title: 'Sign Up Failed',
+          description: 'Could not create account. Please try again.',
+        );
+        return;
+      }
 
-  Future<void> addPatient(
-      {required String patientEmail, required String patientAccessCode}) async {
-    final String userId = (await _loginService.getUserId())!;
-    final cookie = await box.read("cookie");
-    final Response response = await post(
-      Uri.parse('$apiBaseUrl/accountAccess/'),
-      headers: <String, String>{
-        'accept': 'application/json',
-        "Content-Type": "application/json",
-        "Cookie": cookie
-      },
-      body: jsonEncode({
-        'email': patientEmail,
-        'accessCode': patientAccessCode,
-        "specialistId": int.parse(userId)
-      }),
-    );
-    _logger.i(response.body);
-    if (response.statusCode == 200) {
-      return;
-    } else {
-      _logger.e('Failed to add patient, status code: ${response.statusCode}');
-      throw Exception('Failed to add patient, ${response.statusCode}');
-    }
-  }
+      final userId = response.user!.id;
 
-  Future<void> deleteAccountAccess({int? id}) async {
-    final cookie = box.read("cookie");
-    final url = '$apiBaseUrl/accountAccess/$id';
-    final response = await delete(Uri.parse(url), headers: <String, String>{
-      'accept': 'application/json',
-      "Cookie": cookie
-    });
+      // 2. Insert into specialists table
+      await vitalstepSupabaseClient.from('specialists').insert({
+        'user_id': userId,
+        'name': info.name ?? '',
+        'email': info.email!.trim(),
+        'phone': info.phone?.toString(),
+      });
 
-    if (response.statusCode == 200) {
-      Fluttertoast.showToast(msg: "User Deleted succesfully");
-      NavigationService().clearStackAndShow(Routes.homeSpecialistView);
-      return;
-    } else {
-      Fluttertoast.showToast(
-          msg: "Unable to delete the user ${response.statusCode}");
-      _logger.e(
-          'Failed to delete account access, status code: ${response.statusCode}');
-    }
-  }
+      _box.write('userId', userId);
+      _box.write('userType', 'Specialist');
 
-  Future<void> createAssessment(
-      String posture, String assessmentType, String patientId) async {
-    const url = "$apiBaseUrl/assessment";
-    final cookie = await box.read("cookie");
-    final Response response = await post(
-      Uri.parse(url),
-      headers: <String, String>{
-        'accept': 'application/json',
-        "Content-Type": "application/json",
-        "Cookie": cookie
-      },
-      body: jsonEncode({
-        'userId': int.parse(patientId),
-        'posture': posture,
-        'type': assessmentType,
-      }),
-    );
-    _logger.i(response.body);
-    if (response.statusCode == 200) {
-      Fluttertoast.showToast(msg: "Assessment created successfully");
-      return;
-    } else {
-      _logger.e(
-          'Failed to create assessment, status code: ${response.statusCode}');
-      throw Exception('Failed to create assessment');
-    }
-  }
-
-  deleteAssessment({required String assessmentId}) async {
-    final cookie = box.read('cookie');
-    final url = '$apiBaseUrl/assessment/$assessmentId';
-    final response = await delete(Uri.parse(url), headers: <String, String>{
-      'accept': 'application/json',
-      "Cookie": cookie
-    });
-    if (response.statusCode == 200) {
-      Fluttertoast.showToast(msg: "Assessment deleted successfully");
-    } else {
-      _logger.e(
-          'Failed to delete assessment, status code: ${response.statusCode}');
-      Fluttertoast.showToast(
-          msg:
-              "Failed to delete assessment,status Code ${response.statusCode}");
-    }
-  }
-
-  Future<void> addComment(
-      {required String comment, required int assessmentId}) async {
-    final assignerId = box.read("userId")?.toString() ?? "";
-    final cookie = box.read("cookie");
-    const url = "$apiBaseUrl/remarks";
-    final response = await http.post(Uri.parse(url),
-        headers: {
-          "accept": "application/json",
-          "Content-Type": "application/json",
-          "Cookie": cookie
-        },
-        body: jsonEncode({
-          "AssignerId": int.parse(assignerId),
-          "assessmentId": assessmentId,
-          "remarks": comment
-        }));
-    if (response.statusCode == 200) {
-      Fluttertoast.showToast(msg: "Comment Added Successfully");
-    } else {
-      _logger.e("Unable to post comment ${response.statusCode}");
-      throw (response.statusCode);
-    }
-  }
-
-  deleteRemark({required int remarkId}) async {
-    final cookie = box.read("cookie");
-    final url = "$apiBaseUrl/remarks/${remarkId.toString()}";
-    final response = await http.delete(
-      Uri.parse(url),
-      headers: {
-        "accept": "application/json",
-        "Content-Type": "application/json",
-        "Cookie": cookie
-      },
-    );
-    if (response.statusCode == 200) {
-      Fluttertoast.showToast(msg: "Comment deleted Successfully");
-    } else {
-      _logger.e("Unable to delete comment ${response.statusCode}");
-      Fluttertoast.showToast(msg: "unable to delete the remark");
-    }
-  }
-
-  updateProfile(ProfileSpecialist signUpInfo) async {
-    final cookie = box.read('cookie').toString();
-    var headers = {
-      "accept": "application/json",
-      'Content-Type': 'application/json',
-      "cookie": cookie,
-    };
-    final userId = box.read('userId')?.toString() ?? "";
-    final address = '$apiBaseUrl/specialist/$userId';
-    var request = http.Request('PUT', Uri.parse(address));
-    var json = signUpInfo.toJson();
-    json.removeWhere((key, value) {
-      return value == null || value == "";
-    });
-    request.body = jsonEncode(json);
-    request.headers.addAll(headers);
-
-    http.StreamedResponse streamedResponse = await request.send();
-    http.Response response = await http.Response.fromStream(streamedResponse);
-    if (response.statusCode == 200) {
-      Fluttertoast.showToast(msg: "Profile Updated Successfully");
-    } else {
-      _logger
-          .e('Failed to update profile, status code: ${response.statusCode}');
+      _logger.i('Specialist signup successful: $userId');
       _dialogService.showCustomDialog(
         variant: DialogType.infoAlert,
-        title: 'Error Updating Profile',
-        description: 'An error occurred',
+        title: 'Sign Up Successful',
+        description: 'Your specialist account has been created. Please verify your email to log in.',
       );
-    }
-  }
-
-  Future<void> signUp(ProfileSpecialist signUpInfo) async {
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    var request =
-        http.Request('POST', Uri.parse('$apiBaseUrl/specialist-queue'));
-
-    var signUpJson = signUpInfo.toJson();
-    signUpJson.removeWhere((key, value) {
-      return value == null || value == "";
-    });
-
-    request.body = jsonEncode(signUpJson);
-    _logger.i('Request body: ${request.body}');
-    request.headers.addAll(headers);
-
-    http.StreamedResponse streamedResponse = await request.send();
-    http.Response response = await http.Response.fromStream(streamedResponse);
-    if (response.statusCode == 200) {
-      final DialogService dialogService = locator<DialogService>();
-      dialogService.showCustomDialog(
-        variant: DialogType.infoAlert,
-        title: 'SignUp Successful ',
-        description:
-            'Your profile has been sent for approval, our team will reach out to you soon',
-      );
-    } else if (response.statusCode == 404) {
-      _logger.e(
-          'Failed to create a Account, status code: ${response.statusCode}, Account Already exists');
-      _dialogService.showCustomDialog(
-        variant: DialogType.infoAlert,
-        title: 'Unable to create a new account',
-        description: 'Unable to create a new account, Account Already exists',
-      );
-    } else {
-      _logger.e('Failed to Signup, status code: ${response.statusCode}');
-      _logger.e('Unable to sign Up: ${response.body}');
+    } on Exception catch (e) {
+      _logger.e('signUp error: $e');
+      final msg = e.toString();
+      String desc = 'An error occurred during sign up.';
+      if (msg.contains('already registered') || msg.contains('already exists')) {
+        desc = 'An account with this email already exists.';
+      }
       _dialogService.showCustomDialog(
         variant: DialogType.infoAlert,
         title: 'Error Signing Up',
-        description: 'An error occurred',
+        description: desc,
       );
+    }
+  }
+
+  // ─── PROFILE ──────────────────────────────────────────────────────────────
+
+  Future<ProfileSpecialist> getSpecialistProfile() async {
+    final userId = await _loginService.getUserId();
+    if (userId == null) throw Exception('Not logged in');
+
+    final data = await vitalstepSupabaseClient
+        .from('specialists')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+    return ProfileSpecialist(
+      name: data['name'] ?? '',
+      email: data['email'] ?? '',
+      phone: int.tryParse(data['phone']?.toString() ?? '0') ?? 0,
+      countryCode: data['country_code'] ?? '+91',
+      dob: data['created_at'] ?? DateTime.now().toIso8601String(),
+      city: data['city'],
+      country: data['country'],
+    );
+  }
+
+  Future<void> updateProfile(ProfileSpecialist info) async {
+    try {
+      final userId = await _loginService.getUserId();
+      if (userId == null) throw Exception('Not logged in');
+
+      await vitalstepSupabaseClient.from('specialists').update({
+        'name': info.name,
+        'phone': info.phone?.toString(),
+        'city': info.city,
+        'country': info.country,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('user_id', userId);
+
+      Fluttertoast.showToast(msg: 'Profile updated successfully');
+    } catch (e) {
+      _logger.e('updateProfile error: $e');
+      _dialogService.showCustomDialog(
+        variant: DialogType.infoAlert,
+        title: 'Update Failed',
+        description: 'Could not update profile. Please try again.',
+      );
+    }
+  }
+
+  // ─── PATIENT MANAGEMENT ───────────────────────────────────────────────────
+
+  /// Get all patients linked to this specialist
+  Future<List<Accounts>> getAccounts() async {
+    try {
+      final userId = await _loginService.getUserId();
+      if (userId == null) return [];
+
+      // Get specialist's internal ID first
+      final specialistData = await vitalstepSupabaseClient
+          .from('specialists')
+          .select('id')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (specialistData == null) return [];
+
+      final specialistId = specialistData['id'];
+
+      // Get all linked patients via specialist_access
+      final accessData = await vitalstepSupabaseClient
+          .from('specialist_access')
+          .select('patient_id, patients(id, user_id, name, email, patient_code)')
+          .eq('specialist_id', specialistId);
+
+      List<Accounts> accounts = [];
+      for (final row in (accessData as List)) {
+        final patient = row['patients'];
+        if (patient != null) {
+          accounts.add(Accounts(
+            id: 0,
+            userId: 0,
+            specialistId: 0,
+            user: Profile(
+              name: patient['name'] ?? '',
+              email: patient['email'] ?? '',
+              countryCode: '+91',
+              weight: 0,
+              height: 0,
+            ),
+          ));
+        }
+      }
+      return accounts;
+    } catch (e) {
+      _logger.e('getAccounts error: $e');
+      return [];
+    }
+  }
+
+  Future<String?> getSpecialistName() async {
+    try {
+      final profile = await getSpecialistProfile();
+      return profile.name;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Add patient using patient_code (shown in patient's profile screen)
+  Future<void> addPatient({
+    required String patientEmail,
+    required String patientAccessCode,
+  }) async {
+    try {
+      final userId = await _loginService.getUserId();
+      if (userId == null) throw Exception('Not logged in');
+
+      // Get specialist's internal ID
+      final specialistData = await vitalstepSupabaseClient
+          .from('specialists')
+          .select('id')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (specialistData == null) throw Exception('Specialist profile not found');
+      final specialistId = specialistData['id'];
+
+      // Find patient by patient_code
+      final patientData = await vitalstepSupabaseClient
+          .from('patients')
+          .select('id, name')
+          .eq('patient_code', patientAccessCode.trim())
+          .maybeSingle();
+
+      if (patientData == null) {
+        _dialogService.showCustomDialog(
+          variant: DialogType.infoAlert,
+          title: 'Patient Not Found',
+          description: 'No patient found with that code. Ask the patient to check their profile for the Patient Code.',
+        );
+        return;
+      }
+
+      final patientId = patientData['id'];
+      final patientName = patientData['name'];
+
+      // Check if already linked
+      final existing = await vitalstepSupabaseClient
+          .from('specialist_access')
+          .select('id')
+          .eq('specialist_id', specialistId)
+          .eq('patient_id', patientId)
+          .maybeSingle();
+
+      if (existing != null) {
+        Fluttertoast.showToast(msg: '$patientName is already linked to your account');
+        return;
+      }
+
+      // Create the link
+      await vitalstepSupabaseClient.from('specialist_access').insert({
+        'specialist_id': specialistId,
+        'patient_id': patientId,
+        'access_level': 'view',
+      });
+
+      Fluttertoast.showToast(msg: '$patientName added successfully');
+      NavigationService().clearStackAndShow(Routes.homeSpecialistView);
+    } catch (e) {
+      _logger.e('addPatient error: $e');
+      _dialogService.showCustomDialog(
+        variant: DialogType.infoAlert,
+        title: 'Error',
+        description: 'Could not add patient: ${e.toString()}',
+      );
+    }
+  }
+
+  Future<void> deleteAccountAccess({dynamic id}) async {
+    try {
+      await vitalstepSupabaseClient
+          .from('specialist_access')
+          .delete()
+          .eq('id', id);
+
+      Fluttertoast.showToast(msg: 'Patient removed successfully');
+      NavigationService().clearStackAndShow(Routes.homeSpecialistView);
+    } catch (e) {
+      _logger.e('deleteAccountAccess error: $e');
+      Fluttertoast.showToast(msg: 'Unable to remove patient');
+    }
+  }
+
+  // ─── ASSESSMENTS ──────────────────────────────────────────────────────────
+
+  /// Create an assessment for a patient (appears on their screen)
+  Future<void> createAssessment(
+    String posture,
+    String assessmentType,
+    String patientId,
+  ) async {
+    try {
+      // Find the assessment type ID
+      final assessmentData = await vitalstepSupabaseClient
+          .from('assessments')
+          .select('id')
+          .eq('assessment_type', assessmentType)
+          .maybeSingle();
+
+      int assessmentId;
+      if (assessmentData == null) {
+        // Create the assessment type if it doesn't exist
+        final inserted = await vitalstepSupabaseClient
+            .from('assessments')
+            .insert({'assessment_type': assessmentType, 'description': assessmentType})
+            .select('id')
+            .single();
+        assessmentId = inserted['id'];
+      } else {
+        assessmentId = assessmentData['id'];
+      }
+
+      // Insert into assessment_queue for the patient
+      await vitalstepSupabaseClient.from('assessment_queue').insert({
+        'patient_id': patientId,
+        'assessment_id': assessmentId,
+        'hand': 'Right',
+        'posture': posture,
+        'status': 'pending',
+        'title': assessmentType,
+      });
+
+      Fluttertoast.showToast(msg: 'Assessment created successfully');
+    } catch (e) {
+      _logger.e('createAssessment error: $e');
+      throw Exception('Failed to create assessment: $e');
+    }
+  }
+
+  Future<void> deleteAssessment({required dynamic assessmentId}) async {
+    try {
+      await vitalstepSupabaseClient
+          .from('assessment_queue')
+          .delete()
+          .eq('id', assessmentId);
+
+      Fluttertoast.showToast(msg: 'Assessment deleted successfully');
+    } catch (e) {
+      _logger.e('deleteAssessment error: $e');
+      Fluttertoast.showToast(msg: 'Failed to delete assessment');
+    }
+  }
+
+  // ─── COMMENTS / REMARKS ───────────────────────────────────────────────────
+
+  Future<void> addComment({
+    required String comment,
+    required dynamic assessmentId,
+  }) async {
+    try {
+      final userId = await _loginService.getUserId();
+
+      // Get specialist internal ID
+      final specialistData = await vitalstepSupabaseClient
+          .from('specialists')
+          .select('id')
+          .eq('user_id', userId!)
+          .maybeSingle();
+
+      await vitalstepSupabaseClient.from('remarks').insert({
+        'assigner_id': specialistData?['id'],
+        'assessment_id': assessmentId,
+        'remarks': comment,
+      });
+
+      Fluttertoast.showToast(msg: 'Comment added successfully');
+    } catch (e) {
+      _logger.e('addComment error: $e');
+      throw e;
+    }
+  }
+
+  Future<void> deleteRemark({required dynamic remarkId}) async {
+    try {
+      await vitalstepSupabaseClient
+          .from('remarks')
+          .delete()
+          .eq('id', remarkId);
+
+      Fluttertoast.showToast(msg: 'Comment deleted successfully');
+    } catch (e) {
+      _logger.e('deleteRemark error: $e');
+      Fluttertoast.showToast(msg: 'Unable to delete comment');
+    }
+  }
+
+  // ─── PATIENT DATA FOR SPECIALIST ──────────────────────────────────────────
+
+  /// Get measurements for a specific patient (for specialist graphs)
+  Future<List<Map<String, dynamic>>> getPatientMeasurements(String patientId) async {
+    try {
+      // Get the patient's device IDs first
+      final deviceData = await vitalstepSupabaseClient
+          .from('devices')
+          .select('id')
+          .eq('user_id', patientId);
+
+      if ((deviceData as List).isEmpty) return [];
+
+      final deviceIds = deviceData.map((d) => d['id']).toList();
+
+      final measurements = await vitalstepSupabaseClient
+          .from('measurements')
+          .select('*')
+          .inFilter('device_id', deviceIds)
+          .order('recorded_at', ascending: false)
+          .limit(100);
+
+      return (measurements as List).cast<Map<String, dynamic>>();
+    } catch (e) {
+      _logger.e('getPatientMeasurements error: $e');
+      return [];
     }
   }
 }

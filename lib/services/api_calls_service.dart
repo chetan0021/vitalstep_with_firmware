@@ -18,6 +18,7 @@ import 'package:vital_step/app/app.logger.dart';
 import 'package:vital_step/app/app.router.dart';
 import 'package:vital_step/services/accounts_service.dart';
 import 'package:vital_step/services/login_service.dart';
+import 'package:vital_step/services/supabase_service.dart';
 import 'package:vital_step/ui/common/app_strings.dart';
 
 class ApiCallsService {
@@ -139,24 +140,19 @@ class ApiCallsService {
   }
 
   Future<List<String>> getAllPossibleDevices() async {
-    final Headers headers = {'accept': 'application/json', "cookie": cookie};
-    _logger.i(cookie);
-    final response = await get(
-      Uri.parse('$apiBaseUrl/device-queue/'),
-      headers: headers,
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      List<String> devices = [];
-      for (var data in data) {
-        devices.add(data["deviceCode"].toString());
-      }
-      return devices;
-    } else {
-      _logger
-          .e("Error in fetching devices, status code: ${response.statusCode}");
-      throw Exception(
-          "Error in fetching devices, status code: ${response.statusCode}");
+    try {
+      // Fetch all manufactured (unpaired) device codes from Supabase device_inventory
+      final data = await vitalstepSupabaseClient
+          .from('device_inventory')
+          .select('device_code')
+          .eq('status', 'manufactured');
+
+      return (data as List)
+          .map((d) => d['device_code'].toString())
+          .toList();
+    } catch (e) {
+      _logger.e('getAllPossibleDevices error: $e');
+      return [];
     }
   }
 
