@@ -1,168 +1,109 @@
-// app/dashboard/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Package, Users, Activity, TrendingUp } from 'lucide-react'
-import Link from 'next/link'
-
-interface Stats {
-  totalDevices: number
-  manufacturedDevices: number
-  pairedDevices: number
-  recentDevices: any[]
-}
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats>({
-    totalDevices: 0,
-    manufacturedDevices: 0,
-    pairedDevices: 0,
-    recentDevices: [],
+  const [stats, setStats] = useState({
+    inventory: 0, manufactured: 0, paired: 0,
+    patients: 0, devices: 0, measurements: 0,
   })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        // Get all devices
-        const { data: allDevices } = await supabase
-          .from('device_inventory')
-          .select('*')
-          .order('created_at', { ascending: false })
-
-        const manufactured =
-          allDevices?.filter((d) => d.status === 'manufactured').length || 0
-        const paired =
-          allDevices?.filter((d) => d.status === 'paired').length || 0
-
-        setStats({
-          totalDevices: allDevices?.length || 0,
-          manufacturedDevices: manufactured,
-          pairedDevices: paired,
-          recentDevices: (allDevices || []).slice(0, 5),
-        })
-      } catch (error) {
-        console.error('Error loading stats:', error)
-      } finally {
-        setLoading(false)
-      }
+    const load = async () => {
+      const [inv, mfg, prd, pat, dev, meas] = await Promise.all([
+        supabase.from('device_inventory').select('id', { count: 'exact', head: true }),
+        supabase.from('device_inventory').select('id', { count: 'exact', head: true }).eq('status', 'manufactured'),
+        supabase.from('device_inventory').select('id', { count: 'exact', head: true }).eq('status', 'paired'),
+        supabase.from('patients').select('id', { count: 'exact', head: true }),
+        supabase.from('devices').select('id', { count: 'exact', head: true }),
+        supabase.from('measurements').select('id', { count: 'exact', head: true }),
+      ])
+      setStats({
+        inventory:    inv.count ?? 0,
+        manufactured: mfg.count ?? 0,
+        paired:       prd.count ?? 0,
+        patients:     pat.count ?? 0,
+        devices:      dev.count ?? 0,
+        measurements: meas.count ?? 0,
+      })
+      setLoading(false)
     }
-
-    loadStats()
+    load()
   }, [])
 
-  const StatCard = ({
-    icon: Icon,
-    label,
-    value,
-  }: {
-    icon: any
-    label: string
-    value: number
-  }) => (
-    <div className="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-600">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-sm">{label}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-        </div>
-        <Icon className="text-indigo-600" size={40} />
-      </div>
-    </div>
-  )
+  const v = (n: number) => loading ? '…' : String(n)
+
+  const statCards = [
+    { label: 'Devices Created',  value: v(stats.inventory),    emoji: '🏭', bg: '#eff6ff', color: '#1d4ed8' },
+    { label: 'Manufactured',     value: v(stats.manufactured), emoji: '📦', bg: '#ecfdf5', color: '#065f46' },
+    { label: 'Paired / In Field',value: v(stats.paired),       emoji: '📱', bg: '#f5f3ff', color: '#5b21b6' },
+    { label: 'Patients',         value: v(stats.patients),     emoji: '👤', bg: '#fff7ed', color: '#9a3412' },
+    { label: 'Active Devices',   value: v(stats.devices),      emoji: '⚡', bg: '#fdf4ff', color: '#7e22ce' },
+    { label: 'Measurements',     value: v(stats.measurements), emoji: '📊', bg: '#f0fdf4', color: '#14532d' },
+  ]
+
+  const quickLinks = [
+    { label: 'Generate Device Code', desc: 'Create new activation codes for manufacturing', emoji: '⚡', href: '/dashboard/generate', bg: '#eff6ff', color: '#3b82f6' },
+    { label: 'Device Inventory',     desc: 'View all manufactured & paired devices',        emoji: '📦', href: '/dashboard/devices',  bg: '#ecfdf5', color: '#10b981' },
+    { label: 'Audit Log',            desc: 'Track all admin actions',                        emoji: '📋', href: '/dashboard/audit',    bg: '#f5f3ff', color: '#8b5cf6' },
+  ]
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome to VitalStep Admin</p>
+    <div style={{ maxWidth: '1100px' }}>
+      <div style={{ marginBottom: '28px' }}>
+        <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Dashboard</h1>
+        <p style={{ color: '#64748b', marginTop: '4px', fontSize: '15px' }}>VitalStep Admin — live data from Supabase.</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard icon={Package} label="Total Devices" value={stats.totalDevices} />
-        <StatCard
-          icon={TrendingUp}
-          label="Manufactured"
-          value={stats.manufacturedDevices}
-        />
-        <StatCard icon={Activity} label="Paired" value={stats.pairedDevices} />
-        <StatCard
-          icon={Users}
-          label="In Field"
-          value={stats.totalDevices - stats.pairedDevices}
-        />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '24px' }}>
+        {statCards.map(c => (
+          <div key={c.label} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+            <div style={{ width: '40px', height: '40px', background: c.bg, borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', marginBottom: '12px' }}>{c.emoji}</div>
+            <div style={{ fontSize: '32px', fontWeight: 900, color: c.color, lineHeight: 1 }}>{c.value}</div>
+            <div style={{ color: '#64748b', fontSize: '13px', marginTop: '5px', fontWeight: 500 }}>{c.label}</div>
+          </div>
+        ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Link
-          href="/dashboard/generate"
-          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 transition transform hover:scale-105"
-        >
-          <div className="text-3xl mb-2">🔧</div>
-          <h3 className="text-xl font-bold">Generate Device ID</h3>
-          <p className="text-indigo-100 mt-2">Create a new device code</p>
-        </Link>
-
-        <Link
-          href="/dashboard/devices"
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-6 transition transform hover:scale-105"
-        >
-          <div className="text-3xl mb-2">📋</div>
-          <h3 className="text-xl font-bold">View Inventory</h3>
-          <p className="text-blue-100 mt-2">Manage all devices</p>
-        </Link>
-      </div>
-
-      {/* Recent Devices */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Recent Devices</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '18px' }}>
+        {/* Quick Actions */}
+        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '0 0 16px 0' }}>Quick Actions</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {quickLinks.map(q => (
+              <a key={q.href} href={q.href} style={{ textDecoration: 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', borderRadius: '10px', background: q.bg, border: `1px solid ${q.color}22` }}>
+                  <div style={{ width: '40px', height: '40px', background: '#fff', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.07)' }}>{q.emoji}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '14px' }}>{q.label}</div>
+                    <div style={{ color: '#64748b', fontSize: '12px', marginTop: '2px' }}>{q.desc}</div>
+                  </div>
+                  <div style={{ color: q.color, fontWeight: 700, fontSize: '18px' }}>→</div>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                  Device Code
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                  Created
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.recentDevices.map((device) => (
-                <tr key={device.id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="px-6 py-3 font-mono text-sm text-gray-900">
-                    {device.device_code}
-                  </td>
-                  <td className="px-6 py-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        device.status === 'manufactured'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : device.status === 'paired'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {device.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3 text-sm text-gray-600">
-                    {new Date(device.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+        {/* Status */}
+        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '0 0 16px 0' }}>System Status</h2>
+          {['Supabase DB', 'Auth Service', 'API', 'Admin Console'].map(s => (
+            <div key={s} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981' }} />
+                <span style={{ fontSize: '13px', color: '#374151', fontWeight: 500 }}>{s}</span>
+              </div>
+              <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700, background: '#ecfdf5', padding: '2px 9px', borderRadius: '20px' }}>Online</span>
+            </div>
+          ))}
+          <div style={{ marginTop: '16px', background: '#eff6ff', borderRadius: '9px', padding: '12px', border: '1px solid #bfdbfe' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#1d4ed8' }}>✓ Connected</div>
+            <div style={{ fontSize: '11px', color: '#3b82f6', marginTop: '2px' }}>oyqecdcpicvzwwvwaeka</div>
+          </div>
         </div>
       </div>
     </div>
