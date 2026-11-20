@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { ShieldCheck, Search, RefreshCw, Filter, Clock } from 'lucide-react'
 
 interface AuditEntry {
   id: string
@@ -12,11 +12,12 @@ interface AuditEntry {
   created_at: string
 }
 
-const actionStyle: Record<string, { bg: string; color: string }> = {
-  create:  { bg: '#ecfdf5', color: '#065f46' },
-  delete:  { bg: '#fef2f2', color: '#991b1b' },
-  update:  { bg: '#eff6ff', color: '#1d4ed8' },
-  disable: { bg: '#fff7ed', color: '#9a3412' },
+const actionBadges: Record<string, { bg: string; text: string; border: string }> = {
+  create: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20' },
+  generated: { bg: 'bg-cyan-500/10', text: 'text-cyan-400', border: 'border-cyan-500/20' },
+  delete: { bg: 'bg-rose-500/10', text: 'text-rose-400', border: 'border-rose-500/20' },
+  update: { bg: 'bg-sky-500/10', text: 'text-sky-400', border: 'border-sky-500/20' },
+  disable: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20' },
 }
 
 function fmt(ts: string) {
@@ -36,100 +37,177 @@ export default function AuditPage() {
   const load = async () => {
     setLoading(true)
     setError('')
-    const { data, error } = await supabase
-      .from('device_audit')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(200)
-    if (error) setError(error.message)
-    else { setLogs(data ?? []); setFiltered(data ?? []) }
-    setLoading(false)
+    try {
+      const res = await fetch('/api/admin/audit', { cache: 'no-store' })
+      const json = await res.json()
+      if (json.success) {
+        setLogs(json.logs ?? [])
+        setFiltered(json.logs ?? [])
+      } else {
+        setError(json.error || 'Failed to load audit logs')
+      }
+    } catch (e: any) {
+      setError(e.message || 'Error fetching audit logs')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [])
 
   useEffect(() => {
     let r = [...logs]
-    if (search) r = r.filter(l => l.device_code.toLowerCase().includes(search.toLowerCase()) || (l.details ?? '').toLowerCase().includes(search.toLowerCase()))
+    if (search) {
+      const q = search.toLowerCase()
+      r = r.filter(l => 
+        (l.device_code || '').toLowerCase().includes(q) || 
+        (l.details ?? '').toLowerCase().includes(q) ||
+        (l.action || '').toLowerCase().includes(q)
+      )
+    }
     if (actionFilter !== 'all') r = r.filter(l => l.action === actionFilter)
     setFiltered(r)
   }, [search, actionFilter, logs])
 
   return (
-    <div style={{ maxWidth: '1100px' }}>
-      <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-white/[0.06]">
         <div>
-          <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Audit Log</h1>
-          <p style={{ color: '#64748b', marginTop: '4px', fontSize: '15px' }}>All entries from <code style={{ background: '#f1f5f9', padding: '1px 6px', borderRadius: '4px', fontSize: '12px' }}>device_audit</code></p>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+              <ShieldCheck className="w-3.5 h-3.5 text-rose-400" />
+              Security & Provisioning Audit Log
+            </span>
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">
+            Audit Stream
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">
+            Tamper-evident logs of manufacturing codes, device provisioning, and system events.
+          </p>
         </div>
-        <button onClick={load} style={{ padding: '9px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '9px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#374151' }}>
-          🔄 Refresh
+
+        <button 
+          onClick={load} 
+          disabled={loading}
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 border border-white/[0.1] transition-all cursor-pointer self-start md:self-auto"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-cyan-400' : ''}`} />
+          <span>Refresh</span>
         </button>
       </div>
 
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
+      {/* Stats Counter Glass Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
         {[
-          { label: 'Total Events', value: logs.length, color: '#3b82f6', bg: '#eff6ff' },
-          { label: 'Create', value: logs.filter(l => l.action === 'create').length, color: '#10b981', bg: '#ecfdf5' },
-          { label: 'Delete', value: logs.filter(l => l.action === 'delete').length, color: '#ef4444', bg: '#fef2f2' },
-          { label: 'Other', value: logs.filter(l => !['create','delete'].includes(l.action)).length, color: '#f59e0b', bg: '#fffbeb' },
-        ].map(s => (
-          <div key={s.label} style={{ background: s.bg, border: `1px solid ${s.color}22`, borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', fontWeight: 900, color: s.color }}>{loading ? '…' : s.value}</div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px', fontWeight: 600 }}>{s.label}</div>
+          { label: 'Total Events', value: logs.length, color: '#38BDF8', badge: 'All Records' },
+          { label: 'Generation / Create', value: logs.filter(l => ['create', 'generated'].includes(l.action)).length, color: '#34D399', badge: 'Provisioned' },
+          { label: 'Modifications', value: logs.filter(l => ['update', 'delete'].includes(l.action)).length, color: '#F472B6', badge: 'State Changes' },
+          { label: 'Other Activity', value: logs.filter(l => !['create', 'generated', 'update', 'delete'].includes(l.action)).length, color: '#FBBF24', badge: 'Operations' },
+        ].map((s) => (
+          <div key={s.label} className="glass-panel p-4 rounded-2xl flex flex-col justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+              {s.badge}
+            </span>
+            <div>
+              <div className="text-3xl font-extrabold tracking-tight text-white mb-0.5" style={{ color: s.color }}>
+                {loading ? '…' : s.value}
+              </div>
+              <div className="text-xs text-slate-400 font-medium">
+                {s.label}
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Filters */}
-      <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #e2e8f0', padding: '12px 16px', marginBottom: '12px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍  Search device code or details..." style={{ flex: 1, minWidth: '180px', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '13px', outline: 'none', color: '#374151' }} />
-        <select value={actionFilter} onChange={e => setActionFilter(e.target.value)} style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '13px', color: '#374151', background: '#fff', outline: 'none' }}>
-          <option value="all">All Actions</option>
-          <option value="create">Create</option>
-          <option value="delete">Delete</option>
-          <option value="update">Update</option>
-          <option value="disable">Disable</option>
-        </select>
-      </div>
-
-      {/* Table */}
-      <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 6px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '140px 90px 1fr 180px', background: '#f8fafc', borderBottom: '2px solid #e2e8f0', padding: '11px 20px', gap: '14px' }}>
-          {['Device Code', 'Action', 'Details', 'Timestamp'].map(h => (
-            <div key={h} style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</div>
-          ))}
+      {/* Search and Filters */}
+      <div className="glass-panel p-3 rounded-2xl flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search device code, details, action..."
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl glass-input text-xs"
+          />
         </div>
 
-        {error && <div style={{ padding: '16px 20px', color: '#dc2626', background: '#fef2f2', fontSize: '13px' }}>⚠️ {error}</div>}
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-slate-400 hidden sm:block" />
+          <select
+            value={actionFilter}
+            onChange={(e) => setActionFilter(e.target.value)}
+            className="px-3 py-2.5 rounded-xl glass-input text-xs bg-[#0F172A] text-slate-200 cursor-pointer"
+          >
+            <option value="all">All Actions</option>
+            <option value="generated">Generated</option>
+            <option value="create">Create</option>
+            <option value="update">Update</option>
+            <option value="delete">Delete</option>
+          </select>
+        </div>
+      </div>
 
-        {loading && (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
-            <div style={{ fontSize: '32px', marginBottom: '10px' }}>⏳</div>
-            <div style={{ fontSize: '14px' }}>Loading audit log…</div>
+      {/* Main Glass Table */}
+      <div className="glass-panel rounded-3xl overflow-hidden border border-white/[0.08]">
+        <div className="grid grid-cols-12 text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-5 py-3.5 bg-white/[0.02] border-b border-white/[0.06]">
+          <span className="col-span-3">Device Code</span>
+          <span className="col-span-2">Action</span>
+          <span className="col-span-4">Audit Details</span>
+          <span className="col-span-3 text-right">Timestamp</span>
+        </div>
+
+        {error && (
+          <div className="p-4 text-xs text-rose-400 bg-rose-500/10 border-b border-rose-500/20">
+            ⚠️ {error}
           </div>
         )}
 
-        {!loading && !error && filtered.map((l, i) => {
-          const as = actionStyle[l.action] ?? { bg: '#f1f5f9', color: '#475569' }
-          return (
-            <div key={l.id} style={{ display: 'grid', gridTemplateColumns: '140px 90px 1fr 180px', padding: '12px 20px', gap: '14px', borderBottom: i < filtered.length - 1 ? '1px solid #f1f5f9' : 'none', alignItems: 'center' }}>
-              <div style={{ fontFamily: 'monospace', fontWeight: 800, color: '#1e293b', fontSize: '13px', background: '#f8fafc', padding: '3px 7px', borderRadius: '5px', display: 'inline-block' }}>{l.device_code}</div>
-              <div>
-                <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: as.bg, color: as.color, textTransform: 'capitalize' }}>{l.action}</span>
-              </div>
-              <div style={{ fontSize: '13px', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.details ?? '—'}</div>
-              <div style={{ fontSize: '12px', color: '#94a3b8' }}>{fmt(l.created_at)}</div>
-            </div>
-          )
-        })}
+        {loading ? (
+          <div className="p-12 text-center text-xs text-slate-400">
+            Loading secure audit trail…
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="p-12 text-center text-slate-400 space-y-2">
+            <ShieldCheck className="w-8 h-8 text-slate-500 mx-auto" />
+            <div className="text-sm font-semibold text-white">No audit records found</div>
+            <div className="text-xs text-slate-500">Actions from the console are logged automatically.</div>
+          </div>
+        ) : (
+          <div className="divide-y divide-white/[0.04]">
+            {filtered.map((l) => {
+              const badge = actionBadges[l.action] || { bg: 'bg-slate-500/10', text: 'text-slate-300', border: 'border-slate-500/20' }
+              return (
+                <div 
+                  key={l.id} 
+                  className="grid grid-cols-12 items-center px-5 py-3.5 text-xs text-slate-300 hover:bg-white/[0.02] transition-colors"
+                >
+                  <div className="col-span-3 flex items-center gap-2">
+                    <span className="font-mono font-bold text-white px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06]">
+                      {l.device_code}
+                    </span>
+                  </div>
 
-        {!loading && !error && filtered.length === 0 && (
-          <div style={{ padding: '48px', textAlign: 'center' }}>
-            <div style={{ fontSize: '44px', marginBottom: '12px' }}>📋</div>
-            <div style={{ fontSize: '17px', fontWeight: 700, color: '#0f172a', marginBottom: '6px' }}>No audit entries yet</div>
-            <div style={{ color: '#64748b', fontSize: '14px' }}>Actions from this dashboard are logged here automatically.</div>
+                  <div className="col-span-2">
+                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${badge.bg} ${badge.text} ${badge.border}`}>
+                      {l.action}
+                    </span>
+                  </div>
+
+                  <div className="col-span-4 text-slate-400 text-xs truncate pr-4">
+                    {l.details || '—'}
+                  </div>
+
+                  <div className="col-span-3 text-right text-slate-400 font-mono text-[11px] flex items-center justify-end gap-1.5">
+                    <Clock className="w-3 h-3 text-slate-500" />
+                    <span>{fmt(l.created_at)}</span>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
       </div>

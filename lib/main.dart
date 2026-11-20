@@ -22,6 +22,9 @@ final StreamController<ReceivedNotification> didReceiveLocalNotificationStream =
 /// assessment, and device data.
 late final SupabaseClient patientSupabaseClient;
 
+/// Legacy Supabase client — fallback for legacy kill-switch checks
+late final SupabaseClient legacySupabaseClient;
+
 @pragma('vm:entry-point')
 void notificationTapBackground(
     NotificationResponse notificationResponse) async {
@@ -34,22 +37,22 @@ Future<void> main() async {
   await setupLocator();
   setupDialogUi();
 
-  // ─── INITIALIZE KILL-SWITCH SUPABASE (separate legacy project) ─────────
-  await Supabase.initialize(
-    url: 'https://aoujgxqgixpanztyyshc.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvdWpneHFnaXhwYW56dHl5c2hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMxOTc3ODQsImV4cCI6MjAzODc3Mzc4NH0.7oZoJa7kYpIjj48dOI_iamjxLlMqv_pek52RswBtpRs',
-  );
-
-  // ─── INITIALIZE MAIN VITALSTEP SUPABASE ────────────────────────────────
+  // ─── INITIALIZE MAIN VITALSTEP SUPABASE (with Flutter storage) ──────────
   // Project: oyqecdcpicvzwwvwaeka (vitalstep-device-sync-v2)
-  // The publishable key is the anon/public key in new Supabase key format.
-  patientSupabaseClient = SupabaseClient(
-    'https://oyqecdcpicvzwwvwaeka.supabase.co',
-    'sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi',
-    authOptions: const AuthClientOptions(
+  // Initializes GotrueAsyncStorage, SharedPreferences, and auth state management
+  await Supabase.initialize(
+    url: 'https://oyqecdcpicvzwwvwaeka.supabase.co',
+    anonKey: 'sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi',
+    authOptions: const FlutterAuthClientOptions(
       authFlowType: AuthFlowType.implicit,
     ),
+  );
+  patientSupabaseClient = Supabase.instance.client;
+
+  // ─── LEGACY KILL-SWITCH CLIENT (read-only fallback) ────────────────────
+  legacySupabaseClient = SupabaseClient(
+    'https://aoujgxqgixpanztyyshc.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvdWpneHFnaXhwYW56dHl5c2hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMxOTc3ODQsImV4cCI6MjAzODc3Mzc4NH0.7oZoJa7kYpIjj48dOI_iamjxLlMqv_pek52RswBtpRs',
   );
 
   setupBottomSheetUi();
@@ -60,7 +63,7 @@ Future<void> main() async {
   await deviceSelectionService.initialize();
 
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings("app_icon");
+      AndroidInitializationSettings("@mipmap/ic_launcher");
 
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,

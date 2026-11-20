@@ -4,6 +4,8 @@ import 'package:stacked_services/stacked_services.dart';
 import 'package:vital_step/Model/Assessment.dart';
 import 'package:vital_step/Model/Comment.dart';
 import 'package:vital_step/Model/accounts.dart';
+import 'package:vital_step/Model/profile.dart';
+import 'package:vital_step/Model/spcialist_profile.dart';
 import 'package:vital_step/Model/test.dart';
 import 'package:vital_step/app/app.dialogs.dart';
 import 'package:vital_step/app/app.locator.dart';
@@ -29,7 +31,20 @@ class ApiCallsService {
           .select()
           .order('created_at', ascending: false);
 
-      return (data as List).map((e) => Assessment.fromJson(e)).toList();
+      return (data as List).map((e) {
+        return Assessment(
+          id: (e['id'] as num?)?.toInt() ?? 0,
+          userId: uid.hashCode,
+          type: (e['assessment_type'] ?? e['type'] ?? 'Baseline Palm Grip').toString(),
+          posture: (e['posture'] ?? 'Sitting').toString(),
+          status: (e['status'] ?? 'pending').toString(),
+          currentlyActive: e['currentlyActive'] as bool? ?? false,
+          queueId: (e['queueId'] as num?)?.toInt(),
+          createdAt: e['created_at'] != null
+              ? (DateTime.tryParse(e['created_at'].toString()) ?? DateTime.now())
+              : DateTime.now(),
+        );
+      }).toList();
     } catch (e) {
       _logger.e('getAllUserAssessments error: $e');
       return [];
@@ -45,8 +60,8 @@ class ApiCallsService {
 
       final data = await patientSupabaseClient
           .from('measurements')
-          .select()
-          .eq('user_id', uid)
+          .select('*, devices!inner(user_id)')
+          .eq('devices.user_id', uid)
           .order('recorded_at', ascending: true);
 
       return (data as List).map((e) => _mapToTest(e)).toList();
@@ -64,10 +79,13 @@ class ApiCallsService {
 
   Future<List<Test>> getAllAssessmentTests({required int assessmentId}) async {
     try {
+      final uid = patientSupabaseClient.auth.currentUser?.id;
+      if (uid == null) return [];
+
       final data = await patientSupabaseClient
           .from('measurements')
-          .select()
-          .eq('assessment_id', assessmentId.toString())
+          .select('*, devices!inner(user_id)')
+          .eq('devices.user_id', uid)
           .order('recorded_at', ascending: true);
 
       return (data as List).map((e) => _mapToTest(e)).toList();
@@ -84,16 +102,16 @@ class ApiCallsService {
 
       final leftData = await patientSupabaseClient
           .from('measurements')
-          .select()
-          .eq('user_id', uid)
+          .select('*, devices!inner(user_id)')
+          .eq('devices.user_id', uid)
           .eq('hand', 'Left')
           .order('recorded_at', ascending: false)
           .limit(1);
 
       final rightData = await patientSupabaseClient
           .from('measurements')
-          .select()
-          .eq('user_id', uid)
+          .select('*, devices!inner(user_id)')
+          .eq('devices.user_id', uid)
           .eq('hand', 'Right')
           .order('recorded_at', ascending: false)
           .limit(1);
@@ -195,12 +213,18 @@ class ApiCallsService {
       if (patientData == null) return;
       final patientId = patientData['id'] as String;
 
+      // Convert hand ('Left'/'Right' -> 'L'/'R') to match public.hand_type enum
+      final handEnum = (hand == 'Left' || hand == 'L') ? 'L' : 'R';
+      // Convert posture ('Sitting'/'Standing' -> 'sitting'/'standing') to match public.posture_type enum
+      final postureEnum = (assessment.posture.toLowerCase() == 'standing') ? 'standing' : 'sitting';
+
       await patientSupabaseClient.from('assessment_queue').insert({
         'patient_id': patientId,
         'assessment_id': assessment.id,
-        'hand': hand,
-        'posture': assessment.posture,
+        'hand': handEnum,
+        'posture': postureEnum,
         'device_id': deviceId,
+        'title': assessment.type,
         'status': 'pending',
       });
       _logger.i('Queue entry created');
@@ -269,16 +293,31 @@ class ApiCallsService {
 
       final data = await patientSupabaseClient
           .from('specialist_access')
-          .select('specialist_id, specialists(id, name, email)')
+          .select('specialist_id, specialists(id, name, email, phone)')
           .eq('patient_id', patientId);
 
       return (data as List).map((row) {
         final s = row['specialists'] as Map<String, dynamic>? ?? {};
-        return Accounts.fromJson({
-          'id': s['id'],
-          'name': s['name'],
-          'email': s['email'],
-        });
+        final specProfile = ProfileSpecialist(
+          id: (s['id'] ?? '').hashCode,
+          name: s['name'] as String? ?? 'Specialist',
+          countryCode: '',
+          email: s['email'] as String? ?? '',
+          dob: '',
+          phone: s['phone'],
+        );
+        return Accounts(
+          id: (row['specialist_id'] ?? '').hashCode,
+          userId: uid.hashCode,
+          specialistId: (s['id'] ?? '').hashCode,
+          user: Profile(
+            id: uid.hashCode,
+            countryCode: '',
+            weight: 0,
+            height: 0,
+          ),
+          specialist: specProfile,
+        );
       }).toList();
     } catch (e) {
       _logger.e('getSpecialists error: $e');
@@ -330,10 +369,11 @@ class ApiCallsService {
 
   Future<List<String>> getAllPossibleDevices() async {
     try {
+      // Fetch ALL device codes regardless of status so we can validate
+      // any QR scan; the edge function (pair-device) enforces business rules.
       final data = await patientSupabaseClient
           .from('device_inventory')
-          .select('device_code')
-          .eq('status', 'manufactured');
+          .select('device_code');
 
       return (data as List).map((d) => d['device_code'] as String).toList();
     } catch (e) {

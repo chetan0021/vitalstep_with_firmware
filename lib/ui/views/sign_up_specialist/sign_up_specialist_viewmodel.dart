@@ -121,12 +121,20 @@ class SignUpSpecialistViewModel extends FormViewModel {
   void setProfile(ProfileSpecialist profile) {
     nameValue = profile.name;
     setCountryCodeDropDown(profile.countryCode);
-    mobileNumberValue = profile.phone.toString();
+    mobileNumberValue = profile.phone?.toString() ?? "";
     emailValue = profile.email;
     cityValue = profile.city;
     pincodeValue = profile.pincode == null ? "" : profile.pincode.toString();
     countryValue = profile.country;
-    viewDobController.text =
-        DateFormat("dd-MM-yyyy").format(DateTime.parse(profile.dob));
+    if (profile.dob.isNotEmpty) {
+      try {
+        viewDobController.text =
+            DateFormat("dd-MM-yyyy").format(DateTime.parse(profile.dob));
+      } catch (_) {
+        viewDobController.text = profile.dob;
+      }
+    } else {
+      viewDobController.text = "";
+    }
   }
 }

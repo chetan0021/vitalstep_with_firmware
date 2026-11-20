@@ -47,7 +47,18 @@ class SupabaseService {
 
   Future<bool> checkKillSwitch() async {
     try {
-      final result = await Supabase.instance.client
+      // First try main project kill_switch table
+      final mainResult = await patientSupabaseClient
+          .from('kill_switch')
+          .select('is_enabled')
+          .eq('feature_name', 'app_active')
+          .maybeSingle();
+      if (mainResult != null) {
+        return !(mainResult['is_enabled'] as bool? ?? true);
+      }
+
+      // Fallback to legacy client if needed
+      final result = await legacySupabaseClient
           .from('vitalStep')
           .select('kill_switch')
           .eq('id', 1)

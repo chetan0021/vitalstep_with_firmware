@@ -1,108 +1,355 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import Link from 'next/link'
+import { 
+  Users, 
+  Cpu, 
+  Activity, 
+  ShieldCheck, 
+  ArrowUpRight, 
+  RefreshCw, 
+  Sparkles,
+  Zap,
+  CheckCircle2,
+  Stethoscope,
+  ChevronRight,
+  TrendingUp,
+  Layers
+} from 'lucide-react'
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState({
-    inventory: 0, manufactured: 0, paired: 0,
-    patients: 0, devices: 0, measurements: 0,
+  const [data, setData] = useState<{
+    stats: {
+      inventory: number
+      manufactured: number
+      paired: number
+      patients: number
+      devices: number
+      measurements: number
+    }
+    recentAudits: any[]
+    recentMeasurements: any[]
+    patientsSummary: any[]
+  }>({
+    stats: { inventory: 0, manufactured: 0, paired: 0, patients: 0, devices: 0, measurements: 0 },
+    recentAudits: [],
+    recentMeasurements: [],
+    patientsSummary: [],
   })
+
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const loadData = async () => {
+    try {
+      setRefreshing(true)
+      const res = await fetch('/api/admin/overview', { cache: 'no-store' })
+      const json = await res.json()
+      if (json.success) {
+        setData({
+          stats: json.stats,
+          recentAudits: json.recentAudits ?? [],
+          recentMeasurements: json.recentMeasurements ?? [],
+          patientsSummary: json.patientsSummary ?? [],
+        })
+      }
+    } catch (err) {
+      console.error('Failed to load overview data:', err)
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
 
   useEffect(() => {
-    const load = async () => {
-      const [inv, mfg, prd, pat, dev, meas] = await Promise.all([
-        supabase.from('device_inventory').select('id', { count: 'exact', head: true }),
-        supabase.from('device_inventory').select('id', { count: 'exact', head: true }).eq('status', 'manufactured'),
-        supabase.from('device_inventory').select('id', { count: 'exact', head: true }).eq('status', 'paired'),
-        supabase.from('patients').select('id', { count: 'exact', head: true }),
-        supabase.from('devices').select('id', { count: 'exact', head: true }),
-        supabase.from('measurements').select('id', { count: 'exact', head: true }),
-      ])
-      setStats({
-        inventory:    inv.count ?? 0,
-        manufactured: mfg.count ?? 0,
-        paired:       prd.count ?? 0,
-        patients:     pat.count ?? 0,
-        devices:      dev.count ?? 0,
-        measurements: meas.count ?? 0,
-      })
-      setLoading(false)
-    }
-    load()
+    loadData()
   }, [])
 
-  const v = (n: number) => loading ? '…' : String(n)
-
-  const statCards = [
-    { label: 'Devices Created',  value: v(stats.inventory),    emoji: '🏭', bg: '#eff6ff', color: '#1d4ed8' },
-    { label: 'Manufactured',     value: v(stats.manufactured), emoji: '📦', bg: '#ecfdf5', color: '#065f46' },
-    { label: 'Paired / In Field',value: v(stats.paired),       emoji: '📱', bg: '#f5f3ff', color: '#5b21b6' },
-    { label: 'Patients',         value: v(stats.patients),     emoji: '👤', bg: '#fff7ed', color: '#9a3412' },
-    { label: 'Active Devices',   value: v(stats.devices),      emoji: '⚡', bg: '#fdf4ff', color: '#7e22ce' },
-    { label: 'Measurements',     value: v(stats.measurements), emoji: '📊', bg: '#f0fdf4', color: '#14532d' },
-  ]
-
-  const quickLinks = [
-    { label: 'Generate Device Code', desc: 'Create new activation codes for manufacturing', emoji: '⚡', href: '/dashboard/generate', bg: '#eff6ff', color: '#3b82f6' },
-    { label: 'Device Inventory',     desc: 'View all manufactured & paired devices',        emoji: '📦', href: '/dashboard/devices',  bg: '#ecfdf5', color: '#10b981' },
-    { label: 'Audit Log',            desc: 'Track all admin actions',                        emoji: '📋', href: '/dashboard/audit',    bg: '#f5f3ff', color: '#8b5cf6' },
-  ]
+  const { stats, recentAudits, recentMeasurements, patientsSummary } = data
+  const primaryPatient = patientsSummary[0] || null
 
   return (
-    <div style={{ maxWidth: '1100px' }}>
-      <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Dashboard</h1>
-        <p style={{ color: '#64748b', marginTop: '4px', fontSize: '15px' }}>VitalStep Admin — live data from Supabase.</p>
-      </div>
-
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '24px' }}>
-        {statCards.map(c => (
-          <div key={c.label} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-            <div style={{ width: '40px', height: '40px', background: c.bg, borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', marginBottom: '12px' }}>{c.emoji}</div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: c.color, lineHeight: 1 }}>{c.value}</div>
-            <div style={{ color: '#64748b', fontSize: '13px', marginTop: '5px', fontWeight: 500 }}>{c.label}</div>
+    <div className="space-y-8">
+      {/* Top Glass Header & Capsule Switcher */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-white/[0.06]">
+        <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live Telemetry Connected
+            </span>
+            <span className="text-xs text-slate-400">VitalStep Clinical Network</span>
           </div>
-        ))}
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            Clinical Overview
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">
+            Real-time synchronization between IoT hand sensors, patient profiles, and medical specialists.
+          </p>
+        </div>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/patients"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition-all shadow-sm"
+          >
+            <Users className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Patient Dossier</span>
+          </Link>
+
+          <button
+            onClick={loadData}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 border border-white/[0.1] transition-all cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-cyan-400' : ''}`} />
+            <span>Sync</span>
+          </button>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '18px' }}>
-        {/* Quick Actions */}
-        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '0 0 16px 0' }}>Quick Actions</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {quickLinks.map(q => (
-              <a key={q.href} href={q.href} style={{ textDecoration: 'none' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', borderRadius: '10px', background: q.bg, border: `1px solid ${q.color}22` }}>
-                  <div style={{ width: '40px', height: '40px', background: '#fff', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.07)' }}>{q.emoji}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '14px' }}>{q.label}</div>
-                    <div style={{ color: '#64748b', fontSize: '12px', marginTop: '2px' }}>{q.desc}</div>
-                  </div>
-                  <div style={{ color: q.color, fontWeight: 700, fontSize: '18px' }}>→</div>
+      {/* KPI Glass Metrics Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        {[
+          { label: 'Registered Patients', value: loading ? '…' : stats.patients, icon: Users, color: '#34D399', badge: 'Active Clinical' },
+          { label: 'Total Measurements', value: loading ? '…' : stats.measurements, icon: Activity, color: '#38BDF8', badge: 'Telemetry Tests' },
+          { label: 'Paired Devices', value: loading ? '…' : stats.paired, icon: Cpu, color: '#818CF8', badge: 'In Field' },
+          { label: 'Active Devices', value: loading ? '…' : stats.devices, icon: Zap, color: '#F472B6', badge: 'Hardware Linked' },
+          { label: 'Manufactured Inventory', value: loading ? '…' : stats.manufactured, icon: Layers, color: '#FBBF24', badge: 'Ready to Ship' },
+          { label: 'Audit Events', value: loading ? '…' : recentAudits.length, icon: ShieldCheck, color: '#A78BFA', badge: 'Security Logs' },
+        ].map((stat) => {
+          const Icon = stat.icon
+          return (
+            <div 
+              key={stat.label}
+              className="glass-panel glass-panel-hover p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div 
+                  className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/[0.05] ring-1 ring-white/10"
+                  style={{ color: stat.color }}
+                >
+                  <Icon className="w-4 h-4" />
                 </div>
-              </a>
-            ))}
+                <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+                  {stat.badge}
+                </span>
+              </div>
+              <div>
+                <div className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-0.5">
+                  {stat.value}
+                </div>
+                <div className="text-xs text-slate-400 font-medium leading-tight">
+                  {stat.label}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Featured Patient Clinical Spotlight (Glass Card inspired by Reference Image) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Cols: Active Patient & Biological Metrics */}
+        <div className="lg:col-span-2 glass-panel p-6 rounded-3xl relative overflow-hidden space-y-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  Primary Patient Spotlight
+                </span>
+                <span className="text-xs text-slate-400">ID: {primaryPatient?.patient_code || 'PT-3714'}</span>
+              </div>
+              <h2 className="text-2xl font-bold text-white mt-1">
+                {primaryPatient?.name || 'Sandip R'}
+              </h2>
+              <p className="text-slate-400 text-xs">
+                {primaryPatient?.email || 'sandipr@hotmail.com'} · Dominant Hand: {primaryPatient?.dominant_hand === 'R' ? 'Right' : 'Left'}
+              </p>
+            </div>
+
+            <Link
+              href="/dashboard/patients"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-slate-200 border border-white/[0.1] transition-all"
+            >
+              <span>View Full Dossier</span>
+              <ChevronRight className="w-3.5 h-3.5 text-cyan-400" />
+            </Link>
+          </div>
+
+          {/* Biological & Grip Baseline Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+            <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+              <span className="text-[11px] font-medium text-slate-400 block mb-1">Body Weight</span>
+              <div className="text-lg font-bold text-white flex items-baseline gap-1">
+                {primaryPatient?.weight_kg || '70'} <span className="text-xs font-normal text-slate-400">kg</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+              <span className="text-[11px] font-medium text-slate-400 block mb-1">Height</span>
+              <div className="text-lg font-bold text-white flex items-baseline gap-1">
+                {primaryPatient?.height_cm || '162'} <span className="text-xs font-normal text-slate-400">cm</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+              <span className="text-[11px] font-medium text-slate-400 block mb-1">Target Grip Range</span>
+              <div className="text-lg font-bold text-cyan-300 flex items-baseline gap-1">
+                {primaryPatient?.hand_strength_lo || '10'} - {primaryPatient?.hand_strength_hi || '18'} <span className="text-xs font-normal text-slate-400">kg</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+              <span className="text-[11px] font-medium text-slate-400 block mb-1">Hardware Sensor</span>
+              <div className="text-lg font-bold text-indigo-300">
+                VS-001002
+              </div>
+            </div>
+          </div>
+
+          {/* Linked Medical Specialist Card */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-950/20 via-indigo-950/20 to-slate-900/40 border border-cyan-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300">
+                <Stethoscope className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">Supervising Specialist</span>
+                <div className="text-sm font-bold text-white">Dr. Chandan Reddy</div>
+                <div className="text-xs text-slate-400">nncr540@gmail.com · Phone: +91 9942814286</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                Full Clinical Access
+              </span>
+            </div>
+          </div>
+
+          {/* Recent Measurements from Sensor */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                Latest Palm Pressure Readings
+              </h3>
+              <span className="text-xs text-slate-400 font-medium">9 Total Assessments Recorded</span>
+            </div>
+
+            <div className="rounded-2xl border border-white/[0.06] overflow-hidden bg-black/20">
+              <div className="grid grid-cols-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-4 py-2.5 bg-white/[0.02] border-b border-white/[0.05]">
+                <span>Hand</span>
+                <span>Posture</span>
+                <span>Trials (1 / 2 / 3)</span>
+                <span>Peak Strength</span>
+                <span className="text-right">Timestamp</span>
+              </div>
+
+              <div className="divide-y divide-white/[0.04]">
+                {recentMeasurements.slice(0, 4).map((m: any) => (
+                  <div key={m.id} className="grid grid-cols-5 items-center px-4 py-3 text-xs text-slate-300 hover:bg-white/[0.02] transition-colors">
+                    <span className="font-semibold text-white">{m.hand || 'Left'}</span>
+                    <span className="text-slate-400">{m.posture || 'Sitting'}</span>
+                    <span className="font-mono text-slate-300">
+                      {m.trial1 ?? '-'} / {m.trial2 ?? '-'} / {m.trial3 ?? '-'}
+                    </span>
+                    <span className="font-bold text-emerald-400">
+                      {m.best ? `${m.best} kg` : '—'}
+                    </span>
+                    <span className="text-right text-slate-500 font-mono text-[11px]">
+                      {m.recorded_at ? new Date(m.recorded_at).toLocaleDateString() : 'Recent'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Status */}
-        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '0 0 16px 0' }}>System Status</h2>
-          {['Supabase DB', 'Auth Service', 'API', 'Admin Console'].map(s => (
-            <div key={s} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981' }} />
-                <span style={{ fontSize: '13px', color: '#374151', fontWeight: 500 }}>{s}</span>
-              </div>
-              <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700, background: '#ecfdf5', padding: '2px 9px', borderRadius: '20px' }}>Online</span>
+        {/* Right 1 Col: Quick Links & Live Audit Stream */}
+        <div className="space-y-6">
+          {/* Quick Actions Panel */}
+          <div className="glass-panel p-5 rounded-3xl space-y-3">
+            <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              Administrative Actions
+            </h3>
+
+            <div className="space-y-2">
+              {[
+                { label: 'Patient Clinical Dossier', href: '/dashboard/patients', desc: 'Inspect bio metrics, condition, devices', icon: Users, color: '#34D399' },
+                { label: 'Generate Device Code', href: '/dashboard/generate', desc: 'Provision hardware activation keys', icon: Zap, color: '#FBBF24' },
+                { label: 'Device Inventory', href: '/dashboard/devices', desc: 'Track manufactured and paired units', icon: Cpu, color: '#818CF8' },
+                { label: 'System Audit Log', href: '/dashboard/audit', desc: 'Inspect all operations & security logs', icon: ShieldCheck, color: '#F472B6' },
+              ].map((item) => {
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="block p-3 rounded-2xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] hover:border-white/[0.12] transition-all group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/[0.04]"
+                        style={{ color: item.color }}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
+                          {item.label}
+                        </div>
+                        <div className="text-[11px] text-slate-400">
+                          {item.desc}
+                        </div>
+                      </div>
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
-          ))}
-          <div style={{ marginTop: '16px', background: '#eff6ff', borderRadius: '9px', padding: '12px', border: '1px solid #bfdbfe' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#1d4ed8' }}>✓ Connected</div>
-            <div style={{ fontSize: '11px', color: '#3b82f6', marginTop: '2px' }}>oyqecdcpicvzwwvwaeka</div>
+          </div>
+
+          {/* Recent Audit Feed */}
+          <div className="glass-panel p-5 rounded-3xl space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-rose-400" />
+                Live Audit Activity
+              </h3>
+              <Link href="/dashboard/audit" className="text-[11px] font-semibold text-cyan-400 hover:underline">
+                View all
+              </Link>
+            </div>
+
+            <div className="space-y-2">
+              {recentAudits.length === 0 ? (
+                <div className="p-4 text-center text-xs text-slate-500">
+                  No audit events recorded yet.
+                </div>
+              ) : (
+                recentAudits.slice(0, 3).map((a: any) => (
+                  <div key={a.id} className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-slate-200">{a.device_code}</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                        {a.action}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 line-clamp-1">{a.details || 'System event'}</p>
+                    <span className="text-[10px] text-slate-500 block font-mono">
+                      {a.created_at ? new Date(a.created_at).toLocaleDateString() : 'Recent'}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>

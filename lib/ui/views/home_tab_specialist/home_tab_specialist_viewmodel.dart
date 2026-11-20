@@ -16,4 +16,13 @@ class HomeTabSpecialistViewModel extends BaseViewModel {
     final List<Accounts> patients = await _specialistService.getAccounts();
     return patients;
   }
+
+  Future<void> onQrScanned(String rawCode) async {
+    final cleanCode = SpecialistService.parsePatientCode(rawCode);
+    setBusy(true);
+    await _specialistService.addPatient(patientEmail: '', patientAccessCode: cleanCode);
+    patientAccounts = getPatientAccounts();
+    setBusy(false);
+    rebuildUi();
+  }
 }

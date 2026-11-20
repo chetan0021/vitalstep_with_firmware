@@ -61,7 +61,18 @@ class DeviceViewModel extends FormViewModel {
   }
 
   void onQrScanned(String code) {
-    scannedDeviceCode = code;
+    // The QR may be a deep-link URL: vitalstep://pair?code=VS-001002&pin=...
+    // Extract just the device code from the URL if it is a URI
+    String parsedCode = code;
+    try {
+      final uri = Uri.parse(code);
+      if (uri.queryParameters.containsKey('code')) {
+        parsedCode = uri.queryParameters['code']!;
+      }
+    } catch (_) {
+      // Not a URI — use the raw value directly
+    }
+    scannedDeviceCode = parsedCode.trim();
     notifyListeners();
   }
 

@@ -20,7 +20,7 @@ class CreateAssessmentDialogModel extends BaseViewModel {
     "sitting"
   ];
 
-  Future<bool> createAssessment(int? patientId) async {
+  Future<bool> createAssessment(dynamic patientId) async {
     setBusy(true);
     if (selectedPosture == null || selectedAssessmentType == null) {
       Fluttertoast.showToast(
@@ -30,9 +30,9 @@ class CreateAssessmentDialogModel extends BaseViewModel {
     }
     try {
       // If no patientId passed (self-assessment), use the logged-in user's own ID
-      int resolvedPatientId = patientId ?? (await _getOwnUserId());
+      String resolvedPatientId = patientId?.toString() ?? (await _getOwnUserId());
       await _specialistService.createAssessment(
-          selectedPosture!, selectedAssessmentType!, resolvedPatientId.toString());
+          selectedPosture!, selectedAssessmentType!, resolvedPatientId);
       setBusy(false);
       return true;
     } catch (e) {
@@ -42,8 +42,8 @@ class CreateAssessmentDialogModel extends BaseViewModel {
     }
   }
 
-  Future<int> _getOwnUserId() async {
+  Future<String> _getOwnUserId() async {
     final profile = await _accountsService.getAccountDetails();
-    return profile.id ?? 0;
+    return profile.access_code ?? (profile.id?.toString() ?? '');
   }
 }

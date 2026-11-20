@@ -1,6 +1,5 @@
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vital_step/Model/Device.dart';
 import 'package:vital_step/Model/profile.dart';
 import 'package:vital_step/app/app.logger.dart';
@@ -9,6 +8,12 @@ import 'package:vital_step/main.dart';
 class AccountsService {
   final box = GetStorage();
   final _logger = getLogger("AccountsService");
+
+  int _parseInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v.toInt();
+    return num.tryParse(v.toString())?.toInt() ?? 0;
+  }
 
   Future<Profile> getAccountDetails({String? patientUserId}) async {
     try {
@@ -22,38 +27,73 @@ class AccountsService {
           .eq('id', uid)
           .single();
 
-      // Fetch full clinical data from patients table
-      final patientData = await patientSupabaseClient
-          .from('patients')
-          .select()
-          .eq('user_id', uid)
-          .maybeSingle();
+      // Fetch full clinical data from patients table (may fail if RLS not fixed yet)
+      Map<String, dynamic>? patientData;
+      try {
+        patientData = await patientSupabaseClient
+            .from('patients')
+            .select()
+            .eq('user_id', uid)
+            .maybeSingle();
+      } catch (e) {
+        _logger.w('patients table query failed (RLS?): $e');
+        patientData = null;
+      }
 
-      final devicesData = await patientSupabaseClient
-          .from('devices')
-          .select()
-          .eq('user_id', uid);
+      // Fetch devices from device_pairings (the table the pair-device function writes to)
+      List<dynamic> pairingsData = [];
+      try {
+        pairingsData = await patientSupabaseClient
+            .from('device_pairings')
+            .select('device_code, device_name, paired_at, is_active')
+            .eq('user_id', uid)
+            .eq('is_active', true);
+      } catch (e) {
+        _logger.w('device_pairings query failed: $e');
+      }
 
-      // Merge both tables — patients columns take precedence for clinical data
-      return Profile.fromJson({
-        ...profileData,
-        if (patientData != null) ...patientData,
-        // Map patients column names to Profile model field names
-        'countryCode': patientData?['country_code'] ?? '',
-        'weight': patientData?['weight_kg'] ?? 0,
-        'height': patientData?['height_cm'] ?? 0,
-        'dob': patientData?['date_of_birth'],
-        'dominant_hand': profileData['dominant_hand'] ?? patientData?['dominant_hand'],
-        'palm_length': patientData?['palm_length_mm'],
-        'palm_width': patientData?['palm_width_mm'],
-        'knuckles_length': patientData?['knuckle_length_mm'],
-        'phone': patientData?['phone'],
-        'city': patientData?['city'],
-        'country': patientData?['country'],
-        'address': patientData?['address'],
-        'pincode': patientData?['pincode'],
-        'device': devicesData,
-      });
+      // Convert device_pairings rows to Device objects directly (bypasses fromJson)
+      final devicesList = pairingsData.map((d) {
+        return Device(
+          id: (d['device_code'] ?? '').hashCode,
+          userId: uid.hashCode,
+          deviceName: (d['device_name'] ?? 'VitalStep Device').toString(),
+          deviceCode: (d['device_code'] ?? '').toString(),
+          createdAt: d['paired_at'] != null
+              ? DateTime.tryParse(d['paired_at'].toString().replaceFirst(' ', 'T'))
+              : null,
+        );
+      }).toList();
+
+      // dominant_hand: patients table stores 'R'/'L'; map to 'Right'/'Left' for display
+      String? dominantHand = profileData['dominant_hand'] as String?;
+      if (dominantHand == null && patientData != null) {
+        final raw = patientData['dominant_hand'] as String?;
+        dominantHand = raw == 'R' ? 'Right' : raw == 'L' ? 'Left' : raw;
+      }
+
+      // Instantiate Profile directly to avoid fragile fromJson num/String casts
+      return Profile(
+        id: uid.hashCode,
+        name: (profileData['name'] ?? patientData?['name'] ?? 'User').toString(),
+        email: profileData['email']?.toString() ?? patientData?['email']?.toString(),
+        countryCode: '',
+        weight: _parseInt(patientData?['weight_kg']),
+        height: _parseInt(patientData?['height_cm']),
+        dob: patientData?['date_of_birth']?.toString(),
+        dominantHand: dominantHand,
+        palmLength: patientData?['palm_length_mm'],
+        palmWidth: patientData?['palm_width_mm'],
+        knucklesLength: patientData?['knuckle_length_mm'],
+        phone: patientData?['phone']?.toString(),
+        city: patientData?['city']?.toString(),
+        country: patientData?['country']?.toString(),
+        address: patientData?['address']?.toString(),
+        pincode: patientData?['pincode']?.toString(),
+        gender: patientData?['gender']?.toString(),
+        access_code: patientData?['patient_code']?.toString(),
+        device: devicesList,
+      );
     } catch (e) {
       _logger.e('getAccountDetails error: $e');
       rethrow;
@@ -65,12 +105,42 @@ class AccountsService {
       final userId = patientSupabaseClient.auth.currentUser?.id;
       if (userId == null) return [];
 
+      // Primary source: device_pairings (written by pair-device edge function)
+      final pairings = await patientSupabaseClient
+          .from('device_pairings')
+          .select('device_code, device_name, paired_at, is_active')
+          .eq('user_id', userId)
+          .eq('is_active', true);
+
+      if ((pairings as List).isNotEmpty) {
+        return pairings.map((d) {
+          return Device(
+            id: (d['device_code'] ?? '').hashCode,
+            userId: userId.hashCode,
+            deviceName: (d['device_name'] ?? 'VitalStep Device').toString(),
+            deviceCode: (d['device_code'] ?? '').toString(),
+            createdAt: d['paired_at'] != null
+                ? DateTime.tryParse(d['paired_at'])
+                : null,
+          );
+        }).toList();
+      }
+
+      // Fallback: legacy devices table
       final data = await patientSupabaseClient
           .from('devices')
           .select()
           .eq('user_id', userId);
 
-      return (data as List).map((d) => Device.fromJson(d)).toList();
+      return (data as List).map((d) {
+        return Device(
+          id: d['id']?.toString().hashCode ?? 0,
+          userId: d['user_id']?.toString().hashCode ?? 0,
+          deviceName: (d['device_name'] ?? d['deviceName'] ?? 'VitalStep Device').toString(),
+          deviceCode: (d['device_code'] ?? d['deviceCode'] ?? '').toString(),
+          createdAt: d['created_at'] != null ? DateTime.tryParse(d['created_at']) : null,
+        );
+      }).toList();
     } catch (e) {
       _logger.e('getDevices error: $e');
       return [];
@@ -116,7 +186,16 @@ class AccountsService {
 
   Future<bool> killApp() async {
     try {
-      final response = await Supabase.instance.client
+      final mainResult = await patientSupabaseClient
+          .from('kill_switch')
+          .select('is_enabled')
+          .eq('feature_name', 'app_active')
+          .maybeSingle();
+      if (mainResult != null) {
+        return !(mainResult['is_enabled'] as bool? ?? true);
+      }
+
+      final response = await legacySupabaseClient
           .from("vitalStep")
           .select()
           .eq("id", 1)

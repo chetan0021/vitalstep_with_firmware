@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { Cpu, Search, RefreshCw, Zap, Copy, Check, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface DeviceInv {
@@ -13,22 +15,6 @@ interface DeviceInv {
   notes: string | null
   created_at: string
   created_by: string
-}
-
-const statusStyle: Record<string, { bg: string; color: string; dot: string }> = {
-  manufactured: { bg: '#eff6ff', color: '#1d4ed8', dot: '#3b82f6' },
-  paired:       { bg: '#ecfdf5', color: '#065f46', dot: '#10b981' },
-  disabled:     { bg: '#fef2f2', color: '#991b1b', dot: '#ef4444' },
-}
-
-function Badge({ status }: { status: string }) {
-  const s = statusStyle[status] ?? { bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' }
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: s.bg, color: s.color }}>
-      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: s.dot, display: 'inline-block', flexShrink: 0 }} />
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  )
 }
 
 function fmt(ts: string | null) {
@@ -44,66 +30,131 @@ export default function DevicesPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [error, setError] = useState('')
+  const [revealedSecrets, setRevealedSecrets] = useState<Record<string, boolean>>({})
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const load = async () => {
     setLoading(true)
     setError('')
-    const { data, error } = await supabase
-      .from('device_inventory')
-      .select('*')
-      .order('created_at', { ascending: false })
-    if (error) setError(error.message)
-    else { setDevices(data ?? []); setFiltered(data ?? []) }
-    setLoading(false)
+    try {
+      const res = await fetch('/api/admin/overview', { cache: 'no-store' })
+      const { data, error: dErr } = await supabase
+        .from('device_inventory')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (dErr) throw dErr
+      setDevices(data ?? [])
+      setFiltered(data ?? [])
+    } catch (err: any) {
+      setError(err.message || 'Error loading devices')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [])
 
   useEffect(() => {
     let r = [...devices]
-    if (search) r = r.filter(d => d.device_code.toLowerCase().includes(search.toLowerCase()))
+    if (search) {
+      const q = search.toLowerCase()
+      r = r.filter(d => d.device_code.toLowerCase().includes(q))
+    }
     if (statusFilter !== 'all') r = r.filter(d => d.status === statusFilter)
     setFiltered(r)
   }, [search, statusFilter, devices])
+
+  const copySecret = (text: string, id: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedId(id)
+    setTimeout(() => setCopiedId(null), 2000)
+  }
+
+  const toggleReveal = (id: string) => {
+    setRevealedSecrets(prev => ({ ...prev, [id]: !prev[id] }))
+  }
 
   const total = devices.length
   const manufactured = devices.filter(d => d.status === 'manufactured').length
   const paired = devices.filter(d => d.status === 'paired').length
 
   return (
-    <div style={{ maxWidth: '1100px' }}>
+    <div className="space-y-6">
       {/* Header */}
-      <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-white/[0.06]">
         <div>
-          <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Device Inventory</h1>
-          <p style={{ color: '#64748b', marginTop: '4px', fontSize: '15px' }}>All entries in <code style={{ background: '#f1f5f9', padding: '1px 6px', borderRadius: '4px', fontSize: '12px' }}>device_inventory</code></p>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <Cpu className="w-3.5 h-3.5 text-indigo-400" />
+              Hardware Inventory
+            </span>
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">
+            Device Fleet Inventory
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">
+            Manufacturing activation secrets, cryptographic pairing hashes, and field assignments.
+          </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={load} style={{ padding: '9px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '9px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#374151' }}>🔄 Refresh</button>
-          <a href="/dashboard/generate" style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '9px 16px', background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', color: '#fff', borderRadius: '9px', textDecoration: 'none', fontSize: '13px', fontWeight: 700 }}>
-            ⚡ Generate New
-          </a>
+
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/generate"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white shadow-lg shadow-cyan-500/20 transition-all"
+          >
+            <Zap className="w-3.5 h-3.5 fill-current" />
+            <span>Generate New</span>
+          </Link>
+
+          <button 
+            onClick={load}
+            disabled={loading}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 border border-white/[0.1] transition-all cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-cyan-400' : ''}`} />
+            <span>Refresh</span>
+          </button>
         </div>
       </div>
 
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {[
-          { label: 'Total Created', value: total,        color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe' },
-          { label: 'Manufactured',  value: manufactured, color: '#10b981', bg: '#ecfdf5', border: '#bbf7d0' },
-          { label: 'Paired',        value: paired,       color: '#8b5cf6', bg: '#f5f3ff', border: '#ddd6fe' },
-        ].map(s => (
-          <div key={s.label} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: '10px', padding: '16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '28px', fontWeight: 900, color: s.color }}>{loading ? '…' : s.value}</div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px', fontWeight: 600 }}>{s.label}</div>
+          { label: 'Total Fleet Units', value: total, color: '#38BDF8', badge: 'All Inventory' },
+          { label: 'Manufactured / Ready', value: manufactured, color: '#34D399', badge: 'In Stock' },
+          { label: 'Paired to Patient', value: paired, color: '#A78BFA', badge: 'In Clinical Field' },
+        ].map((s) => (
+          <div key={s.label} className="glass-panel p-4 rounded-2xl flex flex-col justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">{s.badge}</span>
+            <div>
+              <div className="text-3xl font-extrabold tracking-tight text-white mb-0.5" style={{ color: s.color }}>
+                {loading ? '…' : s.value}
+              </div>
+              <div className="text-xs text-slate-400 font-medium">{s.label}</div>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Filters */}
-      <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #e2e8f0', padding: '12px 16px', marginBottom: '12px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍  Search device code..." style={{ flex: 1, minWidth: '180px', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '13px', outline: 'none', color: '#374151' }} />
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '13px', color: '#374151', background: '#fff', outline: 'none' }}>
+      {/* Filter Bar */}
+      <div className="glass-panel p-3 rounded-2xl flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search device code..."
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl glass-input text-xs"
+          />
+        </div>
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-3 py-2.5 rounded-xl glass-input text-xs bg-[#0F172A] text-slate-200 cursor-pointer"
+        >
           <option value="all">All Statuses</option>
           <option value="manufactured">Manufactured</option>
           <option value="paired">Paired</option>
@@ -111,56 +162,84 @@ export default function DevicesPage() {
         </select>
       </div>
 
-      {/* Table */}
-      <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 6px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-        {/* Head */}
-        <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr 120px 110px 110px', background: '#f8fafc', borderBottom: '2px solid #e2e8f0', padding: '11px 20px', gap: '14px' }}>
-          {['Device Code', 'Secret (truncated)', 'Status', 'Created', 'Paired At'].map(h => (
-            <div key={h} style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</div>
-          ))}
+      {/* Devices Glass Table */}
+      <div className="glass-panel rounded-3xl overflow-hidden border border-white/[0.08]">
+        <div className="grid grid-cols-12 text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-5 py-3.5 bg-white/[0.02] border-b border-white/[0.06]">
+          <span className="col-span-3">Device Code</span>
+          <span className="col-span-4">Hardware Secret</span>
+          <span className="col-span-2">Status</span>
+          <span className="col-span-3 text-right">Registered Date</span>
         </div>
 
-        {/* Error */}
-        {error && <div style={{ padding: '16px 20px', color: '#dc2626', background: '#fef2f2', fontSize: '13px' }}>⚠️ {error}</div>}
-
-        {/* Loading */}
-        {loading && (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
-            <div style={{ fontSize: '32px', marginBottom: '10px' }}>⏳</div>
-            <div style={{ fontSize: '14px' }}>Loading from Supabase…</div>
+        {error && (
+          <div className="p-4 text-xs text-rose-400 bg-rose-500/10 border-b border-rose-500/20">
+            ⚠️ {error}
           </div>
         )}
 
-        {/* Rows */}
-        {!loading && !error && filtered.map((d, i) => (
-          <div key={d.id} style={{
-            display: 'grid', gridTemplateColumns: '150px 1fr 120px 110px 110px',
-            padding: '13px 20px', gap: '14px',
-            borderBottom: i < filtered.length - 1 ? '1px solid #f1f5f9' : 'none',
-            alignItems: 'center',
-          }}>
-            <div style={{ fontFamily: 'monospace', fontWeight: 800, color: '#1e293b', fontSize: '14px', letterSpacing: '1px', background: '#f8fafc', padding: '4px 8px', borderRadius: '5px', display: 'inline-block' }}>
-              {d.device_code}
-            </div>
-            <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {d.device_secret?.substring(0, 32)}…
-            </div>
-            <div><Badge status={d.status} /></div>
-            <div style={{ fontSize: '12px', color: '#64748b' }}>{fmt(d.created_at)}</div>
-            <div style={{ fontSize: '12px', color: '#64748b' }}>{fmt(d.paired_at)}</div>
+        {loading ? (
+          <div className="p-12 text-center text-xs text-slate-400">Loading hardware inventory…</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-12 text-center text-slate-400 space-y-2">
+            <Cpu className="w-8 h-8 text-slate-500 mx-auto" />
+            <div className="text-sm font-semibold text-white">No devices found</div>
+            <div className="text-xs text-slate-500">Generate a new device code to populate this table.</div>
           </div>
-        ))}
+        ) : (
+          <div className="divide-y divide-white/[0.04]">
+            {filtered.map((d) => {
+              const isRevealed = revealedSecrets[d.id]
+              const isPaired = d.status === 'paired'
+              return (
+                <div key={d.id} className="grid grid-cols-12 items-center px-5 py-3.5 text-xs text-slate-300 hover:bg-white/[0.02] transition-colors">
+                  <div className="col-span-3 flex items-center gap-2">
+                    <span className="font-mono font-bold text-white px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06]">
+                      {d.device_code}
+                    </span>
+                    {d.device_code === 'VS-001002' && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        Sandip R
+                      </span>
+                    )}
+                  </div>
 
-        {/* Empty */}
-        {!loading && !error && filtered.length === 0 && (
-          <div style={{ padding: '48px', textAlign: 'center' }}>
-            <div style={{ fontSize: '44px', marginBottom: '12px' }}>📦</div>
-            <div style={{ fontSize: '17px', fontWeight: 700, color: '#0f172a', marginBottom: '6px' }}>
-              {devices.length === 0 ? 'No devices in Supabase yet' : 'No results match'}
-            </div>
-            <div style={{ color: '#64748b', fontSize: '14px' }}>
-              {devices.length === 0 ? 'Generate a device code to populate this table.' : 'Clear your search or filter.'}
-            </div>
+                  <div className="col-span-4 flex items-center gap-2 pr-4">
+                    <span className="font-mono text-[11px] text-slate-400 truncate">
+                      {isRevealed ? d.device_secret : `${d.device_secret?.substring(0, 16)}••••••••`}
+                    </span>
+                    <button 
+                      onClick={() => toggleReveal(d.id)}
+                      className="p-1 rounded text-slate-500 hover:text-slate-300 transition-colors"
+                      title={isRevealed ? "Hide secret" : "Show secret"}
+                    >
+                      {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                    <button 
+                      onClick={() => copySecret(d.device_secret, d.id)}
+                      className="p-1 rounded text-slate-500 hover:text-slate-300 transition-colors"
+                      title="Copy secret"
+                    >
+                      {copiedId === d.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+
+                  <div className="col-span-2">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                      isPaired 
+                        ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' 
+                        : 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${isPaired ? 'bg-emerald-400' : 'bg-cyan-400'}`} />
+                      {d.status}
+                    </span>
+                  </div>
+
+                  <div className="col-span-3 text-right font-mono text-[11px] text-slate-400">
+                    {fmt(d.created_at)}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
       </div>

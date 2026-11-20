@@ -33,9 +33,12 @@ class LoginService {
   Future<void> signIn(
       String email, String password, String selectedUserType) async {
     try {
+      final cleanEmail = email.trim().toLowerCase();
+      final cleanPassword = password.trim();
+
       final res = await patientSupabaseClient.auth.signInWithPassword(
-        email: email,
-        password: password,
+        email: cleanEmail,
+        password: cleanPassword,
       );
 
       if (res.user == null) {
@@ -101,14 +104,27 @@ class LoginService {
 
       final userId = res.user!.id;
 
+      // Format dominant_hand properly:
+      // profiles expects 'Left' or 'Right'
+      final dominantHandText = (signUpInfo.dominantHand == 'Left' || signUpInfo.dominantHand == 'L')
+          ? 'Left'
+          : 'Right';
+      // patients expects 'L' or 'R' (hand_type enum)
+      final dominantHandEnum = (signUpInfo.dominantHand == 'Left' || signUpInfo.dominantHand == 'L')
+          ? 'L'
+          : 'R';
+
       // Step 1: Create minimal profile (only columns that exist in profiles table)
       await patientSupabaseClient.from('profiles').upsert({
         'id': userId,
         'name': signUpInfo.name,
         'email': signUpInfo.email,
-        'dominant_hand': signUpInfo.dominantHand,
+        'dominant_hand': dominantHandText,
         'user_type': 'Patient',
       });
+
+      // Generate a clean patient code for the new patient: PT-XXXX
+      final patientCode = 'PT-${userId.substring(0, 4).toUpperCase()}';
 
       // Step 2: Create patient record with all clinical/physical data
       await patientSupabaseClient.from('patients').upsert({
@@ -116,9 +132,10 @@ class LoginService {
         'name': signUpInfo.name,
         'email': signUpInfo.email,
         'phone': signUpInfo.phone.toString(),
+        'patient_code': patientCode,
         'date_of_birth': signUpInfo.dob,
         'gender': signUpInfo.gender,
-        'dominant_hand': signUpInfo.dominantHand,
+        'dominant_hand': dominantHandEnum,
         'weight_kg': signUpInfo.weight,
         'height_cm': signUpInfo.height,
         'palm_length_mm': signUpInfo.palmLength?.toInt(),
@@ -159,10 +176,17 @@ class LoginService {
       final userId = patientSupabaseClient.auth.currentUser?.id;
       if (userId == null) return;
 
+      final dominantHandText = (signUpInfo.dominantHand == 'Left' || signUpInfo.dominantHand == 'L')
+          ? 'Left'
+          : 'Right';
+      final dominantHandEnum = (signUpInfo.dominantHand == 'Left' || signUpInfo.dominantHand == 'L')
+          ? 'L'
+          : 'R';
+
       // Update minimal profile columns only
       await patientSupabaseClient.from('profiles').update({
         'name': signUpInfo.name,
-        'dominant_hand': signUpInfo.dominantHand,
+        'dominant_hand': dominantHandText,
       }).eq('id', userId);
 
       // Update full clinical data in patients table
@@ -171,7 +195,7 @@ class LoginService {
         'phone': signUpInfo.phone.toString(),
         'date_of_birth': signUpInfo.dob,
         'gender': signUpInfo.gender,
-        'dominant_hand': signUpInfo.dominantHand,
+        'dominant_hand': dominantHandEnum,
         'weight_kg': signUpInfo.weight,
         'height_cm': signUpInfo.height,
         'palm_length_mm': signUpInfo.palmLength?.toInt(),

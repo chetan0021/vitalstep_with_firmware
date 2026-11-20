@@ -44,6 +44,9 @@ next-env.d.ts
 
 # backups and temp files
 .backups/
+vitalstep_firmware_COPY-main/
+.commitmsg
+.dart_tool/
 *.ino
 *.sql
 VitalStep_Mobile_App/

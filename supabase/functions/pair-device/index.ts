@@ -105,6 +105,14 @@ serve(async (req) => {
       is_active: true,
     });
 
+    // Also sync to devices table for measurements FK and queries
+    await supabase.from("devices").upsert({
+      user_id: userId,
+      device_code: deviceCode,
+      device_name: deviceName,
+      is_active: true,
+    }, { onConflict: "device_code" });
+
     // Log to audit
     await supabase.from("device_audit").insert({
       admin_id: userId,
