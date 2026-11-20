@@ -14,7 +14,7 @@ $response = Invoke-WebRequest -Uri "https://oyqecdcpicvzwwvwaeka.supabase.co/aut
     -Method POST `
     -Headers @{
         "Content-Type" = "application/json"
-        "apikey" = "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"
+        "apikey" = "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"
     } `
     -Body $body
 
@@ -75,7 +75,7 @@ If you get an error, check:
    - Make sure `is_active = true`
 
 3. **400 Bad Request** = Database insert error
-   - Check Edge Function logs in Supabase Dashboard GåÆ Functions GåÆ generate-device-id GåÆ Logs
+   - Check Edge Function logs in Supabase Dashboard Gï¿½ï¿½ Functions Gï¿½ï¿½ generate-device-id Gï¿½ï¿½ Logs
    - Look for the exact error message
 
 4. **500 Server Error** = Function code issue
@@ -86,6 +86,6 @@ If you get an error, check:
 ## Check Function Logs
 
 1. Go to **Supabase Dashboard**
-2. **Functions** GåÆ **generate-device-id**
+2. **Functions** Gï¿½ï¿½ **generate-device-id**
 3. **Executions** tab - click the most recent execution to see logs
 

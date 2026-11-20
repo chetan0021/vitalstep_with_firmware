@@ -1,4 +1,4 @@
-# =ƒÜÇ GitHub Push & Vercel Deployment Guide
+# =ï¿½ï¿½ï¿½ GitHub Push & Vercel Deployment Guide
 
 ## STEP 1: Stop Dev Server
 
@@ -11,7 +11,7 @@ If still running, press **CTRL+C** in the terminal to stop the dev server.
 ### Option A: Using GitHub Desktop (Easiest)
 
 1. **Open GitHub Desktop**
-2. **File** GåÆ **Add Local Repository**
+2. **File** Gï¿½ï¿½ **Add Local Repository**
 3. Select: `C:\Users\Appmaker\Documents\vitalstep_with_firmware-master\admin-dashboard`
 4. Click **Create a Local Git Repository**
 5. In the left panel, you'll see all files
@@ -24,7 +24,7 @@ If still running, press **CTRL+C** in the terminal to stop the dev server.
 9. **Name**: `vitalstep-admin-dashboard`
 10. **Keep private** (optional)
 11. Click **Publish Repository**
-12. Done! G£à
+12. Done! Gï¿½ï¿½
 
 ### Option B: Using Terminal (Command Line)
 
@@ -74,20 +74,20 @@ Go to: `https://github.com/YOUR_USERNAME/vitalstep-admin-dashboard`
 
 You should see:
 ```
-G£à admin-dashboard/
-   Gö£GöÇGöÇ lib/
-   Göé   GööGöÇGöÇ supabase.ts
-   Gö£GöÇGöÇ app/
-   Göé   Gö£GöÇGöÇ layout.tsx
-   Göé   Gö£GöÇGöÇ login/
-   Göé   Gö£GöÇGöÇ dashboard/
-   Göé   Gö£GöÇGöÇ globals.css
-   Gö£GöÇGöÇ components/
-   Göé   GööGöÇGöÇ Sidebar.tsx
-   Gö£GöÇGöÇ .env.local (hidden by git)
-   Gö£GöÇGöÇ package.json
-   Gö£GöÇGöÇ tsconfig.json
-   GööGöÇGöÇ README.md
+Gï¿½ï¿½ admin-dashboard/
+   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ lib/
+   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ supabase.ts
+   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ app/
+   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ layout.tsx
+   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ login/
+   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ dashboard/
+   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ globals.css
+   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ components/
+   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ Sidebar.tsx
+   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ .env.local (hidden by git)
+   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ package.json
+   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ tsconfig.json
+   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ README.md
 ```
 
 ---
@@ -110,9 +110,9 @@ G£à admin-dashboard/
 
 **Project Name**: `vitalstep-admin-dashboard` (or your choice)
 
-**Framework Preset**: Should auto-detect **Next.js** G£à
+**Framework Preset**: Should auto-detect **Next.js** Gï¿½ï¿½
 
-**Root Directory**: `.` (root) G£à
+**Root Directory**: `.` (root) Gï¿½ï¿½
 
 ### Step 5.4: Add Environment Variables
 
@@ -130,7 +130,7 @@ Click **Add**
 **Variable 2:**
 ```
 Name: NEXT_PUBLIC_SUPABASE_ANON_KEY
-Value: sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+Value: sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 ```
 Click **Add**
 
@@ -152,12 +152,12 @@ Click **Add**
 
 1. Click **Deploy**
 2. Wait for build to complete (2-3 minutes)
-3. See green checkmark G£à
+3. See green checkmark Gï¿½ï¿½
 4. Click **Visit** to see your live dashboard!
 
 ---
 
-## G£à Your Live URL
+## Gï¿½ï¿½ Your Live URL
 
 After deployment, you'll get a URL like:
 
@@ -173,63 +173,63 @@ https://dashboard.vitalstep.com
 
 ---
 
-## =ƒº¬ Test Production
+## =ï¿½ï¿½ï¿½ Test Production
 
 1. Open your Vercel URL
 2. Login with:
    - Email: `admin@vitalstep.com`
    - Password: `Admin123!@#`
 3. Test all features:
-   - G£à Generate device
-   - G£à View inventory
-   - G£à View audit log
-   - G£à Logout
+   - Gï¿½ï¿½ Generate device
+   - Gï¿½ï¿½ View inventory
+   - Gï¿½ï¿½ View audit log
+   - Gï¿½ï¿½ Logout
 
 ---
 
-## =ƒôï Environment Variables Checklist
+## =ï¿½ï¿½ï¿½ Environment Variables Checklist
 
 | Variable | Status | Value |
 |----------|--------|-------|
-| `NEXT_PUBLIC_SUPABASE_URL` | GÿÉ Added | https://oyqecdcpicvzwwvwaeka.supabase.co |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | GÿÉ Added | sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi |
-| `NEXT_PUBLIC_SUPABASE_SERVICE_KEY` | GÿÉ Added | eyJhbGci... |
-| `NEXT_PUBLIC_EDGE_FUNCTION_URL` | GÿÉ Added | https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id |
+| `NEXT_PUBLIC_SUPABASE_URL` | Gï¿½ï¿½ Added | https://oyqecdcpicvzwwvwaeka.supabase.co |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Gï¿½ï¿½ Added | sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR** |
+| `NEXT_PUBLIC_SUPABASE_SERVICE_KEY` | Gï¿½ï¿½ Added | eyJhbGci... |
+| `NEXT_PUBLIC_EDGE_FUNCTION_URL` | Gï¿½ï¿½ Added | https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id |
 
 ---
 
-## =ƒåÿ Troubleshooting
+## =ï¿½ï¿½ï¿½ Troubleshooting
 
 ### "Build failed"
-GåÆ Check that all files were pushed to GitHub  
-GåÆ Verify environment variables are correct
+Gï¿½ï¿½ Check that all files were pushed to GitHub  
+Gï¿½ï¿½ Verify environment variables are correct
 
 ### "Can't login in production"
-GåÆ Check admin user exists in Supabase  
-GåÆ Verify credentials: admin@vitalstep.com / Admin123!@#
+Gï¿½ï¿½ Check admin user exists in Supabase  
+Gï¿½ï¿½ Verify credentials: admin@vitalstep.com / Admin123!@#
 
 ### "Generate device fails"
-GåÆ Check NEXT_PUBLIC_EDGE_FUNCTION_URL is correct  
-GåÆ Check Supabase Edge Function is deployed
+Gï¿½ï¿½ Check NEXT_PUBLIC_EDGE_FUNCTION_URL is correct  
+Gï¿½ï¿½ Check Supabase Edge Function is deployed
 
 ### "Environment variables not working"
-GåÆ Make sure you added them in Vercel (not just locally)  
-GåÆ Redeploy after adding variables
+Gï¿½ï¿½ Make sure you added them in Vercel (not just locally)  
+Gï¿½ï¿½ Redeploy after adding variables
 
 ---
 
-## =ƒÄë Success Indicators
+## =ï¿½ï¿½ï¿½ Success Indicators
 
-G£à GitHub repo has all files  
-G£à Vercel shows "Build successful"  
-G£à Dashboard loads at https://vitalstep-admin-dashboard.vercel.app  
-G£à Can login with admin credentials  
-G£à Can generate devices  
-G£à Can view device inventory  
+Gï¿½ï¿½ GitHub repo has all files  
+Gï¿½ï¿½ Vercel shows "Build successful"  
+Gï¿½ï¿½ Dashboard loads at https://vitalstep-admin-dashboard.vercel.app  
+Gï¿½ï¿½ Can login with admin credentials  
+Gï¿½ï¿½ Can generate devices  
+Gï¿½ï¿½ Can view device inventory  
 
 ---
 
-## =ƒôP Next Steps After Deployment
+## =ï¿½ï¿½P Next Steps After Deployment
 
 1. **Share URL with team**
    - Send: https://vitalstep-admin-dashboard.vercel.app
@@ -249,4 +249,4 @@ G£à Can view device inventory
 
 ---
 
-**All done! Your dashboard is now live in production! =ƒÜÇ**
+**All done! Your dashboard is now live in production! =ï¿½ï¿½ï¿½**

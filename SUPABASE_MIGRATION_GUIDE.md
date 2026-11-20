@@ -17,7 +17,7 @@ You have created a new Supabase project to replace the Digital Ocean backend. Th
 |------|-------|
 | **Project Name** | `vitalstep-device-sync-v2` |
 | **Project URL** | `https://oyqecdcpicvzwwwaeka.supabase.co` |
-| **Publishable Key** | `sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi` |
+| **Publishable Key** | `sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**` |
 | **Database Location** | South Asia (Mumbai) |
 | **Compute Size** | NANO |
 

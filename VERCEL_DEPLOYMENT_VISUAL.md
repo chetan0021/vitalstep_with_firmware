@@ -1,16 +1,16 @@
 # Vercel Deployment - Visual Step-by-Step
 
-## =ƒôï Pre-Deployment Checklist
+## =ï¿½ï¿½ï¿½ Pre-Deployment Checklist
 
 - [ ] GitHub account created (https://github.com/signup)
 - [ ] Vercel account created (https://vercel.com/signup)
 - [ ] Admin dashboard code ready (in admin-dashboard folder)
-- [ ] All 9 files created G£à
-- [ ] .env.local configured G£à
+- [ ] All 9 files created Gï¿½ï¿½
+- [ ] .env.local configured Gï¿½ï¿½
 
 ---
 
-## =ƒö¦ STEP 1: Create GitHub Repository
+## =ï¿½ï¿½ï¿½ STEP 1: Create GitHub Repository
 
 ### 1.1 Go to GitHub New Repo
 ```
@@ -22,12 +22,12 @@ https://github.com/new
 ```
 Repository name:          vitalstep-admin-dashboard
 Description:              VitalStep Admin Manufacturing Dashboard
-Visibility:               GÿÉ Public  Gÿæ Private (your choice)
+Visibility:               Gï¿½ï¿½ Public  Gï¿½ï¿½ Private (your choice)
 
 DO NOT check:
-GÿÉ Add a README file
-GÿÉ Add .gitignore
-GÿÉ Choose a license
+Gï¿½ï¿½ Add a README file
+Gï¿½ï¿½ Add .gitignore
+Gï¿½ï¿½ Choose a license
 ```
 
 ### 1.3 Click "Create repository"
@@ -35,8 +35,8 @@ GÿÉ Choose a license
 You'll see this screen:
 
 ```
-Quick setup GÇö if you've done this kind of thing before
-GöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöüGöü
+Quick setup Gï¿½ï¿½ if you've done this kind of thing before
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 HTTPS    SSH    GitHub CLI
 
 Copy the https URL:
@@ -47,7 +47,7 @@ https://github.com/YOUR_USERNAME/vitalstep-admin-dashboard.git
 
 ---
 
-## =ƒö¦ STEP 2: Push Code to GitHub
+## =ï¿½ï¿½ï¿½ STEP 2: Push Code to GitHub
 
 ### 2.1 Open Terminal
 
@@ -88,11 +88,11 @@ Go to your repo:
 https://github.com/YOUR_USERNAME/vitalstep-admin-dashboard
 ```
 
-You should see G£à all your files!
+You should see Gï¿½ï¿½ all your files!
 
 ---
 
-## =ƒƒá STEP 3: Deploy to Vercel
+## =ï¿½ï¿½ï¿½ STEP 3: Deploy to Vercel
 
 ### 3.1 Go to Vercel
 
@@ -104,7 +104,7 @@ https://vercel.com/new
 
 ```
 "Continue with GitHub"
-Gåô
+Gï¿½ï¿½
 Authorize Vercel
 ```
 
@@ -112,7 +112,7 @@ Authorize Vercel
 
 You should see:
 ```
-GÿÉ vitalstep-admin-dashboard    [Select]
+Gï¿½ï¿½ vitalstep-admin-dashboard    [Select]
 ```
 
 Click **Select**
@@ -122,15 +122,15 @@ Click **Select**
 Screen shows:
 
 ```
-GöîGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé Create a new project                    Göé
-Gö£GöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöñ
-Göé Project Name: vitalstep-admin-dashboardGöé
-Göé Framework Preset: Next.js G£à           Göé
-Göé Root Directory: . G£à                   Göé
-Göé                                        Göé
-Göé Environment Variables (IMPORTANT!) G¼çn+Å  Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ Create a new project                    Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ Project Name: vitalstep-admin-dashboardGï¿½ï¿½
+Gï¿½ï¿½ Framework Preset: Next.js Gï¿½ï¿½           Gï¿½ï¿½
+Gï¿½ï¿½ Root Directory: . Gï¿½ï¿½                   Gï¿½ï¿½
+Gï¿½ï¿½                                        Gï¿½ï¿½
+Gï¿½ï¿½ Environment Variables (IMPORTANT!) Gï¿½ï¿½n+ï¿½  Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 ```
 
 ### 3.5 ADD ENVIRONMENT VARIABLES
@@ -140,40 +140,40 @@ GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGö
 Add ALL 4:
 
 ```
-GöîGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé Name: NEXT_PUBLIC_SUPABASE_URL                  Göé
-Göé Value: https://oyqecdcpicvzwwvwaeka.supabase.coGöé
-Göé [Add]                                            Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ Name: NEXT_PUBLIC_SUPABASE_URL                  Gï¿½ï¿½
+Gï¿½ï¿½ Value: https://oyqecdcpicvzwwvwaeka.supabase.coGï¿½ï¿½
+Gï¿½ï¿½ [Add]                                            Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 
-GöîGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé Name: NEXT_PUBLIC_SUPABASE_ANON_KEY             Göé
-Göé Value: sb_publishable_5ovuyYHtObqNMcjEFrNo6Q... Göé
-Göé [Add]                                            Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ Name: NEXT_PUBLIC_SUPABASE_ANON_KEY             Gï¿½ï¿½
+Gï¿½ï¿½ Value: sb_publishable_5ovuyYHtObqNMcjEFrNo6Q... Gï¿½ï¿½
+Gï¿½ï¿½ [Add]                                            Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 
-GöîGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé Name: NEXT_PUBLIC_SUPABASE_SERVICE_KEY          Göé
-Göé Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... Göé
-Göé [Add]                                            Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ Name: NEXT_PUBLIC_SUPABASE_SERVICE_KEY          Gï¿½ï¿½
+Gï¿½ï¿½ Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... Gï¿½ï¿½
+Gï¿½ï¿½ [Add]                                            Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 
-GöîGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé Name: NEXT_PUBLIC_EDGE_FUNCTION_URL             Göé
-Göé Value: https://oyqecdcpicvzwwvwaeka.supabase... Göé
-Göé [Add]                                            Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ Name: NEXT_PUBLIC_EDGE_FUNCTION_URL             Gï¿½ï¿½
+Gï¿½ï¿½ Value: https://oyqecdcpicvzwwvwaeka.supabase... Gï¿½ï¿½
+Gï¿½ï¿½ [Add]                                            Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 ```
 
 ### 3.6 Click Deploy
 
 ```
 [Deploy Button]
-     Gåô
+     Gï¿½ï¿½
    Building...
-     Gåô
-  G£à Build Successful
-     Gåô
+     Gï¿½ï¿½
+  Gï¿½ï¿½ Build Successful
+     Gï¿½ï¿½
 [Visit] [View Git]
 ```
 
@@ -181,7 +181,7 @@ Wait 2-3 minutes for build to complete.
 
 ---
 
-## =ƒƒó STEP 4: Your Live Dashboard!
+## =ï¿½ï¿½ï¿½ STEP 4: Your Live Dashboard!
 
 ### 4.1 Click "Visit"
 
@@ -200,36 +200,36 @@ Password: Admin123!@#
 
 ### 4.3 Test All Features
 
-- G£à Dashboard loads
-- G£à Can login
-- G£à Can generate device
-- G£à Can view inventory
-- G£à Can view audit log
-- G£à Can logout
+- Gï¿½ï¿½ Dashboard loads
+- Gï¿½ï¿½ Can login
+- Gï¿½ï¿½ Can generate device
+- Gï¿½ï¿½ Can view inventory
+- Gï¿½ï¿½ Can view audit log
+- Gï¿½ï¿½ Can logout
 
 ---
 
-## =ƒôè Deployment Summary
+## =ï¿½ï¿½ï¿½ Deployment Summary
 
 ```
-GöîGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé         VITALSTEP ADMIN DASHBOARD            Göé
-Göé                                              Göé
-Göé G£à GitHub Repo: vitalstep-admin-dashboard   Göé
-Göé G£à Vercel Deployment: Live                  Göé
-Göé G£à URL: https://vitalstep-admin-dashboard... Göé
-Göé G£à Environment Variables: Configured        Göé
-Göé G£à Database: Supabase (Connected)           Göé
-Göé G£à Authentication: Working                  Göé
-Göé G£à Edge Function: Deployed                  Göé
-Göé                                              Göé
-Göé Status: =ƒÜÇ PRODUCTION READY                 Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½         VITALSTEP ADMIN DASHBOARD            Gï¿½ï¿½
+Gï¿½ï¿½                                              Gï¿½ï¿½
+Gï¿½ï¿½ Gï¿½ï¿½ GitHub Repo: vitalstep-admin-dashboard   Gï¿½ï¿½
+Gï¿½ï¿½ Gï¿½ï¿½ Vercel Deployment: Live                  Gï¿½ï¿½
+Gï¿½ï¿½ Gï¿½ï¿½ URL: https://vitalstep-admin-dashboard... Gï¿½ï¿½
+Gï¿½ï¿½ Gï¿½ï¿½ Environment Variables: Configured        Gï¿½ï¿½
+Gï¿½ï¿½ Gï¿½ï¿½ Database: Supabase (Connected)           Gï¿½ï¿½
+Gï¿½ï¿½ Gï¿½ï¿½ Authentication: Working                  Gï¿½ï¿½
+Gï¿½ï¿½ Gï¿½ï¿½ Edge Function: Deployed                  Gï¿½ï¿½
+Gï¿½ï¿½                                              Gï¿½ï¿½
+Gï¿½ï¿½ Status: =ï¿½ï¿½ï¿½ PRODUCTION READY                 Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 ```
 
 ---
 
-## =ƒöù Copy-Paste Environment Variables
+## =ï¿½ï¿½ï¿½ Copy-Paste Environment Variables
 
 If you need to add them again:
 
@@ -238,7 +238,7 @@ Name: NEXT_PUBLIC_SUPABASE_URL
 Value: https://oyqecdcpicvzwwvwaeka.supabase.co
 
 Name: NEXT_PUBLIC_SUPABASE_ANON_KEY
-Value: sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+Value: sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 
 Name: NEXT_PUBLIC_SUPABASE_SERVICE_KEY
 Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWVjZGNwaWN2end3dndhaWVrYSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MjkxNzgyODksImV4cCI6MTk0NDc1NDI4OX0.BOq0IzVVXsQhc8X_UMB-OxW5CtVfWvk9mf9wCY0kcjU
@@ -249,7 +249,7 @@ Value: https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id
 
 ---
 
-## G£à Verification Checklist
+## Gï¿½ï¿½ Verification Checklist
 
 After Deployment:
 
@@ -267,9 +267,9 @@ After Deployment:
 
 ---
 
-## =ƒÄë Congratulations!
+## =ï¿½ï¿½ï¿½ Congratulations!
 
-Your VitalStep Admin Dashboard is now **LIVE in production!** =ƒÜÇ
+Your VitalStep Admin Dashboard is now **LIVE in production!** =ï¿½ï¿½ï¿½
 
 **Share this URL with your team:**
 ```
@@ -284,15 +284,15 @@ Password: Admin123!@#
 
 ---
 
-## =ƒôP Support
+## =ï¿½ï¿½P Support
 
 If you encounter issues:
 
-1. Check Vercel logs: Project Settings GåÆ Logs
-2. Check Supabase logs: Functions GåÆ generate-device-id GåÆ Executions
+1. Check Vercel logs: Project Settings Gï¿½ï¿½ Logs
+2. Check Supabase logs: Functions Gï¿½ï¿½ generate-device-id Gï¿½ï¿½ Executions
 3. Verify environment variables match exactly
-4. Check browser console: F12 GåÆ Console
+4. Check browser console: F12 Gï¿½ï¿½ Console
 
 ---
 
-**=ƒÄè You're all set! Enjoy your production dashboard!**
+**=ï¿½ï¿½ï¿½ You're all set! Enjoy your production dashboard!**

@@ -32,12 +32,12 @@ Create `.env.local` in the admin-dashboard root:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://oyqecdcpicvzwwvwaeka.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 NEXT_PUBLIC_SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWVjZGNwaWN2end3dndhaWVrYSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MjkxNzgyODksImV4cCI6MTk0NDc1NDI4OX0.BOq0IzVVXsQhc8X_UMB-OxW5CtVfWvk9mf9wCY0kcjU
 NEXT_PUBLIC_EDGE_FUNCTION_URL=https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id
 ```
 
-**Note**: Get SERVICE_KEY from Supabase GåÆ Settings GåÆ API GåÆ Service Role Key
+**Note**: Get SERVICE_KEY from Supabase Gï¿½ï¿½ Settings Gï¿½ï¿½ API Gï¿½ï¿½ Service Role Key
 
 ---
 

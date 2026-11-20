@@ -1,45 +1,45 @@
 # VitalStep - Reference Card
 
-## =ƒÄ» THE COMPLETE SYSTEM
+## =ï¿½Ä» THE COMPLETE SYSTEM
 
 ### At a Glance
 ```
-GöîGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé VitalStep: Palm Pressure Health Monitoring System       Göé
-Göé Status: G£à PRODUCTION READY                             Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ VitalStep: Palm Pressure Health Monitoring System       Gï¿½ï¿½
+Gï¿½ï¿½ Status: Gï¿½ï¿½ PRODUCTION READY                             Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 
 DEVICE (ESP32)           MOBILE APP (Flutter)      BACKEND (Supabase)
-GöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇ   GöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇ    GöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇ
-G£à Touchscreen UI        G£à 8 Screens            G£à PostgreSQL DB
-G£à Load cell support     G£à Auth system          G£à Edge Functions
-G£à Battery monitor       G£à Device pairing       G£à Real-time sync
-G£à SD card storage       G£à Data history         G£à Cloud storage
-G£à Wi-Fi + Bluetooth     G£à Health insights      G£à API ready
-G£à Cloud sync (HTTP 200) G£à Vibrant colors       G£à Secure auth
-G£à Test mode ready       G£à iOS/Android          G£à Scaling ready
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½    Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ Touchscreen UI        Gï¿½ï¿½ 8 Screens            Gï¿½ï¿½ PostgreSQL DB
+Gï¿½ï¿½ Load cell support     Gï¿½ï¿½ Auth system          Gï¿½ï¿½ Edge Functions
+Gï¿½ï¿½ Battery monitor       Gï¿½ï¿½ Device pairing       Gï¿½ï¿½ Real-time sync
+Gï¿½ï¿½ SD card storage       Gï¿½ï¿½ Data history         Gï¿½ï¿½ Cloud storage
+Gï¿½ï¿½ Wi-Fi + Bluetooth     Gï¿½ï¿½ Health insights      Gï¿½ï¿½ API ready
+Gï¿½ï¿½ Cloud sync (HTTP 200) Gï¿½ï¿½ Vibrant colors       Gï¿½ï¿½ Secure auth
+Gï¿½ï¿½ Test mode ready       Gï¿½ï¿½ iOS/Android          Gï¿½ï¿½ Scaling ready
 ```
 
 ---
 
-## =ƒôì QUICK LINKS
+## =ï¿½ï¿½ï¿½ QUICK LINKS
 
 ### File Locations
 ```
-=ƒôü c:\Users\Chetan\Documents\vitalstep_with_firmware-master\
-Gö£GöÇGöÇ VitalStep_Device_fixed.ino             (1773 lines, production firmware)
-Gö£GöÇGöÇ VitalStep_Mobile_App/                  (Complete Flutter project)
-Gö£GöÇGöÇ QUICK_START.md                         (5-minute setup)
-Gö£GöÇGöÇ COMPLETE_SETUP_GUIDE.md               (Full documentation)
-Gö£GöÇGöÇ DEPLOYMENT_SUMMARY.md                 (What's built)
-GööGöÇGöÇ REFERENCE_CARD.md                     (This file)
+=ï¿½ï¿½ï¿½ c:\Users\Chetan\Documents\vitalstep_with_firmware-master\
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ VitalStep_Device_fixed.ino             (1773 lines, production firmware)
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ VitalStep_Mobile_App/                  (Complete Flutter project)
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ QUICK_START.md                         (5-minute setup)
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ COMPLETE_SETUP_GUIDE.md               (Full documentation)
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ DEPLOYMENT_SUMMARY.md                 (What's built)
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ REFERENCE_CARD.md                     (This file)
 ```
 
 ### URLs & Credentials
 ```
 Supabase:
   URL: https://oyqecdcpicvzwwvwaeka.supabase.co
-  Key: sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+  Key: sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 
 Device:
   Code: VS-92026
@@ -52,57 +52,57 @@ Demo Account:
 
 ---
 
-## =ƒÄ¿ COLOR PALETTE
+## =ï¿½Ä¿ COLOR PALETTE
 
 ### All Platforms (Device + App)
 ```
-PRIMARY      #1E90FF  GûêGûêGûêGûêGûêGûêGûêGûê  Dodger Blue     (Actions, buttons)
-ACCENT       #C870FF  GûêGûêGûêGûêGûêGûêGûêGûê  Vibrant Purple  (Personality)
-SUCCESS      #50FF96  GûêGûêGûêGûêGûêGûêGûêGûê  Vibrant Green   (Positive states)
-WARNING      #FFDC50  GûêGûêGûêGûêGûêGûêGûêGûê  Vibrant Gold    (Caution, alerts)
-ERROR        #FF5068  GûêGûêGûêGûêGûêGûêGûêGûê  Vibrant Red     (Errors, critical)
-LEFT_HAND    #00E6C8  GûêGûêGûêGûêGûêGûêGûêGûê  Teal           (Left indicator)
-RIGHT_HAND   #B464FF  GûêGûêGûêGûêGûêGûêGûêGûê  Purple         (Right indicator)
-BACKGROUND   #0A0F23  GûêGûêGûêGûêGûêGûêGûêGûê  Deep Blue-Black (Surfaces)
-SURFACE      #161D3D  GûêGûêGûêGûêGûêGûêGûêGûê  Slightly Lighter (Cards)
-VARIANT      #212D52  GûêGûêGûêGûêGûêGûêGûêGûê  Medium Variant  (Borders)
+PRIMARY      #1E90FF  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Dodger Blue     (Actions, buttons)
+ACCENT       #C870FF  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Vibrant Purple  (Personality)
+SUCCESS      #50FF96  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Vibrant Green   (Positive states)
+WARNING      #FFDC50  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Vibrant Gold    (Caution, alerts)
+ERROR        #FF5068  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Vibrant Red     (Errors, critical)
+LEFT_HAND    #00E6C8  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Teal           (Left indicator)
+RIGHT_HAND   #B464FF  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Purple         (Right indicator)
+BACKGROUND   #0A0F23  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Deep Blue-Black (Surfaces)
+SURFACE      #161D3D  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Slightly Lighter (Cards)
+VARIANT      #212D52  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Medium Variant  (Borders)
 ```
 
 ---
 
-## =ƒô¦ APP SCREENS (8 Total)
+## =ï¿½ï¿½ APP SCREENS (8 Total)
 
 ```
 AUTHENTICATION              HOME & MANAGEMENT         TESTING & ANALYSIS
-Gö£GöÇ Splash                  Gö£GöÇ Home (device list)     Gö£GöÇ Measurement (guided)
-Gö£GöÇ Login (demo mode)       Gö£GöÇ Device Detail (3 tabs) Gö£GöÇ History (timeline)
-GööGöÇ Signup (with terms)     GööGöÇ Device Pairing         Gö£GöÇ Insights (analysis)
-                                                      GööGöÇ Settings (config)
+Gï¿½ï¿½Gï¿½ï¿½ Splash                  Gï¿½ï¿½Gï¿½ï¿½ Home (device list)     Gï¿½ï¿½Gï¿½ï¿½ Measurement (guided)
+Gï¿½ï¿½Gï¿½ï¿½ Login (demo mode)       Gï¿½ï¿½Gï¿½ï¿½ Device Detail (3 tabs) Gï¿½ï¿½Gï¿½ï¿½ History (timeline)
+Gï¿½ï¿½Gï¿½ï¿½ Signup (with terms)     Gï¿½ï¿½Gï¿½ï¿½ Device Pairing         Gï¿½ï¿½Gï¿½ï¿½ Insights (analysis)
+                                                      Gï¿½ï¿½Gï¿½ï¿½ Settings (config)
 ```
 
 ### Home Screen
 ```
-GöîGöÇ Welcome Banner GöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé "Welcome back! Monitor your health"  Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½ Welcome Banner Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ "Welcome back! Monitor your health"  Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 
 Your Devices
 [Add Device] button
-GöîGöÇ Device Card GöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé =ƒö¦ My Meter      Connected  85% =ƒöï   Göé
-Göé Last sync: 5 min ago                 Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½ Device Card Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ =ï¿½ï¿½ï¿½ My Meter      Connected  85% =ï¿½ï¿½ï¿½   Gï¿½ï¿½
+Gï¿½ï¿½ Last sync: 5 min ago                 Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 
 Quick Actions
-GöîGöÇ Start Test GöÇGöÉ  GöîGöÇ View History GöÇGöÉ
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ  GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
-GöîGöÇ Insights GöÇGöÇGöÇGöÉ  GöîGöÇ Export Data GöÇGöÇGöÉ
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ  GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½ Start Test Gï¿½ï¿½Gï¿½ï¿½  Gï¿½ï¿½Gï¿½ï¿½ View History Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½ Insights Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Gï¿½ï¿½Gï¿½ï¿½ Export Data Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½  Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 ```
 
 ---
 
-## =ƒöº DEVICE CONFIGURATION
+## =ï¿½ï¿½ï¿½ DEVICE CONFIGURATION
 
 ### Firmware Flags
 ```cpp
@@ -114,11 +114,11 @@ GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ  GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇ
 #define HW_NAME           "VS-3248S035"
 
 // Test Mode (currently enabled)
-#define TEST_MODE         1     // Simulate data G£à
-#define MOCK_HX711        1     // Mock load cell G£à
-#define MOCK_BATTERY      1     // Mock battery G£à
-#define MOCK_BUZZER       1     // Mock speaker G£à
-#define REAL_SD           1     // Real SD card G£à
+#define TEST_MODE         1     // Simulate data Gï¿½ï¿½
+#define MOCK_HX711        1     // Mock load cell Gï¿½ï¿½
+#define MOCK_BATTERY      1     // Mock battery Gï¿½ï¿½
+#define MOCK_BUZZER       1     // Mock speaker Gï¿½ï¿½
+#define REAL_SD           1     // Real SD card Gï¿½ï¿½
 ```
 
 ### Hardware Pins
@@ -148,7 +148,7 @@ SD CARD:  VSPI
 
 ---
 
-## =ƒº¬ TEST DATA GENERATION
+## =ï¿½ï¿½ï¿½ TEST DATA GENERATION
 
 ### Device (Auto-generated in test mode)
 ```
@@ -170,50 +170,50 @@ Storage:   Real SD card writes
 
 ---
 
-## =ƒôè DATABASE SCHEMA
+## =ï¿½ï¿½ï¿½ DATABASE SCHEMA
 
 ### Tables
 ```
 PROFILES
-Gö£GöÇ id (UUID)
-Gö£GöÇ email (TEXT, unique)
-Gö£GöÇ name (TEXT)
-GööGöÇ created_at
+Gï¿½ï¿½Gï¿½ï¿½ id (UUID)
+Gï¿½ï¿½Gï¿½ï¿½ email (TEXT, unique)
+Gï¿½ï¿½Gï¿½ï¿½ name (TEXT)
+Gï¿½ï¿½Gï¿½ï¿½ created_at
 
 DEVICES
-Gö£GöÇ id (UUID)
-Gö£GöÇ device_code (TEXT, unique)
-Gö£GöÇ user_id (FK GåÆ profiles)
-Gö£GöÇ name, firmware_version, hardware_name
-Gö£GöÇ paired, online, battery_pct
-Gö£GöÇ last_sync, created_at
+Gï¿½ï¿½Gï¿½ï¿½ id (UUID)
+Gï¿½ï¿½Gï¿½ï¿½ device_code (TEXT, unique)
+Gï¿½ï¿½Gï¿½ï¿½ user_id (FK Gï¿½ï¿½ profiles)
+Gï¿½ï¿½Gï¿½ï¿½ name, firmware_version, hardware_name
+Gï¿½ï¿½Gï¿½ï¿½ paired, online, battery_pct
+Gï¿½ï¿½Gï¿½ï¿½ last_sync, created_at
 
 MEASUREMENTS
-Gö£GöÇ id (UUID)
-Gö£GöÇ device_id (FK GåÆ devices)
-Gö£GöÇ assessment_id (TEXT)
-Gö£GöÇ hand (TEXT: 'L', 'R')
-Gö£GöÇ posture (TEXT: 'sitting', 'standing')
-Gö£GöÇ trials (JSONB: [trial1, trial2, trial3])
-Gö£GöÇ peak_reading, average_reading
-Gö£GöÇ recorded_at, created_at
+Gï¿½ï¿½Gï¿½ï¿½ id (UUID)
+Gï¿½ï¿½Gï¿½ï¿½ device_id (FK Gï¿½ï¿½ devices)
+Gï¿½ï¿½Gï¿½ï¿½ assessment_id (TEXT)
+Gï¿½ï¿½Gï¿½ï¿½ hand (TEXT: 'L', 'R')
+Gï¿½ï¿½Gï¿½ï¿½ posture (TEXT: 'sitting', 'standing')
+Gï¿½ï¿½Gï¿½ï¿½ trials (JSONB: [trial1, trial2, trial3])
+Gï¿½ï¿½Gï¿½ï¿½ peak_reading, average_reading
+Gï¿½ï¿½Gï¿½ï¿½ recorded_at, created_at
 
 INSIGHTS
-Gö£GöÇ id (UUID)
-Gö£GöÇ assessment_id, device_id
-Gö£GöÇ severity (0-3), title, description
-Gö£GöÇ recommendation, asymmetry, trend
-GööGöÇ generated_at
+Gï¿½ï¿½Gï¿½ï¿½ id (UUID)
+Gï¿½ï¿½Gï¿½ï¿½ assessment_id, device_id
+Gï¿½ï¿½Gï¿½ï¿½ severity (0-3), title, description
+Gï¿½ï¿½Gï¿½ï¿½ recommendation, asymmetry, trend
+Gï¿½ï¿½Gï¿½ï¿½ generated_at
 ```
 
 ---
 
-## =ƒÜÇ DEPLOYMENT STEPS
+## =ï¿½ï¿½ï¿½ DEPLOYMENT STEPS
 
 ### Today (5 minutes)
 ```
-1. G£à Device already running in test mode
-2. G£à App files created and ready
+1. Gï¿½ï¿½ Device already running in test mode
+2. Gï¿½ï¿½ App files created and ready
 3. GÅ¦ Run: cd VitalStep_Mobile_App && flutter run
 4. GÅ¦ Test: Click "Demo Mode (Test Data)"
 5. GÅ¦ Explore: All 8 screens
@@ -240,7 +240,7 @@ GööGöÇ generated_at
 
 ---
 
-## G£à VERIFICATION CHECKLIST
+## Gï¿½ï¿½ VERIFICATION CHECKLIST
 
 ### Device
 - [x] Firmware compiles
@@ -272,61 +272,61 @@ GööGöÇ generated_at
 
 ---
 
-## =ƒÄ» KEY METRICS
+## =ï¿½Ä» KEY METRICS
 
 ```
 Device
-Gö£GöÇ Display: 3.5" 480x320 pixels
-Gö£GöÇ Touch: XPT2046 resistive
-Gö£GöÇ Storage: microSD (up to 1TB)
-Gö£GöÇ Battery: 2S Li-ion (8.4V)
-Gö£GöÇ Load Cell: HX711 + strain gauge
-GööGöÇ Wireless: Wi-Fi 2.4G + Bluetooth LE
+Gï¿½ï¿½Gï¿½ï¿½ Display: 3.5" 480x320 pixels
+Gï¿½ï¿½Gï¿½ï¿½ Touch: XPT2046 resistive
+Gï¿½ï¿½Gï¿½ï¿½ Storage: microSD (up to 1TB)
+Gï¿½ï¿½Gï¿½ï¿½ Battery: 2S Li-ion (8.4V)
+Gï¿½ï¿½Gï¿½ï¿½ Load Cell: HX711 + strain gauge
+Gï¿½ï¿½Gï¿½ï¿½ Wireless: Wi-Fi 2.4G + Bluetooth LE
 
 App
-Gö£GöÇ Screens: 8 (splash, auth, home, device, measure, history, insights, settings)
-Gö£GöÇ Providers: 3 (auth, device, measurement)
-Gö£GöÇ Colors: 20+ (including vibrant palette)
-Gö£GöÇ Platforms: iOS, Android, Web
-GööGöÇ Dependencies: 23
+Gï¿½ï¿½Gï¿½ï¿½ Screens: 8 (splash, auth, home, device, measure, history, insights, settings)
+Gï¿½ï¿½Gï¿½ï¿½ Providers: 3 (auth, device, measurement)
+Gï¿½ï¿½Gï¿½ï¿½ Colors: 20+ (including vibrant palette)
+Gï¿½ï¿½Gï¿½ï¿½ Platforms: iOS, Android, Web
+Gï¿½ï¿½Gï¿½ï¿½ Dependencies: 23
 
 Backend
-Gö£GöÇ Database: PostgreSQL (Supabase)
-Gö£GöÇ API: RESTful (Supabase)
-Gö£GöÇ Auth: Email/password + sessions
-Gö£GöÇ Functions: 1 Edge Function (/device-sync)
-Gö£GöÇ Real-time: Supabase subscriptions
-GööGöÇ Storage: Cloud + local cache
+Gï¿½ï¿½Gï¿½ï¿½ Database: PostgreSQL (Supabase)
+Gï¿½ï¿½Gï¿½ï¿½ API: RESTful (Supabase)
+Gï¿½ï¿½Gï¿½ï¿½ Auth: Email/password + sessions
+Gï¿½ï¿½Gï¿½ï¿½ Functions: 1 Edge Function (/device-sync)
+Gï¿½ï¿½Gï¿½ï¿½ Real-time: Supabase subscriptions
+Gï¿½ï¿½Gï¿½ï¿½ Storage: Cloud + local cache
 ```
 
 ---
 
-## =ƒöÉ SECURITY STATUS
+## =ï¿½ï¿½ï¿½ SECURITY STATUS
 
 ```
 Device
-Gö£GöÇ Device secret: G£à Stored on SD card
-Gö£GöÇ HTTPS: G£à Enabled (cert verification ready)
-Gö£GöÇ API key: G£à Publishable key only
-GööGöÇ Data: G£à Local SD + cloud backup
+Gï¿½ï¿½Gï¿½ï¿½ Device secret: Gï¿½ï¿½ Stored on SD card
+Gï¿½ï¿½Gï¿½ï¿½ HTTPS: Gï¿½ï¿½ Enabled (cert verification ready)
+Gï¿½ï¿½Gï¿½ï¿½ API key: Gï¿½ï¿½ Publishable key only
+Gï¿½ï¿½Gï¿½ï¿½ Data: Gï¿½ï¿½ Local SD + cloud backup
 
 App
-Gö£GöÇ Auth: G£à Supabase Auth
-Gö£GöÇ Tokens: G£à Supabase managed
-Gö£GöÇ Local: G£à No sensitive data
-GööGöÇ API: G£à HTTPS only
+Gï¿½ï¿½Gï¿½ï¿½ Auth: Gï¿½ï¿½ Supabase Auth
+Gï¿½ï¿½Gï¿½ï¿½ Tokens: Gï¿½ï¿½ Supabase managed
+Gï¿½ï¿½Gï¿½ï¿½ Local: Gï¿½ï¿½ No sensitive data
+Gï¿½ï¿½Gï¿½ï¿½ API: Gï¿½ï¿½ HTTPS only
 
 Backend
-Gö£GöÇ Auth: G£à Email + password
-Gö£GöÇ Sessions: G£à Token-based
-Gö£GöÇ Database: G£à RLS ready (not yet enabled)
-Gö£GöÇ Encryption: G£à HTTPS TLS
-GööGöÇ Backups: G£à Supabase daily
+Gï¿½ï¿½Gï¿½ï¿½ Auth: Gï¿½ï¿½ Email + password
+Gï¿½ï¿½Gï¿½ï¿½ Sessions: Gï¿½ï¿½ Token-based
+Gï¿½ï¿½Gï¿½ï¿½ Database: Gï¿½ï¿½ RLS ready (not yet enabled)
+Gï¿½ï¿½Gï¿½ï¿½ Encryption: Gï¿½ï¿½ HTTPS TLS
+Gï¿½ï¿½Gï¿½ï¿½ Backups: Gï¿½ï¿½ Supabase daily
 ```
 
 ---
 
-## =ƒ¢án+Å TROUBLESHOOTING QUICK REFERENCE
+## =ï¿½ï¿½ï¿½n+ï¿½ TROUBLESHOOTING QUICK REFERENCE
 
 | Issue | Solution |
 |-------|----------|
@@ -334,13 +334,13 @@ GööGöÇ Backups: G£à Supabase daily
 | Device not syncing | Check Wi-Fi SSID/password, verify domain name |
 | Serial monitor shows errors | Check GPIO connections, verify pin mapping |
 | App colors wrong | Check Material 3 theme applied, device display settings |
-| Demo data missing | Go to Device Detail GåÆ Settings GåÆ Generate Test Data |
+| Demo data missing | Go to Device Detail Gï¿½ï¿½ Settings Gï¿½ï¿½ Generate Test Data |
 | Supabase 401 error | Check API key, verify auth provider initialized |
 | Device won't boot | Check USB cable, verify board selected in Arduino IDE |
 
 ---
 
-## =ƒôP RESOURCE LINKS
+## =ï¿½ï¿½P RESOURCE LINKS
 
 ```
 Documentation:
@@ -358,32 +358,32 @@ GitHub Repos:
 
 ---
 
-## =ƒÄë FINAL STATUS
+## =ï¿½ï¿½ï¿½ FINAL STATUS
 
 ```
-GöîGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÉ
-Göé VitalStep - November 2026               Göé
-Göé Version: 1.0.0                          Göé
-Göé Status: =ƒƒó PRODUCTION READY             Göé
-GööGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÇGöÿ
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
+Gï¿½ï¿½ VitalStep - November 2026               Gï¿½ï¿½
+Gï¿½ï¿½ Version: 1.0.0                          Gï¿½ï¿½
+Gï¿½ï¿½ Status: =ï¿½ï¿½ï¿½ PRODUCTION READY             Gï¿½ï¿½
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½
 
-G£à Device firmware:      Complete & tested
-G£à Mobile app:           Complete & ready
-G£à Backend:              Complete & active
-G£à Documentation:        Complete & detailed
-G£à Test mode:            Working (HTTP 200)
-G£à Color scheme:         Vibrant & professional
-G£à Security:             Implemented & ready
+Gï¿½ï¿½ Device firmware:      Complete & tested
+Gï¿½ï¿½ Mobile app:           Complete & ready
+Gï¿½ï¿½ Backend:              Complete & active
+Gï¿½ï¿½ Documentation:        Complete & detailed
+Gï¿½ï¿½ Test mode:            Working (HTTP 200)
+Gï¿½ï¿½ Color scheme:         Vibrant & professional
+Gï¿½ï¿½ Security:             Implemented & ready
 
 GÅ¦ Next: Run the app & test with hardware
-=ƒÜÇ Ready for: App store deployment
+=ï¿½ï¿½ï¿½ Ready for: App store deployment
 ```
 
 ---
 
 **Created:** November 2026  
 **Build:** Production  
-**Time to Deploy:** NOW G£à
+**Time to Deploy:** NOW Gï¿½ï¿½
 
 For more details, see:
 - `QUICK_START.md` (5-minute setup)

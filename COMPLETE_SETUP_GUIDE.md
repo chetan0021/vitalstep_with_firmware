@@ -9,15 +9,15 @@ VitalStep is a comprehensive palm pressure health monitoring system consisting o
 
 ---
 
-## Phase 1: Device Firmware G£à COMPLETE
+## Phase 1: Device Firmware Gï¿½ï¿½ COMPLETE
 
 ### Current Status
-- G£à Firmware compiled and flashed to ESP32-3248S035
-- G£à Device connects to Wi-Fi successfully
-- G£à Cloud sync via Supabase Edge Function (HTTP 200)
-- G£à SD card storage initialized
-- G£à Touch UI with vibrant colors
-- G£à Test mode with simulated data
+- Gï¿½ï¿½ Firmware compiled and flashed to ESP32-3248S035
+- Gï¿½ï¿½ Device connects to Wi-Fi successfully
+- Gï¿½ï¿½ Cloud sync via Supabase Edge Function (HTTP 200)
+- Gï¿½ï¿½ SD card storage initialized
+- Gï¿½ï¿½ Touch UI with vibrant colors
+- Gï¿½ï¿½ Test mode with simulated data
 
 ### File Location
 ```
@@ -67,44 +67,44 @@ RGB LED: GPIO 4 (R), 16 (G), 17 (B)
 
 ---
 
-## Phase 2: Mobile App =ƒåò NEW
+## Phase 2: Mobile App =ï¿½ï¿½ï¿½ NEW
 
 ### Project Structure
 ```
 VitalStep_Mobile_App/
-Gö£GöÇGöÇ lib/
-Göé   Gö£GöÇGöÇ main.dart                 # App entry + providers
-Göé   Gö£GöÇGöÇ theme/
-Göé   Göé   Gö£GöÇGöÇ colors.dart          # Vibrant color palette
-Göé   Göé   GööGöÇGöÇ app_theme.dart       # Material 3 theme
-Göé   Gö£GöÇGöÇ models/
-Göé   Göé   GööGöÇGöÇ device.dart          # Data models
-Göé   Gö£GöÇGöÇ services/
-Göé   Göé   GööGöÇGöÇ supabase_service.dart # Backend integration
-Göé   Gö£GöÇGöÇ screens/
-Göé   Göé   Gö£GöÇGöÇ splash_screen.dart
-Göé   Göé   Gö£GöÇGöÇ auth/
-Göé   Göé   Göé   Gö£GöÇGöÇ login_screen.dart
-Göé   Göé   Göé   GööGöÇGöÇ signup_screen.dart
-Göé   Göé   Gö£GöÇGöÇ home/
-Göé   Göé   Göé   GööGöÇGöÇ home_screen.dart
-Göé   Göé   Gö£GöÇGöÇ device/
-Göé   Göé   Göé   Gö£GöÇGöÇ device_detail_screen.dart
-Göé   Göé   Göé   GööGöÇGöÇ device_pairing_screen.dart
-Göé   Göé   Gö£GöÇGöÇ measurement/
-Göé   Göé   Göé   GööGöÇGöÇ measurement_screen.dart
-Göé   Göé   Gö£GöÇGöÇ history/
-Göé   Göé   Göé   GööGöÇGöÇ history_screen.dart
-Göé   Göé   Gö£GöÇGöÇ insights/
-Göé   Göé   Göé   GööGöÇGöÇ insights_screen.dart
-Göé   Göé   GööGöÇGöÇ settings/
-Göé   Göé       GööGöÇGöÇ settings_screen.dart
-Göé   GööGöÇGöÇ providers/
-Göé       Gö£GöÇGöÇ auth_provider.dart
-Göé       Gö£GöÇGöÇ device_provider.dart
-Göé       GööGöÇGöÇ measurement_provider.dart
-Gö£GöÇGöÇ pubspec.yaml
-GööGöÇGöÇ assets/
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ lib/
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ main.dart                 # App entry + providers
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ theme/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ colors.dart          # Vibrant color palette
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ app_theme.dart       # Material 3 theme
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ models/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ device.dart          # Data models
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ services/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ supabase_service.dart # Backend integration
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ screens/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ splash_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ auth/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ login_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ signup_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ home/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ home_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ device/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ device_detail_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ device_pairing_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ measurement/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ measurement_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ history/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ history_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ insights/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ insights_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ settings/
+Gï¿½ï¿½   Gï¿½ï¿½       Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ settings_screen.dart
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ providers/
+Gï¿½ï¿½       Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ auth_provider.dart
+Gï¿½ï¿½       Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ device_provider.dart
+Gï¿½ï¿½       Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ measurement_provider.dart
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ pubspec.yaml
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ assets/
 ```
 
 ### Key Features
@@ -178,7 +178,7 @@ Edit `lib/services/supabase_service.dart`:
 ```dart
 await Supabase.initialize(
   url: 'https://oyqecdcpicvzwwvwaeka.supabase.co',
-  anonKey: 'sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi',
+  anonKey: 'sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**',
 );
 ```
 
@@ -188,11 +188,11 @@ await Supabase.initialize(
 
 ---
 
-## Phase 3: Supabase Backend G£à COMPLETE
+## Phase 3: Supabase Backend Gï¿½ï¿½ COMPLETE
 
 ### Project Details
 - **URL:** https://oyqecdcpicvzwwvwaeka.supabase.co
-- **Publishable Key:** `sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi`
+- **Publishable Key:** `sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**`
 - **Region:** Asia (Singapore)
 
 ### Database Schema
@@ -262,7 +262,7 @@ Handles:
 ```bash
 curl -X POST "https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/device-sync" \
   -H "Content-Type: application/json" \
-  -H "apikey: sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi" \
+  -H "apikey: sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**" \
   -H "x-device-code: VS-92026" \
   -H "x-device-secret: 9e345bc38b7bc7186b72252c80a72f6635d35dc2c54991d74b5f38c17c5d7179" \
   -d '{
@@ -376,13 +376,13 @@ Device will:
 
 ```
 c:\Users\Chetan\Documents\vitalstep_with_firmware-master\
-Gö£GöÇGöÇ VitalStep_Device_fixed.ino              # Device firmware
-Gö£GöÇGöÇ VitalStep_Mobile_App/                   # Flutter app
-Göé   Gö£GöÇGöÇ lib/main.dart                       # App entry point
-Göé   Gö£GöÇGöÇ pubspec.yaml                        # Dependencies
-Göé   GööGöÇGöÇ ...
-Gö£GöÇGöÇ COMPLETE_SETUP_GUIDE.md                 # This file
-GööGöÇGöÇ ...
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ VitalStep_Device_fixed.ino              # Device firmware
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ VitalStep_Mobile_App/                   # Flutter app
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ lib/main.dart                       # App entry point
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ pubspec.yaml                        # Dependencies
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ ...
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ COMPLETE_SETUP_GUIDE.md                 # This file
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ ...
 ```
 
 ---
@@ -432,4 +432,4 @@ GööGöÇGöÇ ...
 
 ---
 
-Generated with G¥ñn+Å by VitalStep Team
+Generated with Gï¿½ï¿½n+ï¿½ by VitalStep Team

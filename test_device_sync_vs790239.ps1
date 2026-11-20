@@ -4,7 +4,7 @@
 # Device credentials (from Supabase device_inventory table)
 $deviceCode = "VS-790239"
 $deviceSecret = "9a82b79b3f727f8b585f27f32a54765cf6cf5bcb89820bd6e101e729c5cecc3d"
-$apiKey = "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"
+$apiKey = "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"
 
 # Supabase Edge Function URL
 $edgeFunctionUrl = "https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/device-sync"

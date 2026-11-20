@@ -5,7 +5,7 @@
 $deviceCode = "VS-001001"
 $deviceSecret = "29740c5e5bf1edfb0503264a306b01661836346fd126fa621f40d9d7cdd12c68"
 $deviceId = "ddf12498-3f91-4f0a-89b4-f197556b2c0d"
-$apiKey = "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"
+$apiKey = "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"
 
 # User info
 $patientUserIdUUID = "d9dd4237-2701-4475-9d9e-2fac790c760f"

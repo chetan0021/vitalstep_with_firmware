@@ -40,7 +40,7 @@ Once you have device code + secret, run this PowerShell command:
 # Set your device credentials
 $deviceCode = "VS-XXXXX"  # Replace with your code
 $deviceSecret = "abc...def"  # Replace with your secret
-$supabaseKey = "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"
+$supabaseKey = "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"
 
 # Create test payload
 $testPayload = @{

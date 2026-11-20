@@ -49,7 +49,7 @@
 
 // ============================ USER CONFIG ================================
 #define SUPABASE_HOST     "oyqecdcpicvzwwvwaeka.supabase.co"   // no https://
-#define SUPABASE_PUB_KEY  "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"  // publishable key (safe to ship)
+#define SUPABASE_PUB_KEY  "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"  // publishable key (safe to ship)
 #define FN_SYNC_PATH      "/functions/v1/device-sync"
 #define TLS_VERIFY        0     // 0 = setInsecure() like your old firmware (dev only)
                                 // 1 = verify server with SUPABASE_ROOT_CA below (production)

@@ -6,25 +6,25 @@ All dashboard files have been created and are ready to be used. Here's the compl
 
 ```
 admin-dashboard/
-Gö£GöÇGöÇ app/
-Göé   Gö£GöÇGöÇ layout.tsx              GåÆ dashboard-app-layout.tsx
-Göé   Gö£GöÇGöÇ login/
-Göé   Göé   GööGöÇGöÇ page.tsx            GåÆ dashboard-app-login-page.tsx
-Göé   Gö£GöÇGöÇ dashboard/
-Göé   Göé   Gö£GöÇGöÇ layout.tsx          GåÆ dashboard-app-dashboard-layout.tsx
-Göé   Göé   Gö£GöÇGöÇ page.tsx            GåÆ dashboard-app-dashboard-page.tsx
-Göé   Göé   Gö£GöÇGöÇ generate/
-Göé   Göé   Göé   GööGöÇGöÇ page.tsx        GåÆ dashboard-app-dashboard-generate-page.tsx
-Göé   Göé   Gö£GöÇGöÇ devices/
-Göé   Göé   Göé   GööGöÇGöÇ page.tsx        GåÆ dashboard-app-dashboard-devices-page.tsx
-Göé   Göé   GööGöÇGöÇ audit/
-Göé   Göé       GööGöÇGöÇ page.tsx        GåÆ dashboard-app-dashboard-audit-page.tsx
-Gö£GöÇGöÇ components/
-Göé   GööGöÇGöÇ Sidebar.tsx             GåÆ dashboard-components-sidebar.tsx
-Gö£GöÇGöÇ lib/
-Göé   GööGöÇGöÇ supabase.ts             GåÆ dashboard-lib-supabase.ts
-Gö£GöÇGöÇ .env.local                  GåÆ (create with env variables)
-GööGöÇGöÇ package.json                GåÆ (created with dependencies)
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ app/
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ layout.tsx              Gï¿½ï¿½ dashboard-app-layout.tsx
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ login/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ page.tsx            Gï¿½ï¿½ dashboard-app-login-page.tsx
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ dashboard/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ layout.tsx          Gï¿½ï¿½ dashboard-app-dashboard-layout.tsx
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ page.tsx            Gï¿½ï¿½ dashboard-app-dashboard-page.tsx
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ generate/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ page.tsx        Gï¿½ï¿½ dashboard-app-dashboard-generate-page.tsx
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ devices/
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ page.tsx        Gï¿½ï¿½ dashboard-app-dashboard-devices-page.tsx
+Gï¿½ï¿½   Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ audit/
+Gï¿½ï¿½   Gï¿½ï¿½       Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ page.tsx        Gï¿½ï¿½ dashboard-app-dashboard-audit-page.tsx
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ components/
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ Sidebar.tsx             Gï¿½ï¿½ dashboard-components-sidebar.tsx
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ lib/
+Gï¿½ï¿½   Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ supabase.ts             Gï¿½ï¿½ dashboard-lib-supabase.ts
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ .env.local                  Gï¿½ï¿½ (create with env variables)
+Gï¿½ï¿½Gï¿½ï¿½Gï¿½ï¿½ package.json                Gï¿½ï¿½ (created with dependencies)
 ```
 
 ---
@@ -39,12 +39,12 @@ npx create-next-app@latest admin-dashboard --typescript --tailwind --app
 ```
 
 **When prompted, select:**
-- Would you like to use TypeScript? GåÆ Yes
-- Would you like to use ESLint? GåÆ Yes
-- Would you like to use Tailwind CSS? GåÆ Yes
-- Would you like to use `src/` directory? GåÆ No
-- Would you like to use App Router? GåÆ Yes
-- Would you like to customize the default import alias? GåÆ No
+- Would you like to use TypeScript? Gï¿½ï¿½ Yes
+- Would you like to use ESLint? Gï¿½ï¿½ Yes
+- Would you like to use Tailwind CSS? Gï¿½ï¿½ Yes
+- Would you like to use `src/` directory? Gï¿½ï¿½ No
+- Would you like to use App Router? Gï¿½ï¿½ Yes
+- Would you like to customize the default import alias? Gï¿½ï¿½ No
 
 ---
 
@@ -62,16 +62,16 @@ npm install @supabase/supabase-js lucide-react
 Copy the files from the project folder into the appropriate locations:
 
 ```
-Dashboard Files Location                  GåÆ Next.js Project Location
-dashboard-lib-supabase.ts                 GåÆ lib/supabase.ts
-dashboard-app-layout.tsx                  GåÆ app/layout.tsx
-dashboard-app-login-page.tsx              GåÆ app/login/page.tsx
-dashboard-app-dashboard-layout.tsx        GåÆ app/dashboard/layout.tsx
-dashboard-app-dashboard-page.tsx          GåÆ app/dashboard/page.tsx
-dashboard-app-dashboard-generate-page.tsx GåÆ app/dashboard/generate/page.tsx
-dashboard-app-dashboard-devices-page.tsx  GåÆ app/dashboard/devices/page.tsx
-dashboard-app-dashboard-audit-page.tsx    GåÆ app/dashboard/audit/page.tsx
-dashboard-components-sidebar.tsx          GåÆ components/Sidebar.tsx
+Dashboard Files Location                  Gï¿½ï¿½ Next.js Project Location
+dashboard-lib-supabase.ts                 Gï¿½ï¿½ lib/supabase.ts
+dashboard-app-layout.tsx                  Gï¿½ï¿½ app/layout.tsx
+dashboard-app-login-page.tsx              Gï¿½ï¿½ app/login/page.tsx
+dashboard-app-dashboard-layout.tsx        Gï¿½ï¿½ app/dashboard/layout.tsx
+dashboard-app-dashboard-page.tsx          Gï¿½ï¿½ app/dashboard/page.tsx
+dashboard-app-dashboard-generate-page.tsx Gï¿½ï¿½ app/dashboard/generate/page.tsx
+dashboard-app-dashboard-devices-page.tsx  Gï¿½ï¿½ app/dashboard/devices/page.tsx
+dashboard-app-dashboard-audit-page.tsx    Gï¿½ï¿½ app/dashboard/audit/page.tsx
+dashboard-components-sidebar.tsx          Gï¿½ï¿½ components/Sidebar.tsx
 ```
 
 ---
@@ -82,7 +82,7 @@ Create `.env.local` in the admin-dashboard root:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://oyqecdcpicvzwwvwaeka.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 NEXT_PUBLIC_SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWVjZGNwaWN2end3dndhaWVrYSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MjkxNzgyODksImV4cCI6MTk0NDc1NDI4OX0.BOq0IzVVXsQhc8X_UMB-OxW5CtVfWvk9mf9wCY0kcjU
 NEXT_PUBLIC_EDGE_FUNCTION_URL=https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id
 ```
@@ -134,22 +134,22 @@ Open browser: **http://localhost:3000**
 
 ## Dashboard Features
 
-### =ƒÅá Dashboard Home
+### =ï¿½ï¿½ï¿½ Dashboard Home
 - View device statistics
 - See total devices, manufactured, paired
 - Recent devices list
 
-### =ƒöº Generate Device
+### =ï¿½ï¿½ï¿½ Generate Device
 - Create new device IDs
 - Download SD card files (devicecode.txt + devicesecret.txt)
 - Copy device code and secret to clipboard
 
-### =ƒôï Device Inventory
+### =ï¿½ï¿½ï¿½ Device Inventory
 - View all devices in a table
 - Filter by status (Manufactured, Paired, In Field, Retired)
 - Search by device code
 
-### =ƒôè Audit Log
+### =ï¿½ï¿½ï¿½ Audit Log
 - View all admin actions
 - See timestamps and device codes
 - Track device generation events
@@ -187,12 +187,12 @@ git push -u origin main
 
 ## Vercel Environment Variables
 
-Add these in Vercel Project Settings GåÆ Environment Variables:
+Add these in Vercel Project Settings Gï¿½ï¿½ Environment Variables:
 
 | Variable | Value |
 |----------|-------|
 | `NEXT_PUBLIC_SUPABASE_URL` | https://oyqecdcpicvzwwvwaeka.supabase.co |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR** |
 | `NEXT_PUBLIC_SUPABASE_SERVICE_KEY` | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... |
 | `NEXT_PUBLIC_EDGE_FUNCTION_URL` | https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id |
 
@@ -201,27 +201,27 @@ Add these in Vercel Project Settings GåÆ Environment Variables:
 ## Troubleshooting
 
 ### Issue: "Module not found"
-GåÆ Run `npm install`
+Gï¿½ï¿½ Run `npm install`
 
 ### Issue: "Supabase connection error"
-GåÆ Check .env.local variables
+Gï¿½ï¿½ Check .env.local variables
 
 ### Issue: "Cannot generate device"
-GåÆ Check Edge Function is deployed and admin user exists
+Gï¿½ï¿½ Check Edge Function is deployed and admin user exists
 
 ### Issue: "Login fails"
-GåÆ Check admin user credentials in Supabase Auth
+Gï¿½ï¿½ Check admin user credentials in Supabase Auth
 
 ---
 
 ## Next Steps
 
-1. G£à Run locally to test
-2. G£à Push to GitHub
-3. G£à Deploy to Vercel
-4. G£à Test in production
-5. G£à Share dashboard URL with team
+1. Gï¿½ï¿½ Run locally to test
+2. Gï¿½ï¿½ Push to GitHub
+3. Gï¿½ï¿½ Deploy to Vercel
+4. Gï¿½ï¿½ Test in production
+5. Gï¿½ï¿½ Share dashboard URL with team
 
 ---
 
-Your dashboard is now ready! =ƒÜÇ
+Your dashboard is now ready! =ï¿½ï¿½ï¿½

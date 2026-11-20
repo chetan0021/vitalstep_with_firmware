@@ -31,7 +31,7 @@ Create `.env.local` in root with this exact content:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://oyqecdcpicvzwwvwaeka.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 NEXT_PUBLIC_SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWVjZGNwaWN2end3dndhaWVrYSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MjkxNzgyODksImV4cCI6MTk0NDc1NDI4OX0.BOq0IzVVXsQhc8X_UMB-OxW5CtVfWvk9mf9wCY0kcjU
 NEXT_PUBLIC_EDGE_FUNCTION_URL=https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id
 ```
@@ -91,12 +91,12 @@ git push -u origin main
 
 ## 7. Vercel Environment Variables
 
-Add these in Vercel Project Settings GåÆ Environment Variables:
+Add these in Vercel Project Settings Gï¿½ï¿½ Environment Variables:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL = https://oyqecdcpicvzwwvwaeka.supabase.co
 
-NEXT_PUBLIC_SUPABASE_ANON_KEY = sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+NEXT_PUBLIC_SUPABASE_ANON_KEY = sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 
 NEXT_PUBLIC_SUPABASE_SERVICE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWVjZGNwaWN2end3dndhaWVrYSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MjkxNzgyODksImV4cCI6MTk0NDc1NDI4OX0.BOq0IzVVXsQhc8X_UMB-OxW5CtVfWvk9mf9wCY0kcjU
 
@@ -177,13 +177,13 @@ TO:   admin-dashboard\components\Sidebar.tsx
 
 ## Quick Summary
 
-1. G£à Run all commands from Step 1-6
-2. G£à Copy all files from Step 11
-3. G£à Test with Step 5
-4. G£à Push to GitHub with Step 6
-5. G£à Deploy to Vercel with Step 8
-6. G£à Login with Step 9
-7. G£à Share production URL!
+1. Gï¿½ï¿½ Run all commands from Step 1-6
+2. Gï¿½ï¿½ Copy all files from Step 11
+3. Gï¿½ï¿½ Test with Step 5
+4. Gï¿½ï¿½ Push to GitHub with Step 6
+5. Gï¿½ï¿½ Deploy to Vercel with Step 8
+6. Gï¿½ï¿½ Login with Step 9
+7. Gï¿½ï¿½ Share production URL!
 
 ---
 
@@ -207,4 +207,4 @@ npm install
 
 ---
 
-Done! =ƒÜÇ
+Done! =ï¿½ï¿½ï¿½

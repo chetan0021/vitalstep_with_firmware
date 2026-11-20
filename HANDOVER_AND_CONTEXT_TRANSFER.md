@@ -23,9 +23,7 @@
 
 - **Project URL**: `https://oyqecdcpicvzwwvwaeka.supabase.co`
 - **Publishable / Anon Key**:
-  ```
-  sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
-  ```
+  - Configured via `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel Environment Variables and `.env.local` (obtained from Supabase Dashboard → Project Settings → API Keys).
 - **Service Role Secret Key** (backend/admin operations only, do not expose in client code):
   - Configured via `SUPABASE_SERVICE_ROLE_KEY` in Vercel Environment Variables and `.env.local` (obtained from Supabase Dashboard -> Project Settings -> API Keys).
 - **SQL Dashboard**: [https://supabase.com/dashboard/project/oyqecdcpicvzwwvwaeka/sql](https://supabase.com/dashboard/project/oyqecdcpicvzwwvwaeka/sql)

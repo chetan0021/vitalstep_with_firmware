@@ -14,7 +14,7 @@ $tokenResponse = Invoke-WebRequest -Uri "https://oyqecdcpicvzwwvwaeka.supabase.c
     -Method POST `
     -Headers @{
         "Content-Type" = "application/json"
-        "apikey" = "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"
+        "apikey" = "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"
     } `
     -Body $body
 
@@ -34,10 +34,10 @@ Write-Host $token
 In the Supabase dashboard where you see "Test generate-device-id":
 
 ### HTTP Method
-G£à Already set to **POST**
+Gï¿½ï¿½ Already set to **POST**
 
 ### Request Body
-G£à Already set to **`{ "name": "functions" }`** - CHANGE THIS TO:
+Gï¿½ï¿½ Already set to **`{ "name": "functions" }`** - CHANGE THIS TO:
 ```json
 {}
 ```
@@ -85,7 +85,7 @@ Click the **Send your first test request** button (or the arrow button)
   "error": "Unauthorized"
 }
 ```
-GåÆ Token is invalid or expired. Get a fresh token.
+Gï¿½ï¿½ Token is invalid or expired. Get a fresh token.
 
 **403 Forbidden**
 ```json
@@ -94,7 +94,7 @@ GåÆ Token is invalid or expired. Get a fresh token.
   "error": "User is not an authorized admin"
 }
 ```
-GåÆ Admin user not found in admins table. Check SQL.
+Gï¿½ï¿½ Admin user not found in admins table. Check SQL.
 
 **400 Bad Request**
 ```json
@@ -103,7 +103,7 @@ GåÆ Admin user not found in admins table. Check SQL.
   "error": "insert or update on table violates foreign key constraint"
 }
 ```
-GåÆ Database issue. Check that user exists in auth.users.
+Gï¿½ï¿½ Database issue. Check that user exists in auth.users.
 
 ---
 
@@ -111,7 +111,7 @@ GåÆ Database issue. Check that user exists in auth.users.
 
 ### If you get errors, check the function logs:
 
-1. Go to **Functions** GåÆ **generate-device-id**
+1. Go to **Functions** Gï¿½ï¿½ **generate-device-id**
 2. Click **Executions** tab
 3. Click the failed execution
 4. Look at the logs to see what went wrong

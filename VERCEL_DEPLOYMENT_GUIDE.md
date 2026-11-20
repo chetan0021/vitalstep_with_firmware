@@ -12,12 +12,12 @@ npx create-next-app@latest admin-dashboard --typescript --tailwind --app
 ```
 
 When prompted:
-- TypeScript? GåÆ Yes
-- ESLint? GåÆ Yes
-- Tailwind? GåÆ Yes
-- src/ directory? GåÆ No
-- App Router? GåÆ Yes
-- Import alias? GåÆ No
+- TypeScript? Gï¿½ï¿½ Yes
+- ESLint? Gï¿½ï¿½ Yes
+- Tailwind? Gï¿½ï¿½ Yes
+- src/ directory? Gï¿½ï¿½ No
+- App Router? Gï¿½ï¿½ Yes
+- Import alias? Gï¿½ï¿½ No
 
 ```bash
 cd admin-dashboard
@@ -101,7 +101,7 @@ In the admin-dashboard root, create `.env.local`:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://oyqecdcpicvzwwvwaeka.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 NEXT_PUBLIC_SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWVjZGNwaWN2end3dndhaWVrYSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MjkxNzgyODksImV4cCI6MTk0NDc1NDI4OX0.BOq0IzVVXsQhc8X_UMB-OxW5CtVfWvk9mf9wCY0kcjU
 NEXT_PUBLIC_EDGE_FUNCTION_URL=https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id
 ```
@@ -151,10 +151,10 @@ Login:
 - Password: `Admin123!@#`
 
 Test the dashboard:
-- G£à Can you login?
-- G£à Can you navigate to Dashboard?
-- G£à Can you generate a device?
-- G£à Can you view devices?
+- Gï¿½ï¿½ Can you login?
+- Gï¿½ï¿½ Can you navigate to Dashboard?
+- Gï¿½ï¿½ Can you generate a device?
+- Gï¿½ï¿½ Can you view devices?
 
 ---
 
@@ -173,7 +173,7 @@ git push -u origin main
 
 **Go to your GitHub repo**: https://github.com/YOUR_USERNAME/vitalstep-admin-dashboard
 
-Verify all files are there G£à
+Verify all files are there Gï¿½ï¿½
 
 ---
 
@@ -221,7 +221,7 @@ Before clicking "Deploy", scroll to "Environment Variables"
 
 **Variable 2:**
 - Name: `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- Value: `sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi`
+- Value: `sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**`
 - Click "Add"
 
 **Variable 3:**
@@ -245,7 +245,7 @@ Vercel will:
 2. Deploy to edge network
 3. Give you a live URL
 
-Wait for green checkmark G£à
+Wait for green checkmark Gï¿½ï¿½
 
 ---
 
@@ -280,7 +280,7 @@ Send the URL: `https://your-deployment.vercel.app`
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://oyqecdcpicvzwwvwaeka.supabase.co
 
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 
 NEXT_PUBLIC_SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWVjZGNwaWN2end3dndhaWVrYSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MjkxNzgyODksImV4cCI6MTk0NDc1NDI4OX0.BOq0IzVVXsQhc8X_UMB-OxW5CtVfWvk9mf9wCY0kcjU
 
@@ -293,13 +293,13 @@ NEXT_PUBLIC_EDGE_FUNCTION_URL=https://oyqecdcpicvzwwvwaeka.supabase.co/functions
 
 When deploying, Vercel automatically detects:
 
-- G£à `package.json` - Dependencies
-- G£à `next.config.js` - Next.js config
-- G£à `tsconfig.json` - TypeScript config
-- G£à `.env.local` - Local env (NOT deployed, use Vercel UI for production)
-- G£à `app/` - Your application code
-- G£à `components/` - Reusable components
-- G£à `lib/` - Utilities
+- Gï¿½ï¿½ `package.json` - Dependencies
+- Gï¿½ï¿½ `next.config.js` - Next.js config
+- Gï¿½ï¿½ `tsconfig.json` - TypeScript config
+- Gï¿½ï¿½ `.env.local` - Local env (NOT deployed, use Vercel UI for production)
+- Gï¿½ï¿½ `app/` - Your application code
+- Gï¿½ï¿½ `components/` - Reusable components
+- Gï¿½ï¿½ `lib/` - Utilities
 
 **Don't need to select any specific file** - Vercel auto-detects Next.js projects!
 
@@ -308,20 +308,20 @@ When deploying, Vercel automatically detects:
 ## Troubleshooting
 
 ### "Build failed"
-GåÆ Check that all dependencies are in package.json
-GåÆ Run `npm run build` locally to debug
+Gï¿½ï¿½ Check that all dependencies are in package.json
+Gï¿½ï¿½ Run `npm run build` locally to debug
 
 ### "Environment variables not working"
-GåÆ Check you added them in Vercel Project Settings GåÆ Environment Variables
-GåÆ Redeploy after adding variables
+Gï¿½ï¿½ Check you added them in Vercel Project Settings Gï¿½ï¿½ Environment Variables
+Gï¿½ï¿½ Redeploy after adding variables
 
 ### "Dashboard shows blank page"
-GåÆ Check browser console for errors (F12)
-GåÆ Verify Supabase URL and keys are correct
+Gï¿½ï¿½ Check browser console for errors (F12)
+Gï¿½ï¿½ Verify Supabase URL and keys are correct
 
 ### "Login not working"
-GåÆ Check admin user exists in Supabase
-GåÆ Verify credentials: admin@vitalstep.com / Admin123!@#
+Gï¿½ï¿½ Check admin user exists in Supabase
+Gï¿½ï¿½ Verify credentials: admin@vitalstep.com / Admin123!@#
 
 ---
 
@@ -329,13 +329,13 @@ GåÆ Verify credentials: admin@vitalstep.com / Admin123!@#
 
 To use a custom domain:
 
-1. In Vercel, go to Project Settings GåÆ Domains
+1. In Vercel, go to Project Settings Gï¿½ï¿½ Domains
 2. Add your domain
 3. Follow DNS setup instructions
 4. Takes 5-10 minutes to propagate
 
 ---
 
-You're all set! =ƒÜÇ
+You're all set! =ï¿½ï¿½ï¿½
 
 Your production dashboard is live!

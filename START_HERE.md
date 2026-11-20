@@ -1,24 +1,24 @@
-# =ƒÜÇ START HERE - Dashboard Deployment
+# =ï¿½ï¿½ï¿½ START HERE - Dashboard Deployment
 
-## G£à Your Dashboard is Ready for Production!
+## Gï¿½ï¿½ Your Dashboard is Ready for Production!
 
 Everything is complete, tested, and ready to deploy. Follow these simple steps.
 
 ---
 
-## =ƒôì What You Have
+## =ï¿½ï¿½ï¿½ What You Have
 
-G£à **Backend**: Edge Function deployed & tested  
-G£à **Database**: Supabase tables & policies configured  
-G£à **Frontend Code**: 9 production-ready files  
-G£à **Documentation**: Complete deployment guides  
-G£à **Configuration**: All environment variables ready  
+Gï¿½ï¿½ **Backend**: Edge Function deployed & tested  
+Gï¿½ï¿½ **Database**: Supabase tables & policies configured  
+Gï¿½ï¿½ **Frontend Code**: 9 production-ready files  
+Gï¿½ï¿½ **Documentation**: Complete deployment guides  
+Gï¿½ï¿½ **Configuration**: All environment variables ready  
 
 ---
 
-## =ƒÄ» 3 Simple Steps to Live
+## =ï¿½Ä» 3 Simple Steps to Live
 
-### STEP 1n+ÅGâú: BUILD LOCALLY (20 minutes)
+### STEP 1n+ï¿½Gï¿½ï¿½: BUILD LOCALLY (20 minutes)
 
 Open Terminal and run:
 
@@ -41,7 +41,7 @@ npm install @supabase/supabase-js lucide-react
 
 ---
 
-### STEP 2n+ÅGâú: PUSH TO GITHUB (5 minutes)
+### STEP 2n+ï¿½Gï¿½ï¿½: PUSH TO GITHUB (5 minutes)
 
 ```bash
 git init
@@ -56,7 +56,7 @@ Replace `YOUR_USERNAME` with your GitHub username.
 
 ---
 
-### STEP 3n+ÅGâú: DEPLOY TO VERCEL (10 minutes)
+### STEP 3n+ï¿½Gï¿½ï¿½: DEPLOY TO VERCEL (10 minutes)
 
 1. Go to: https://vercel.com/new
 2. Sign in with GitHub
@@ -64,12 +64,12 @@ Replace `YOUR_USERNAME` with your GitHub username.
 4. Click: "Import"
 5. **Add Environment Variables** (see below)
 6. Click: "Deploy"
-7. Wait for green checkmark G£à
+7. Wait for green checkmark Gï¿½ï¿½
 8. Get live URL!
 
 ---
 
-## =ƒöæ Environment Variables
+## =ï¿½ï¿½ï¿½ Environment Variables
 
 **For .env.local (local development):**
 
@@ -77,25 +77,25 @@ Create file: `admin-dashboard/.env.local`
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://oyqecdcpicvzwwvwaeka.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 NEXT_PUBLIC_SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWVjZGNwaWN2end3dndhaWVrYSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MjkxNzgyODksImV4cCI6MTk0NDc1NDI4OX0.BOq0IzVVXsQhc8X_UMB-OxW5CtVfWvk9mf9wCY0kcjU
 NEXT_PUBLIC_EDGE_FUNCTION_URL=https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id
 ```
 
 **For Vercel (production):**
 
-Add in Project Settings GåÆ Environment Variables:
+Add in Project Settings Gï¿½ï¿½ Environment Variables:
 
 | Name | Value |
 |------|-------|
 | `NEXT_PUBLIC_SUPABASE_URL` | https://oyqecdcpicvzwwvwaeka.supabase.co |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR** |
 | `NEXT_PUBLIC_SUPABASE_SERVICE_KEY` | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cWVjZGNwaWN2end3dndhaWVrYSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MjkxNzgyODksImV4cCI6MTk0NDc1NDI4OX0.BOq0IzVVXsQhc8X_UMB-OxW5CtVfWvk9mf9wCY0kcjU |
 | `NEXT_PUBLIC_EDGE_FUNCTION_URL` | https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/generate-device-id |
 
 ---
 
-## =ƒº¬ Test Credentials
+## =ï¿½ï¿½ï¿½ Test Credentials
 
 ```
 Email:    admin@vitalstep.com
@@ -104,37 +104,37 @@ Password: Admin123!@#
 
 ---
 
-## =ƒôü Files to Copy
+## =ï¿½ï¿½ï¿½ Files to Copy
 
 Copy these 9 files to your `admin-dashboard` project:
 
 ```
-dashboard-lib-supabase.ts                 GåÆ lib/supabase.ts
-dashboard-app-layout.tsx                  GåÆ app/layout.tsx
-dashboard-app-login-page.tsx              GåÆ app/login/page.tsx
-dashboard-app-dashboard-layout.tsx        GåÆ app/dashboard/layout.tsx
-dashboard-app-dashboard-page.tsx          GåÆ app/dashboard/page.tsx
-dashboard-app-dashboard-generate-page.tsx GåÆ app/dashboard/generate/page.tsx
-dashboard-app-dashboard-devices-page.tsx  GåÆ app/dashboard/devices/page.tsx
-dashboard-app-dashboard-audit-page.tsx    GåÆ app/dashboard/audit/page.tsx
-dashboard-components-sidebar.tsx          GåÆ components/Sidebar.tsx
+dashboard-lib-supabase.ts                 Gï¿½ï¿½ lib/supabase.ts
+dashboard-app-layout.tsx                  Gï¿½ï¿½ app/layout.tsx
+dashboard-app-login-page.tsx              Gï¿½ï¿½ app/login/page.tsx
+dashboard-app-dashboard-layout.tsx        Gï¿½ï¿½ app/dashboard/layout.tsx
+dashboard-app-dashboard-page.tsx          Gï¿½ï¿½ app/dashboard/page.tsx
+dashboard-app-dashboard-generate-page.tsx Gï¿½ï¿½ app/dashboard/generate/page.tsx
+dashboard-app-dashboard-devices-page.tsx  Gï¿½ï¿½ app/dashboard/devices/page.tsx
+dashboard-app-dashboard-audit-page.tsx    Gï¿½ï¿½ app/dashboard/audit/page.tsx
+dashboard-components-sidebar.tsx          Gï¿½ï¿½ components/Sidebar.tsx
 ```
 
 ---
 
-## G£¿ What You Get
+## Gï¿½ï¿½ What You Get
 
-G£à Professional admin dashboard  
-G£à Device generation system  
-G£à Device inventory management  
-G£à Audit logging  
-G£à Responsive design  
-G£à Secure authentication  
-G£à One-click deployment  
+Gï¿½ï¿½ Professional admin dashboard  
+Gï¿½ï¿½ Device generation system  
+Gï¿½ï¿½ Device inventory management  
+Gï¿½ï¿½ Audit logging  
+Gï¿½ï¿½ Responsive design  
+Gï¿½ï¿½ Secure authentication  
+Gï¿½ï¿½ One-click deployment  
 
 ---
 
-## =ƒôè Dashboard Pages
+## =ï¿½ï¿½ï¿½ Dashboard Pages
 
 After deployment, you'll have:
 
@@ -157,7 +157,7 @@ After deployment, you'll have:
 
 ---
 
-## =ƒôÜ Documentation
+## =ï¿½ï¿½ï¿½ Documentation
 
 For more details, see these files:
 
@@ -168,7 +168,7 @@ For more details, see these files:
 
 ---
 
-## GÅ¦n+Å Timeline
+## GÅ¦n+ï¿½ Timeline
 
 - Phase 1 (Build locally): 20 minutes
 - Phase 2 (Git & GitHub): 5 minutes
@@ -177,7 +177,7 @@ For more details, see these files:
 
 ---
 
-## G£à Quick Checklist
+## Gï¿½ï¿½ Quick Checklist
 
 - [ ] Read this file (START_HERE.md)
 - [ ] Create Next.js project
@@ -192,7 +192,7 @@ For more details, see these files:
 
 ---
 
-## =ƒÄë You're Ready!
+## =ï¿½ï¿½ï¿½ You're Ready!
 
 Everything is set up and ready to go. Just follow the 3 steps above and you'll have a live production dashboard within 35 minutes!
 
@@ -202,4 +202,4 @@ Everything is set up and ready to go. Just follow the 3 steps above and you'll h
 
 ---
 
-**Good luck! =ƒÜÇ**
+**Good luck! =ï¿½ï¿½ï¿½**

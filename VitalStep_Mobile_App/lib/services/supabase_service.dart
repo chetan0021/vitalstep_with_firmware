@@ -15,7 +15,7 @@ class SupabaseService {
   Future<void> initialize() async {
     await Supabase.initialize(
       url: 'https://oyqecdcpicvzwwvwaeka.supabase.co',
-      anonKey: 'sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi',
+      anonKey: 'sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**',
     );
     _client = Supabase.instance.client;
   }

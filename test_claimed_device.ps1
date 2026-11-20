@@ -4,7 +4,7 @@
 # Device credentials (from SD card)
 $deviceCode = "VS-001001"
 $deviceSecret = "29740c5e5bf1edfb0503264a306b01661836346fd126fa621f40d9d7cdd12c68"
-$apiKey = "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"
+$apiKey = "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"
 $supabaseUrl = "https://oyqecdcpicvzwwvwaeka.supabase.co"
 
 # User info (from profiles table)

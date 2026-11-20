@@ -39,7 +39,7 @@ DEVICE (ESP32)           MOBILE APP (Flutter)      BACKEND (Supabase)
 ```
 Supabase:
   URL: https://oyqecdcpicvzwwvwaeka.supabase.co
-  Key: sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi
+  Key: sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**
 
 Device:
   Code: VS-92026

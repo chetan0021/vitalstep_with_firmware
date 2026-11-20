@@ -178,7 +178,7 @@ Edit `lib/services/supabase_service.dart`:
 ```dart
 await Supabase.initialize(
   url: 'https://oyqecdcpicvzwwvwaeka.supabase.co',
-  anonKey: 'sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi',
+  anonKey: 'sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**',
 );
 ```
 
@@ -192,7 +192,7 @@ await Supabase.initialize(
 
 ### Project Details
 - **URL:** https://oyqecdcpicvzwwvwaeka.supabase.co
-- **Publishable Key:** `sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi`
+- **Publishable Key:** `sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**`
 - **Region:** Asia (Singapore)
 
 ### Database Schema
@@ -262,7 +262,7 @@ Handles:
 ```bash
 curl -X POST "https://oyqecdcpicvzwwvwaeka.supabase.co/functions/v1/device-sync" \
   -H "Content-Type: application/json" \
-  -H "apikey: sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi" \
+  -H "apikey: sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**" \
   -H "x-device-code: VS-92026" \
   -H "x-device-secret: 9e345bc38b7bc7186b72252c80a72f6635d35dc2c54991d74b5f38c17c5d7179" \
   -d '{

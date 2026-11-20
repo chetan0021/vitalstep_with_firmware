@@ -15,7 +15,7 @@ try {
         -Method POST `
         -Headers @{
             "Content-Type" = "application/json"
-            "apikey" = "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"
+            "apikey" = "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"
         } `
         -Body $body `
         -ErrorAction Stop

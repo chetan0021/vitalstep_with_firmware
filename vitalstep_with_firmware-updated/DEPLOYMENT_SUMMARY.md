@@ -41,7 +41,7 @@ Background: #0A0F23 (Deep Blue-Black)
 #### Current Configuration
 ```cpp
 #define SUPABASE_HOST     "oyqecdcpicvzwwvwaeka.supabase.co"
-#define SUPABASE_PUB_KEY  "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"
+#define SUPABASE_PUB_KEY  "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"
 #define WIFI_SSID         "Julie-2.4G"
 #define WIFI_PASSWORD     "8000143209"
 #define TEST_MODE         1     // Enable to test without hardware
