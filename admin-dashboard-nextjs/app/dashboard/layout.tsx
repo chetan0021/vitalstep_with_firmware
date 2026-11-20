@@ -2,18 +2,28 @@ import Sidebar from '@/components/Sidebar'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#070A10] text-slate-100">
+    <div style={{ minHeight: '100vh', background: '#080B11', color: '#F1F5F9' }}>
       {/* Ambient glows */}
-      <div className="fixed top-[-15%] left-[-8%]  w-[520px] h-[520px] rounded-full bg-emerald-700/10 blur-[140px] pointer-events-none z-0" />
-      <div className="fixed bottom-[-10%] right-[-8%] w-[560px] h-[560px] rounded-full bg-cyan-700/10  blur-[160px] pointer-events-none z-0" />
-      <div className="fixed top-[45%]  right-[25%]  w-[380px] h-[380px] rounded-full bg-violet-700/6  blur-[120px] pointer-events-none z-0" />
+      <div style={{
+        position: 'fixed', top: '-15%', left: '-8%',
+        width: 520, height: 520, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)',
+        filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0
+      }} />
+      <div style={{
+        position: 'fixed', bottom: '-10%', right: '-8%',
+        width: 560, height: 560, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(6,182,212,0.07) 0%, transparent 70%)',
+        filter: 'blur(70px)', pointerEvents: 'none', zIndex: 0
+      }} />
 
-      {/* Sidebar — fixed at left, 260px wide on md+ */}
+      {/* Sidebar — fixed 260px left */}
       <Sidebar />
 
-      {/* Main content — pushed right of sidebar on md+ */}
-      <main className="relative z-10 md:ml-[260px] min-h-screen">
-        <div className="px-5 py-8 md:px-10 md:py-10 max-w-[1400px] mx-auto">
+      {/* Main content — always offset 260px on desktop */}
+      <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh' }}
+            className="md:ml-[260px]">
+        <div className="px-5 py-8 md:px-10 md:py-10" style={{ maxWidth: 1400 }}>
           {children}
         </div>
       </main>

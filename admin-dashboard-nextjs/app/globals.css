@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@source "../app/**/*.{js,ts,jsx,tsx}";
+@source "../components/**/*.{js,ts,jsx,tsx}";
+
 * {
   margin: 0;
   padding: 0;
@@ -18,7 +21,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Glassmorphism luxury primitives matching reference designs */
+/* Glassmorphism luxury primitives */
 .glass-panel {
   background: linear-gradient(145deg, rgba(15, 22, 36, 0.75) 0%, rgba(10, 14, 23, 0.88) 100%);
   backdrop-filter: blur(24px);
@@ -74,17 +77,7 @@ body {
 }
 
 /* Custom sleek dark scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #080B11;
-}
-::-webkit-scrollbar-thumb {
-  background: #1E293B;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #080B11; }
+::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #334155; }
