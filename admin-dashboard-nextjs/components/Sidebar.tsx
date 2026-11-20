@@ -38,8 +38,7 @@ function SidebarInner({ onClose }: { onClose?: () => void }) {
 
   return (
     <aside
-      style={{ width: 260 }}
-      className="h-screen flex flex-col fixed top-0 left-0 z-50 border-r border-white/[0.07]"
+      className="w-[260px] h-screen flex flex-col fixed top-0 left-0 z-50 border-r border-white/[0.07]"
     >
       {/* glass bg */}
       <div className="absolute inset-0 bg-[#070A10]/95 backdrop-blur-2xl" />
