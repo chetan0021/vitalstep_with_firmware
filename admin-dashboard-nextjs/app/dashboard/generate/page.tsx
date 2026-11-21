@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { Zap, Copy, Check, ArrowRight, ShieldCheck, Cpu, RefreshCw, KeyRound } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export default function GeneratePage() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ device_code: string; device_secret: string } | null>(null)
-  const [copied, setCopied] = useState<string | null>(null)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [prefix, setPrefix] = useState('VS')
 
@@ -25,12 +27,13 @@ export default function GeneratePage() {
       const device_secret = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
 
       // Get current admin id from localStorage token
-      const token = localStorage.getItem('access_token')
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
       let admin_id: string | null = null
       if (token) {
-        // Decode JWT payload to get user ID
-        const payload = JSON.parse(atob(token.split('.')[1]))
-        admin_id = payload.sub
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          admin_id = payload.sub
+        } catch {}
       }
 
       // Insert into device_inventory
@@ -51,130 +54,198 @@ export default function GeneratePage() {
           admin_id,
           action: 'create',
           device_code,
-          details: 'Device code generated from admin dashboard',
+          details: 'Device code provisioned from admin console',
         })
       }
 
       setResult({ device_code, device_secret })
     } catch (err: any) {
-      setError(err.message || 'Failed to generate device code')
+      setError(err.message || 'Failed to generate device credentials')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const copy = (text: string, key: string) => {
     navigator.clipboard.writeText(text)
-    setCopied(key)
-    setTimeout(() => setCopied(null), 2000)
+    setCopiedKey(key)
+    setTimeout(() => setCopiedKey(null), 2000)
   }
 
   return (
-    <div style={{ maxWidth: '600px' }}>
-      <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Generate Device Code</h1>
-        <p style={{ color: '#64748b', marginTop: '4px', fontSize: '15px' }}>Creates a new entry in <code style={{ background: '#f1f5f9', padding: '1px 6px', borderRadius: '4px', fontSize: '12px' }}>device_inventory</code></p>
+    <div className="max-w-2xl space-y-6">
+      {/* Header */}
+      <div className="pb-2 border-b border-white/[0.06]">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/25 shadow-sm shadow-amber-500/20">
+            <KeyRound className="w-3.5 h-3.5" />
+            Hardware Cryptographic Provisioning
+          </span>
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+          Generate Device Code
+        </h1>
+        <p className="text-slate-400 text-sm mt-1">
+          Mint fresh activation credentials and SHA-256 pairing secrets for factory hardware
+        </p>
       </div>
 
-      <div style={{ background: '#fff', borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 1px 8px rgba(0,0,0,0.05)', padding: '28px' }}>
-        {/* Prefix Setting */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#374151', marginBottom: '7px' }}>Device Code Prefix</label>
-          <input
-            type="text"
-            value={prefix}
-            onChange={e => setPrefix(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
-            maxLength={6}
-            style={{ width: '120px', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontFamily: 'monospace', fontWeight: 700, color: '#1e293b', outline: 'none', boxSizing: 'border-box' }}
-          />
-          <span style={{ marginLeft: '10px', fontSize: '13px', color: '#94a3b8' }}>e.g. VS-001234</span>
+      {/* Main Glassmorphic Card */}
+      <div
+        className="relative p-6 sm:p-8 rounded-3xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(150deg, rgba(16, 22, 34, 0.85) 0%, rgba(8, 12, 20, 0.95) 100%)',
+          border: '1px solid rgba(245, 158, 11, 0.25)',
+          boxShadow: '0 12px 36px -10px rgba(245, 158, 11, 0.2)',
+          backdropFilter: 'blur(20px)',
+        }}
+      >
+        {/* Glow halo */}
+        <div
+          className="absolute -top-12 -right-12 w-48 h-48 rounded-full blur-3xl opacity-20 pointer-events-none"
+          style={{ background: '#F59E0B' }}
+        />
+
+        <div className="relative space-y-6">
+          {/* Prefix Input */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+              Device Code Prefix
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                value={prefix}
+                onChange={e => setPrefix(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                maxLength={6}
+                className="w-28 px-4 py-2.5 rounded-xl font-mono text-base font-bold text-white tracking-widest text-center outline-none transition-all"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(245, 158, 11, 0.4)',
+                  boxShadow: '0 0 16px -4px rgba(245, 158, 11, 0.25)',
+                }}
+              />
+              <span className="text-xs text-slate-400 font-mono">
+                Pattern: <span className="text-amber-400 font-bold">{prefix}-XXXXXX</span> (e.g. {prefix}-001003)
+              </span>
+            </div>
+          </div>
+
+          {/* Generate Button */}
+          <button
+            onClick={generate}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-2xl text-sm font-bold text-white transition-all shadow-lg cursor-pointer"
+            style={{
+              background: loading ? '#475569' : 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+              boxShadow: loading ? 'none' : '0 8px 24px -4px rgba(245, 158, 11, 0.4)',
+            }}
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                <span>Generating Cryptographic Keys…</span>
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4 fill-current" />
+                <span>Provision Device Credentials</span>
+              </>
+            )}
+          </button>
+
+          {/* Error notice */}
+          {error && (
+            <div className="p-4 rounded-xl text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20">
+              ⚠️ {error}
+            </div>
+          )}
+
+          {/* Generated Result Container */}
+          {result && (
+            <div
+              className="mt-6 p-5 rounded-2xl space-y-4"
+              style={{
+                background: 'rgba(16, 185, 129, 0.06)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 8px 24px -6px rgba(16, 185, 129, 0.2)',
+              }}
+            >
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                <Check className="w-4 h-4" />
+                <span>Hardware Credentials Successfully Minted</span>
+              </div>
+
+              {/* Device Code */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Device Code
+                </span>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/10">
+                  <span className="font-mono text-base font-extrabold text-white tracking-wider">
+                    {result.device_code}
+                  </span>
+                  <button
+                    onClick={() => copy(result.device_code, 'code')}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 text-xs"
+                  >
+                    {copiedKey === 'code' ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-emerald-400 font-medium">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Hardware Secret */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  64-Char Hardware Secret (Pairing Hash)
+                </span>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/10">
+                  <span className="font-mono text-xs text-amber-300 truncate pr-3">
+                    {result.device_secret}
+                  </span>
+                  <button
+                    onClick={() => copy(result.device_secret, 'secret')}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 text-xs shrink-0"
+                  >
+                    {copiedKey === 'secret' ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-emerald-400 font-medium">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="pt-2 flex items-center justify-between">
+                <Link
+                  href="/dashboard/devices"
+                  className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+                >
+                  <span>View in Fleet Inventory</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <span className="text-[11px] text-slate-500 font-mono">Status: MANUFACTURED</span>
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* Generate Button */}
-        <button
-          onClick={generate}
-          disabled={loading}
-          style={{
-            width: '100%', padding: '13px',
-            background: loading ? '#94a3b8' : 'linear-gradient(135deg, #3b82f6, #06b6d4)',
-            color: '#fff', border: 'none', borderRadius: '10px',
-            fontSize: '15px', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
-            boxShadow: loading ? 'none' : '0 4px 14px rgba(59,130,246,0.3)',
-          }}
-        >
-          {loading ? '⏳ Saving to Supabase…' : '⚡ Generate & Save to Supabase'}
-        </button>
-
-        {/* Error */}
-        {error && (
-          <div style={{ marginTop: '16px', padding: '12px 16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '9px', color: '#dc2626', fontSize: '13px', fontWeight: 500 }}>
-            ⚠️ {error}
-          </div>
-        )}
-
-        {/* Result */}
-        {result && (
-          <div style={{ marginTop: '24px' }}>
-            <div style={{ padding: '12px 16px', background: '#ecfdf5', border: '1px solid #bbf7d0', borderRadius: '9px', color: '#065f46', fontSize: '13px', fontWeight: 600, marginBottom: '20px' }}>
-              ✅ Saved to Supabase device_inventory!
-            </div>
-
-            {/* Code */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '7px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Device Code</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <div style={{ flex: 1, padding: '12px 16px', background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '9px', fontFamily: 'monospace', fontSize: '22px', fontWeight: 900, color: '#0f172a', letterSpacing: '3px', textAlign: 'center' }}>
-                  {result.device_code}
-                </div>
-                <button onClick={() => copy(result.device_code, 'code')} style={{ padding: '12px 14px', background: copied === 'code' ? '#ecfdf5' : '#f1f5f9', border: `1px solid ${copied === 'code' ? '#bbf7d0' : '#e2e8f0'}`, borderRadius: '9px', cursor: 'pointer', fontSize: '18px' }}>
-                  {copied === 'code' ? '✅' : '📋'}
-                </button>
-              </div>
-              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '5px' }}>Flash this into the ESP32 firmware.</div>
-            </div>
-
-            {/* Secret */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '7px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                Device Secret <span style={{ color: '#ef4444', fontWeight: 500, textTransform: 'none' }}>— keep private</span>
-              </label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <div style={{ flex: 1, padding: '12px 14px', background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '9px', fontFamily: 'monospace', fontSize: '11px', color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {result.device_secret}
-                </div>
-                <button onClick={() => copy(result.device_secret, 'secret')} style={{ padding: '12px 14px', background: copied === 'secret' ? '#ecfdf5' : '#f1f5f9', border: `1px solid ${copied === 'secret' ? '#bbf7d0' : '#e2e8f0'}`, borderRadius: '9px', cursor: 'pointer', fontSize: '18px', flexShrink: 0 }}>
-                  {copied === 'secret' ? '✅' : '📋'}
-                </button>
-              </div>
-            </div>
-
-            {/* Next Steps */}
-            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '14px 16px' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#1d4ed8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>📌 Next Steps</div>
-              {[
-                'Flash device_code into ESP32 firmware config',
-                'Power on device near Wi-Fi network',
-                'Device auto-registers on first boot',
-                'Status changes from manufactured → paired',
-              ].map((s, i) => (
-                <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '5px' }}>
-                  <span style={{ color: '#3b82f6', fontWeight: 700, fontSize: '12px', flexShrink: 0 }}>{i + 1}.</span>
-                  <span style={{ fontSize: '12px', color: '#1e40af' }}>{s}</span>
-                </div>
-              ))}
-            </div>
-
-            <a href="/dashboard/devices" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '14px', color: '#3b82f6', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
-              View in Device Inventory →
-            </a>
-          </div>
-        )}
-
-        {!result && !loading && (
-          <div style={{ marginTop: '32px', textAlign: 'center', padding: '24px 0', color: '#94a3b8' }}>
-            <div style={{ fontSize: '40px', marginBottom: '8px' }}>⚡</div>
-            <div style={{ fontSize: '14px' }}>Generated codes are saved directly to Supabase.</div>
-          </div>
-        )}
       </div>
     </div>
   )

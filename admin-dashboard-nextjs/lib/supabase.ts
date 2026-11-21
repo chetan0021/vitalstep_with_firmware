@@ -1,6 +1,16 @@
 // admin-dashboard-nextjs/lib/supabase.ts
 import { createClient } from '@supabase/supabase-js'
 
+// Polyfill global WebSocket for Node.js runtimes (e.g., Vercel Serverless Functions on Node 20)
+// where @supabase/realtime-js throws "Node.js 20 detected without native WebSocket support"
+if (typeof globalThis !== 'undefined' && typeof (globalThis as any).WebSocket === 'undefined') {
+  ;(globalThis as any).WebSocket = class DummyWebSocket {
+    constructor() {}
+    addEventListener() {}
+    removeEventListener() {}
+  }
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://oyqecdcpicvzwwvwaeka.supabase.co'
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const supabaseServiceKey =
