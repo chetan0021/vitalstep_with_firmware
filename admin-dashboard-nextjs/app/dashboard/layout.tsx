@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Content */}
       <main className="relative z-10 flex-1 min-w-0 min-h-screen overflow-x-hidden">
-        <div className="p-4 sm:p-6 lg:p-10 max-w-[1400px] mx-auto">
+        <div className="p-6 sm:p-8 lg:p-10 max-w-[1400px]">
           {children}
         </div>
       </main>

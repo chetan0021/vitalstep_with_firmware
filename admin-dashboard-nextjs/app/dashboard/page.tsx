@@ -51,7 +51,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* ─── Top Header Banner ────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-white/[0.06]">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-3 border-b border-white/[0.06]">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-sm shadow-emerald-500/20">
@@ -70,7 +70,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/patients"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 transition-all shadow-lg shadow-cyan-500/10"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 transition-all shadow-lg shadow-cyan-500/10"
           >
             <Users className="w-3.5 h-3.5" />
             <span>Patient Dossier</span>
@@ -78,7 +78,7 @@ export default function DashboardPage() {
           <button
             onClick={load}
             disabled={spinning}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-200 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${spinning ? 'animate-spin text-emerald-400' : ''}`} />
             <span>Sync</span>
@@ -87,7 +87,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ─── 6 Neon Glass KPI Cards ───────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
         {[
           { label: 'Enrolled Patients', val: stats.patients || (loading ? '…' : 1), Icon: Users, c: '#10B981', glow: 'rgba(16,185,129,0.25)' },
           { label: 'Measurements',      val: stats.measurements || (loading ? '…' : 10), Icon: Activity, c: '#06B6D4', glow: 'rgba(6,182,212,0.25)' },
@@ -98,12 +98,13 @@ export default function DashboardPage() {
         ].map(({ label, val, Icon, c, glow }) => (
           <div
             key={label}
-            className="relative p-4 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 group"
+            className="relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 group"
             style={{
               background: 'linear-gradient(150deg, rgba(15, 23, 42, 0.75) 0%, rgba(8, 12, 20, 0.9) 100%)',
               border: `1px solid ${c}35`,
               boxShadow: `0 8px 24px -6px ${glow}`,
               backdropFilter: 'blur(20px)',
+              padding: '20px',
             }}
           >
             {/* Luminous corner halo */}
@@ -119,7 +120,7 @@ export default function DashboardPage() {
               >
                 <Icon className="w-4 h-4" style={{ color: c }} />
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-0.5">
+              <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1 font-mono">
                 {val}
               </div>
               <div className="text-[11px] text-slate-400 font-medium truncate">
@@ -134,15 +135,16 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Gauge 1: Recovery / Grip Target Compliance */}
         <div
-          className="relative p-5 rounded-3xl overflow-hidden flex items-center justify-between"
+          className="relative rounded-3xl overflow-hidden flex items-center justify-between"
           style={{
             background: 'linear-gradient(145deg, rgba(12, 28, 30, 0.85) 0%, rgba(6, 14, 16, 0.95) 100%)',
             border: '1px solid rgba(16, 185, 129, 0.3)',
             boxShadow: '0 10px 30px -10px rgba(16, 185, 129, 0.3)',
+            padding: '24px 28px',
           }}
         >
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block mb-1.5">
               Clinical Compliance
             </span>
             <div className="text-2xl font-extrabold text-white">92.4%</div>
@@ -175,15 +177,16 @@ export default function DashboardPage() {
 
         {/* Gauge 2: Peak Grip Recorded */}
         <div
-          className="relative p-5 rounded-3xl overflow-hidden flex items-center justify-between"
+          className="relative rounded-3xl overflow-hidden flex items-center justify-between"
           style={{
             background: 'linear-gradient(145deg, rgba(10, 24, 36, 0.85) 0%, rgba(6, 12, 20, 0.95) 100%)',
             border: '1px solid rgba(6, 182, 212, 0.3)',
             boxShadow: '0 10px 30px -10px rgba(6, 182, 212, 0.3)',
+            padding: '24px 28px',
           }}
         >
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block mb-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 block mb-1.5">
               Peak Strength Recorded
             </span>
             <div className="text-2xl font-extrabold text-white">16.2 <span className="text-sm font-normal text-slate-400">kg</span></div>
@@ -216,15 +219,16 @@ export default function DashboardPage() {
 
         {/* Gauge 3: Active IoT Sensor Fleet */}
         <div
-          className="relative p-5 rounded-3xl overflow-hidden flex items-center justify-between"
+          className="relative rounded-3xl overflow-hidden flex items-center justify-between"
           style={{
             background: 'linear-gradient(145deg, rgba(24, 18, 38, 0.85) 0%, rgba(10, 8, 20, 0.95) 100%)',
             border: '1px solid rgba(139, 92, 246, 0.3)',
             boxShadow: '0 10px 30px -10px rgba(139, 92, 246, 0.3)',
+            padding: '24px 28px',
           }}
         >
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-violet-400 block mb-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-violet-400 block mb-1.5">
               Paired Hardware Fleet
             </span>
             <div className="text-2xl font-extrabold text-white">100% <span className="text-sm font-normal text-slate-400">Online</span></div>
@@ -245,11 +249,12 @@ export default function DashboardPage() {
 
           {/* Primary Patient Spotlight Card with Neon Glow Halo */}
           <div
-            className="relative p-6 sm:p-7 rounded-3xl overflow-hidden"
+            className="relative rounded-3xl overflow-hidden"
             style={{
               background: 'linear-gradient(150deg, rgba(13, 26, 28, 0.9) 0%, rgba(8, 14, 20, 0.95) 100%)',
               border: '1px solid rgba(16, 185, 129, 0.3)',
               boxShadow: '0 12px 36px -10px rgba(16, 185, 129, 0.25)',
+              padding: '28px 32px',
             }}
           >
             {/* Luminous emerald underglow */}
@@ -284,7 +289,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/dashboard/patients"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all self-start bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 shadow-md shadow-emerald-500/10"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all self-start bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 shadow-md shadow-emerald-500/10 cursor-pointer"
               >
                 <span>Full Dossier</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -301,10 +306,11 @@ export default function DashboardPage() {
               ].map(({ label, val, color }) => (
                 <div
                   key={label}
-                  className="p-3.5 rounded-2xl"
+                  className="rounded-2xl"
                   style={{
                     background: 'rgba(255, 255, 255, 0.03)',
                     border: '1px solid rgba(255, 255, 255, 0.06)',
+                    padding: '16px',
                   }}
                 >
                   <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">
@@ -319,10 +325,11 @@ export default function DashboardPage() {
 
             {/* Supervising Specialist Banner */}
             <div
-              className="relative p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+              className="relative rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
               style={{
                 background: 'linear-gradient(135deg, rgba(8, 24, 38, 0.8) 0%, rgba(6, 16, 26, 0.9) 100%)',
                 border: '1px solid rgba(6, 182, 212, 0.25)',
+                padding: '18px 22px',
               }}
             >
               <div className="flex items-center gap-3">
@@ -356,8 +363,8 @@ export default function DashboardPage() {
             }}
           >
             <div
-              className="flex items-center justify-between px-6 py-4"
-              style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}
+              className="flex items-center justify-between"
+              style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', padding: '18px 24px' }}
             >
               <div className="flex items-center gap-2.5">
                 <TrendingUp className="w-4 h-4 text-emerald-400" />
@@ -372,11 +379,11 @@ export default function DashboardPage() {
               <table className="w-full text-xs">
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', background: 'rgba(255, 255, 255, 0.02)' }}>
-                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hand</th>
-                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Posture</th>
-                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trials (1 / 2 / 3)</th>
-                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Peak Grip</th>
-                    <th className="px-6 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Timestamp</th>
+                    <th style={{ padding: '14px 24px' }} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hand</th>
+                    <th style={{ padding: '14px 24px' }} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Posture</th>
+                    <th style={{ padding: '14px 24px' }} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trials (1 / 2 / 3)</th>
+                    <th style={{ padding: '14px 24px' }} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Peak Grip</th>
+                    <th style={{ padding: '14px 24px' }} className="text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider">Timestamp</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.04]">
@@ -387,15 +394,15 @@ export default function DashboardPage() {
                     { id: '4', hand: 'Left', posture: 'Sitting', trial1: 15.0, trial2: 15.4, trial3: 15.2, best: 15.4, recorded_at: '2026-11-15T10:20:00Z' },
                   ]).map((m: any) => (
                     <tr key={m.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-3.5 font-semibold text-white">{m.hand ?? 'Left'}</td>
-                      <td className="px-6 py-3.5 text-slate-400">{m.posture ?? 'Sitting'}</td>
-                      <td className="px-6 py-3.5 font-mono text-slate-300">
+                      <td style={{ padding: '14px 24px' }} className="font-semibold text-white">{m.hand ?? 'Left'}</td>
+                      <td style={{ padding: '14px 24px' }} className="text-slate-400">{m.posture ?? 'Sitting'}</td>
+                      <td style={{ padding: '14px 24px' }} className="font-mono text-slate-300">
                         {m.trial1 ?? '—'} · {m.trial2 ?? '—'} · {m.trial3 ?? '—'} kg
                       </td>
-                      <td className="px-6 py-3.5 font-bold font-mono text-emerald-400">
+                      <td style={{ padding: '14px 24px' }} className="font-bold font-mono text-emerald-400">
                         {m.best ? `${m.best} kg` : '—'}
                       </td>
-                      <td className="px-6 py-3.5 text-right font-mono text-slate-500 text-[11px]">
+                      <td style={{ padding: '14px 24px' }} className="text-right font-mono text-slate-500 text-[11px]">
                         {m.recorded_at ? new Date(m.recorded_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                       </td>
                     </tr>
@@ -411,11 +418,12 @@ export default function DashboardPage() {
 
           {/* Administrative Quick Actions */}
           <div
-            className="p-6 rounded-3xl space-y-3"
+            className="rounded-3xl space-y-3"
             style={{
               background: 'linear-gradient(150deg, rgba(12, 18, 28, 0.8) 0%, rgba(7, 10, 16, 0.95) 100%)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
+              padding: '24px 26px',
             }}
           >
             <h3 className="text-sm font-bold text-white mb-2">Administrative Actions</h3>
@@ -428,10 +436,11 @@ export default function DashboardPage() {
               <Link
                 key={href}
                 href={href}
-                className="flex items-center gap-3.5 p-3 rounded-2xl transition-all group hover:bg-white/[0.04]"
+                className="flex items-center gap-3.5 rounded-2xl transition-all group hover:bg-white/[0.04]"
                 style={{
                   background: 'rgba(255, 255, 255, 0.02)',
                   border: '1px solid rgba(255, 255, 255, 0.05)',
+                  padding: '12px 16px',
                 }}
               >
                 <div
@@ -453,11 +462,12 @@ export default function DashboardPage() {
 
           {/* Live Audit Activity */}
           <div
-            className="p-6 rounded-3xl space-y-3"
+            className="rounded-3xl space-y-3"
             style={{
               background: 'linear-gradient(150deg, rgba(12, 18, 28, 0.8) 0%, rgba(7, 10, 16, 0.95) 100%)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(20px)',
+              padding: '24px 26px',
             }}
           >
             <div className="flex items-center justify-between pb-1">
@@ -478,10 +488,11 @@ export default function DashboardPage() {
               ]).map((a: any) => (
                 <div
                   key={a.id}
-                  className="p-3 rounded-2xl space-y-1"
+                  className="rounded-2xl space-y-1"
                   style={{
                     background: 'rgba(255, 255, 255, 0.02)',
                     border: '1px solid rgba(255, 255, 255, 0.05)',
+                    padding: '12px 14px',
                   }}
                 >
                   <div className="flex items-center justify-between">

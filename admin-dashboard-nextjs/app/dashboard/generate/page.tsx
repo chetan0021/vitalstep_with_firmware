@@ -75,7 +75,7 @@ export default function GeneratePage() {
   return (
     <div className="max-w-2xl space-y-6">
       {/* Header */}
-      <div className="pb-2 border-b border-white/[0.06]">
+      <div className="pb-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-2 mb-2">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/25 shadow-sm shadow-amber-500/20">
             <KeyRound className="w-3.5 h-3.5" />
@@ -92,12 +92,13 @@ export default function GeneratePage() {
 
       {/* Main Glassmorphic Card */}
       <div
-        className="relative p-6 sm:p-8 rounded-3xl overflow-hidden"
+        className="relative rounded-3xl overflow-hidden"
         style={{
           background: 'linear-gradient(150deg, rgba(16, 22, 34, 0.85) 0%, rgba(8, 12, 20, 0.95) 100%)',
           border: '1px solid rgba(245, 158, 11, 0.25)',
           boxShadow: '0 12px 36px -10px rgba(245, 158, 11, 0.2)',
           backdropFilter: 'blur(20px)',
+          padding: '32px',
         }}
       >
         {/* Glow halo */}
@@ -109,7 +110,7 @@ export default function GeneratePage() {
         <div className="relative space-y-6">
           {/* Prefix Input */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5">
               Device Code Prefix
             </label>
             <div className="flex items-center gap-3">
@@ -164,11 +165,12 @@ export default function GeneratePage() {
           {/* Generated Result Container */}
           {result && (
             <div
-              className="mt-6 p-5 rounded-2xl space-y-4"
+              className="mt-6 rounded-2xl space-y-4"
               style={{
                 background: 'rgba(16, 185, 129, 0.06)',
                 border: '1px solid rgba(16, 185, 129, 0.3)',
                 boxShadow: '0 8px 24px -6px rgba(16, 185, 129, 0.2)',
+                padding: '24px',
               }}
             >
               <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
@@ -181,13 +183,13 @@ export default function GeneratePage() {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                   Device Code
                 </span>
-                <div className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/10">
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-black/40 border border-white/10">
                   <span className="font-mono text-base font-extrabold text-white tracking-wider">
                     {result.device_code}
                   </span>
                   <button
                     onClick={() => copy(result.device_code, 'code')}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 text-xs"
+                    className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 text-xs cursor-pointer"
                   >
                     {copiedKey === 'code' ? (
                       <>
@@ -209,13 +211,13 @@ export default function GeneratePage() {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                   64-Char Hardware Secret (Pairing Hash)
                 </span>
-                <div className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/10">
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-black/40 border border-white/10">
                   <span className="font-mono text-xs text-amber-300 truncate pr-3">
                     {result.device_secret}
                   </span>
                   <button
                     onClick={() => copy(result.device_secret, 'secret')}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 text-xs shrink-0"
+                    className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 text-xs shrink-0 cursor-pointer"
                   >
                     {copiedKey === 'secret' ? (
                       <>

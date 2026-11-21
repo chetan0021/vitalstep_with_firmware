@@ -72,7 +72,7 @@ export default function AuditPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-white/[0.06]">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-3 border-b border-white/[0.06]">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/25 shadow-sm shadow-rose-500/20">
@@ -99,7 +99,7 @@ export default function AuditPage() {
       </div>
 
       {/* Stats Counter Glass Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Total Events', val: logs.length, c: '#06B6D4', glow: 'rgba(6,182,212,0.25)', badge: 'All Records' },
           { label: 'Generation / Create', val: logs.filter(l => ['create', 'generated'].includes(l.action)).length, c: '#10B981', glow: 'rgba(16,185,129,0.25)', badge: 'Provisioned' },
@@ -108,12 +108,13 @@ export default function AuditPage() {
         ].map((s) => (
           <div
             key={s.label}
-            className="relative p-5 rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+            className="relative rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
             style={{
               background: 'linear-gradient(150deg, rgba(14, 22, 34, 0.8) 0%, rgba(8, 12, 20, 0.95) 100%)',
               border: `1px solid ${s.c}35`,
               boxShadow: `0 8px 24px -6px ${s.glow}`,
               backdropFilter: 'blur(20px)',
+              padding: '24px 28px',
             }}
           >
             <div
@@ -136,11 +137,12 @@ export default function AuditPage() {
 
       {/* Search and Filters */}
       <div
-        className="p-3.5 rounded-2xl flex flex-col sm:flex-row gap-3"
+        className="rounded-2xl flex flex-col sm:flex-row gap-3"
         style={{
           background: 'rgba(14, 20, 30, 0.7)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           backdropFilter: 'blur(16px)',
+          padding: '16px 20px',
         }}
       >
         <div className="relative flex-1">
@@ -196,8 +198,12 @@ export default function AuditPage() {
         <div className="overflow-x-auto">
           <div className="min-w-[700px]">
             <div
-              className="grid grid-cols-12 text-[10px] font-bold text-slate-400 uppercase tracking-wider px-6 py-3.5"
-              style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(255, 255, 255, 0.02)' }}
+              className="grid grid-cols-12 text-[10px] font-bold text-slate-400 uppercase tracking-wider"
+              style={{
+                borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+                background: 'rgba(255, 255, 255, 0.02)',
+                padding: '16px 24px',
+              }}
             >
               <span className="col-span-3">Device Code</span>
               <span className="col-span-2">Action</span>
@@ -222,7 +228,8 @@ export default function AuditPage() {
                   return (
                     <div 
                       key={l.id} 
-                      className="grid grid-cols-12 items-center px-6 py-3.5 text-xs text-slate-300 hover:bg-white/[0.02] transition-colors"
+                      className="grid grid-cols-12 items-center text-xs text-slate-300 hover:bg-white/[0.02] transition-colors"
+                      style={{ padding: '14px 24px' }}
                     >
                       <div className="col-span-3 flex items-center gap-2">
                         <span className="font-mono font-bold text-white px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08]">
