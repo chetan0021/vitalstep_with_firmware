@@ -17,18 +17,18 @@ export default function HomePage() {
   }, [router])
 
   return (
-    <div className="min-h-screen bg-[#0A0D14] flex flex-col items-center justify-center p-4">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-          <Activity className="w-6 h-6 animate-pulse" strokeWidth={2.5} />
+    <div className="min-h-screen bg-[var(--bg-canvas)] flex flex-col items-center justify-center p-4 transition-colors duration-200">
+      <div className="flex flex-col items-center gap-3.5">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#0047AB] via-[#0B5ED7] to-[#F59E0B] flex items-center justify-center text-white shadow-lg shadow-blue-600/30">
+          <Activity className="w-7 h-7 stroke-[2.5] animate-pulse" />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-white font-bold text-lg tracking-tight">VitalStep</span>
-          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="font-black text-xl tracking-tight text-[#003884] dark:text-white">VitalStep</span>
+          <span className="text-xs font-black px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">
             PRO
           </span>
         </div>
-        <p className="text-xs text-slate-500">Initializing secure session…</p>
+        <p className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Initializing secure clinical session…</p>
       </div>
     </div>
   )
