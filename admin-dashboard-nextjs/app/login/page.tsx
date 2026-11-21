@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogIn, AlertCircle, Eye, EyeOff, Zap } from 'lucide-react'
+import { Activity, AlertCircle, Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -13,8 +13,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
-    // Check if access token exists in localStorage
-    const token = localStorage.getItem('access_token')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
     if (token) {
       router.push('/dashboard')
     }
@@ -27,329 +26,185 @@ export default function LoginPage() {
 
     try {
       if (!email || !password) {
-        setError('Please enter both email and password')
+        setError('Please enter both email and password.')
         setLoading(false)
         return
       }
 
-      // Call our API route instead of Supabase directly
       const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Login failed')
+        setError(data.error || 'Authentication failed. Please verify credentials.')
         setLoading(false)
         return
       }
 
       if (data.session) {
-        // Store in both localStorage and cookies
         localStorage.setItem('access_token', data.session.access_token)
         localStorage.setItem('user_email', email)
-        
-        // Also set cookie for middleware
-        document.cookie = `access_token=${data.session.access_token}; path=/; max-age=3600`
-        
+        document.cookie = `access_token=${data.session.access_token}; path=/; max-age=3600; SameSite=Lax`
         router.push('/dashboard')
       }
     } catch (err: any) {
       console.error('Login error:', err)
-      setError('Connection error. Please try again.')
+      setError('Network connection error. Please try again.')
       setLoading(false)
     }
   }
 
+  const fillCredentials = (userEmail: string, userPass: string) => {
+    setEmail(userEmail)
+    setPassword(userPass)
+    setError('')
+  }
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '16px'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '420px'
-      }}>
-        {/* Card */}
-        <div style={{
-          background: 'rgba(30, 41, 59, 0.8)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '16px',
-          padding: '40px',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
-        }}>
+    <div className="min-h-screen bg-[#0A0D14] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden selection:bg-emerald-500/30 selection:text-emerald-200">
+      {/* Subtle ambient light */}
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-emerald-500/[0.04] blur-[140px] pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Main Authentication Card */}
+        <div
+          className="rounded-2xl border border-white/[0.08] bg-[#101520] shadow-2xl relative overflow-hidden"
+          style={{ padding: '36px 32px' }}
+        >
+          {/* Subtle top edge highlight */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
+
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 16px',
-              boxShadow: '0 10px 30px rgba(6, 182, 212, 0.3)'
-            }}>
-              <Zap color="white" size={40} strokeWidth={2.5} />
+          <div className="text-center mb-7">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-3.5 shadow-sm">
+              <Activity className="w-6 h-6" strokeWidth={2.5} />
             </div>
-            <h1 style={{
-              fontSize: '36px',
-              fontWeight: 900,
-              background: 'linear-gradient(90deg, #06b6d4 0%, #0ea5e9 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              margin: '0 0 8px 0'
-            }}>
-              VitalStep
-            </h1>
-            <p style={{ fontSize: '16px', fontWeight: 600, color: '#cbd5e1', margin: '0' }}>
-              Admin Dashboard
-            </p>
-            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
-              Manufacturing & Device Management
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight text-white">VitalStep</h1>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                PRO
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              Clinical Telemetry & IoT Management Console
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div style={{
-              marginBottom: '24px',
-              padding: '12px 16px',
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px',
-              display: 'flex',
-              gap: '12px'
-            }}>
-              <AlertCircle color="#ef4444" size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: 600, color: '#fca5a5', margin: '0 0 4px 0' }}>
-                  Login Failed
-                </p>
-                <p style={{ fontSize: '12px', color: '#fecaca', margin: 0 }}>
-                  {error}
-                </p>
-              </div>
+            <div className="mb-5 p-3 rounded-xl text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <span>{error}</span>
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleLogin}>
-            {/* Email */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: 600,
-                color: '#e2e8f0',
-                marginBottom: '8px'
-              }}>
-                Email Address
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                Work Email
               </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-                placeholder="admin@vitalstep.com"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '8px',
-                  color: '#f1f5f9',
-                  fontSize: '14px',
-                  boxSizing: 'border-box',
-                  fontFamily: 'inherit',
-                  transition: 'all 0.2s'
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.5)'
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
-                }}
-              />
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@vitalstep.com"
+                  required
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs executive-input placeholder:text-slate-600"
+                />
+              </div>
             </div>
 
-            {/* Password */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: 600,
-                color: '#e2e8f0',
-                marginBottom: '8px'
-              }}>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
                 Password
               </label>
-              <div style={{ position: 'relative' }}>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                  placeholder="Enter your password"
-                  style={{
-                    width: '100%',
-                    padding: '12px 40px 12px 16px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                    color: '#f1f5f9',
-                    fontSize: '14px',
-                    boxSizing: 'border-box',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.2s'
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.5)'
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
-                  }}
+                  placeholder="••••••••••••"
+                  required
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl text-xs executive-input placeholder:text-slate-600"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  disabled={loading}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'rgba(255, 255, 255, 0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                  tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                background: loading ? 'rgba(100, 116, 139, 0.5)' : 'linear-gradient(90deg, #0ea5e9 0%, #06b6d4 100%)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: 700,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(6, 182, 212, 0.3)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 transition-colors shadow-sm cursor-pointer mt-2"
             >
               {loading ? (
                 <>
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    border: '2px solid rgba(255, 255, 255, 0.3)',
-                    borderTop: '2px solid white',
-                    borderRadius: '50%',
-                    animation: 'spin 0.6s linear infinite'
-                  }} />
-                  Signing in...
+                  <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  <span>Authenticating…</span>
                 </>
               ) : (
                 <>
-                  <LogIn size={18} />
-                  Sign In
+                  <span>Sign In to Console</span>
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Footer */}
-          <div style={{
-            marginTop: '24px',
-            paddingTop: '24px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-            textAlign: 'center'
-          }}>
-            <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>
-              Need access? <span style={{ color: '#06b6d4', fontWeight: 600 }}>Contact your administrator</span>
+          {/* Quick Credential Presets */}
+          <div className="mt-6 pt-5 border-t border-white/[0.06]">
+            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2.5 text-center">
+              Quick Role Authentication
             </p>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => fillCredentials('admin@vitalstep.com', 'Admin@123')}
+                className="px-2 py-2 rounded-lg bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] text-left transition-colors cursor-pointer text-center"
+              >
+                <div className="text-[11px] font-semibold text-slate-200">Admin</div>
+                <div className="text-[10px] text-slate-500 truncate">System</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('nncr540@gmail.com', 'password123')}
+                className="px-2 py-2 rounded-lg bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] text-left transition-colors cursor-pointer text-center"
+              >
+                <div className="text-[11px] font-semibold text-slate-200">Specialist</div>
+                <div className="text-[10px] text-slate-500 truncate">Dr. Chandan</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('sandipr@hotmail.com', 'Sandip@202')}
+                className="px-2 py-2 rounded-lg bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] text-left transition-colors cursor-pointer text-center"
+              >
+                <div className="text-[11px] font-semibold text-slate-200">Patient</div>
+                <div className="text-[10px] text-slate-500 truncate">Sandip R</div>
+              </button>
+            </div>
           </div>
 
-          {/* Security badge */}
-          <div style={{
-            marginTop: '16px',
-            padding: '12px',
-            background: 'rgba(6, 182, 212, 0.1)',
-            border: '1px solid rgba(6, 182, 212, 0.2)',
-            borderRadius: '8px',
-            textAlign: 'center'
-          }}>
-            <p style={{ fontSize: '12px', color: '#7dd3fc', margin: 0, fontWeight: 500 }}>
-              🔒 Secure authentication with Supabase
-            </p>
+          {/* Security Assurance Footer */}
+          <div className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-slate-500">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500/70" />
+            <span>End-to-End Encrypted Telemetry Link</span>
           </div>
         </div>
-
-        {/* Footer branding */}
-        <p style={{
-          textAlign: 'center',
-          color: 'rgba(255, 255, 255, 0.4)',
-          fontSize: '11px',
-          marginTop: '32px',
-          fontFamily: 'monospace',
-          margin: '32px 0 0 0'
-        }}>
-          VitalStep Admin Console v2.0
-        </p>
       </div>
-
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   )
 }

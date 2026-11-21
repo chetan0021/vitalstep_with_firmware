@@ -2,43 +2,33 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { Activity } from 'lucide-react'
 
-export default function Home() {
+export default function HomePage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user is logged in by checking localStorage
-    const token = localStorage.getItem('access_token')
-    
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
     if (token) {
-      // If logged in, redirect to dashboard
-      router.push('/dashboard')
+      router.replace('/dashboard')
     } else {
-      // If not logged in, redirect to login
-      router.push('/login')
+      router.replace('/login')
     }
   }, [router])
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100">
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-full mb-4 animate-pulse">
-          <svg
-            className="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
-          </svg>
+    <div className="min-h-screen bg-[#0A0D14] flex flex-col items-center justify-center p-4">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <Activity className="w-6 h-6 animate-pulse" strokeWidth={2.5} />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">VitalStep Admin</h1>
-        <p className="text-gray-600">Loading...</p>
+        <div className="flex items-center gap-2">
+          <span className="text-white font-bold text-lg tracking-tight">VitalStep</span>
+          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            PRO
+          </span>
+        </div>
+        <p className="text-xs text-slate-500">Initializing secure session…</p>
       </div>
     </div>
   )
