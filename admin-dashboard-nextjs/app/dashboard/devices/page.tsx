@@ -81,18 +81,18 @@ export default function DevicesPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 border-b border-white/[0.08]">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 border-b border-slate-200 dark:border-white/[0.08]">
         <div>
           <div className="flex items-center gap-2 mb-2.5">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-violet-500/15 text-violet-300 border border-violet-500/35 shadow-sm shadow-violet-500/20">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-violet-500/15 text-violet-700 dark:text-violet-300 border border-violet-500/35 shadow-sm shadow-violet-500/15">
               <Cpu className="w-4 h-4 stroke-[2.5]" />
               Hardware Telemetry Inventory
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#0A1C3D] dark:text-white">
             Device Fleet Inventory
           </h1>
-          <p className="text-slate-300 text-sm sm:text-base mt-1.5 font-medium">
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-1.5 font-medium">
             Manufacturing activation keys, cryptographic pairing hashes, and active patient assignments
           </p>
         </div>
@@ -109,46 +109,46 @@ export default function DevicesPage() {
           <button 
             onClick={load}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 border border-white/10 transition-all cursor-pointer shadow-sm"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-white/[0.06] hover:bg-slate-50 dark:hover:bg-white/[0.12] text-[#0A1C3D] dark:text-slate-200 border border-slate-300 dark:border-white/10 transition-all cursor-pointer shadow-sm"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-violet-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-violet-600 dark:text-violet-400' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>
       </div>
 
-      {/* 3 Vibrant Multi-Colored KPI Cards (Bigger Numbers) */}
+      {/* 3 Multi-Colored KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {[
-          { label: 'Total Fleet Units', val: total, color: '#38BDF8', bg: 'rgba(56,189,248,0.12)', border: 'rgba(56,189,248,0.35)', shadow: 'rgba(56,189,248,0.2)', badge: 'All Inventory' },
-          { label: 'Manufactured / Ready', val: manufactured, color: '#10B981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.35)', shadow: 'rgba(16,185,129,0.2)', badge: 'In Stock' },
-          { label: 'Paired to Patient', val: paired, color: '#A855F7', bg: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.35)', shadow: 'rgba(168,85,247,0.2)', badge: 'In Clinical Field' },
+          { label: 'Total Fleet Units', val: total, color: '#0284C7', badge: 'All Inventory' },
+          { label: 'Manufactured / Ready', val: manufactured, color: '#059669', badge: 'In Stock' },
+          { label: 'Paired to Patient', val: paired, color: '#7C3AED', badge: 'In Clinical Field' },
         ].map((s) => (
           <div
             key={s.label}
-            className="rounded-3xl p-6 sm:p-7 relative overflow-hidden transition-all duration-200 hover:-translate-y-1"
-            style={{
-              background: `linear-gradient(145deg, ${s.bg} 0%, rgba(12, 17, 28, 0.95) 100%)`,
-              border: `1px solid ${s.border}`,
-              boxShadow: `0 10px 30px -8px ${s.shadow}`,
-            }}
+            className="rounded-3xl p-6 sm:p-7 relative overflow-hidden transition-all duration-200 hover:-translate-y-1 bg-[var(--bg-card)] border border-slate-200 dark:border-white/[0.08] shadow-sm"
           >
+            {/* Accent top line */}
+            <div
+              className="absolute top-0 left-0 right-0 h-1.5"
+              style={{ background: s.color }}
+            />
             <span
               className="inline-block text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-3.5"
-              style={{ background: `${s.color}25`, color: s.color, border: `1px solid ${s.color}45` }}
+              style={{ background: `${s.color}20`, color: s.color, border: `1px solid ${s.color}40` }}
             >
               {s.badge}
             </span>
-            <div className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-1.5 font-mono">
+            <div className="text-4xl sm:text-5xl font-black tracking-tight text-[#0A1C3D] dark:text-white mb-1.5 font-mono">
               {loading ? '…' : s.val}
             </div>
-            <div className="text-xs sm:text-sm text-slate-300 font-bold">{s.label}</div>
+            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-bold">{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="rounded-2xl bg-[#101520] border border-white/[0.08] p-4 sm:p-5 flex flex-col sm:flex-row gap-3.5">
+      <div className="rounded-2xl bg-[var(--bg-card)] border border-slate-200 dark:border-white/[0.08] p-4 sm:p-5 flex flex-col sm:flex-row gap-3.5 shadow-sm">
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
@@ -163,7 +163,7 @@ export default function DevicesPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-3 rounded-xl text-xs sm:text-sm font-bold text-slate-200 outline-none cursor-pointer bg-[#0D121B] border border-white/10"
+          className="px-4 py-3 rounded-xl text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer bg-white dark:bg-[#0D121B] border border-slate-300 dark:border-white/10"
         >
           <option value="all">All Statuses</option>
           <option value="manufactured">Manufactured (In Stock)</option>
@@ -174,14 +174,10 @@ export default function DevicesPage() {
 
       {/* Devices Table */}
       <div
-        className="rounded-3xl overflow-hidden"
-        style={{
-          background: 'linear-gradient(150deg, rgba(14, 20, 32, 0.9) 0%, rgba(8, 12, 20, 0.98) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-        }}
+        className="rounded-3xl overflow-hidden bg-[var(--bg-card)] border border-slate-200 dark:border-white/[0.1] shadow-sm"
       >
         {error && (
-          <div className="p-4 text-xs text-rose-300 bg-rose-500/10 border-b border-rose-500/20">
+          <div className="p-4 text-xs font-semibold text-rose-600 dark:text-rose-300 bg-rose-500/10 border-b border-rose-500/20">
             ⚠️ {error}
           </div>
         )}
@@ -189,24 +185,24 @@ export default function DevicesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-xs sm:text-sm min-w-[700px]">
             <thead>
-              <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-                <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider w-[25%]">Device Code</th>
-                <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider w-[40%]">Hardware Secret</th>
-                <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider w-[18%]">Status</th>
-                <th className="px-6 py-4 text-right text-[11px] font-bold text-slate-400 uppercase tracking-wider w-[17%]">Registered Date</th>
+              <tr className="border-b border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.02]">
+                <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[25%]">Device Code</th>
+                <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[40%]">Hardware Secret</th>
+                <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[18%]">Status</th>
+                <th className="px-6 py-4 text-right text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-[17%]">Registered Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.06]">
+            <tbody className="divide-y divide-slate-100 dark:divide-white/[0.06]">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="p-16 text-center text-xs sm:text-sm text-slate-400 font-medium">Loading hardware inventory…</td>
+                  <td colSpan={4} className="p-16 text-center text-xs sm:text-sm text-slate-500 font-medium">Loading hardware inventory…</td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-16 text-center text-slate-400">
-                    <Cpu className="w-10 h-10 text-slate-500 mx-auto mb-2" />
-                    <div className="text-base font-bold text-white">No devices found</div>
-                    <div className="text-xs text-slate-400 mt-1">Generate a new device code to populate this fleet.</div>
+                  <td colSpan={4} className="p-16 text-center text-slate-500">
+                    <Cpu className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+                    <div className="text-base font-bold text-slate-800 dark:text-white">No devices found</div>
+                    <div className="text-xs text-slate-500 mt-1">Generate a new device code to populate this fleet.</div>
                   </td>
                 </tr>
               ) : (
@@ -214,14 +210,14 @@ export default function DevicesPage() {
                   const isRevealed = revealedSecrets[d.id]
                   const isPaired = d.status === 'paired'
                   return (
-                    <tr key={d.id} className="hover:bg-white/[0.03] transition-colors">
+                    <tr key={d.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-black text-white text-sm px-2.5 py-1 rounded-lg bg-white/[0.06] border border-white/[0.1]">
+                          <span className="font-mono font-black text-[#0A1C3D] dark:text-white text-sm px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.1]">
                             {d.device_code}
                           </span>
                           {d.device_code === 'VS-001002' && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/35">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/35">
                               Sandip R
                             </span>
                           )}
@@ -230,22 +226,22 @@ export default function DevicesPage() {
 
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs sm:text-sm text-slate-300 truncate max-w-[260px]">
+                          <span className="font-mono text-xs sm:text-sm text-slate-600 dark:text-slate-300 truncate max-w-[260px]">
                             {isRevealed ? d.device_secret : `${(d.device_secret || '').substring(0, 16)}••••••••••••••••`}
                           </span>
                           <button 
                             onClick={() => toggleReveal(d.id)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
                             title={isRevealed ? "Hide secret" : "Show secret"}
                           >
                             {isRevealed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                           <button 
                             onClick={() => copySecret(d.device_secret, d.id)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
                             title="Copy secret"
                           >
-                            {copiedId === d.id ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                            {copiedId === d.id ? <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-4 h-4" />}
                           </button>
                         </div>
                       </td>
@@ -254,16 +250,16 @@ export default function DevicesPage() {
                         <span
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
                             isPaired
-                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                              : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                              ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/35'
+                              : 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/35'
                           }`}
                         >
-                          <span className={`w-2 h-2 rounded-full ${isPaired ? 'bg-emerald-400' : 'bg-cyan-400'}`} />
+                          <span className={`w-2 h-2 rounded-full ${isPaired ? 'bg-emerald-500' : 'bg-cyan-500'}`} />
                           {d.status}
                         </span>
                       </td>
 
-                      <td className="px-6 py-4 text-right font-mono text-xs sm:text-sm font-semibold text-slate-400">
+                      <td className="px-6 py-4 text-right font-mono text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
                         {fmt(d.created_at)}
                       </td>
                     </tr>
