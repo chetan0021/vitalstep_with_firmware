@@ -30,7 +30,7 @@ export default function GeneratePage() {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]))
           admin_id = payload.sub
-        } catch {}
+        } catch { }
       }
 
       const { error: insertError } = await supabase

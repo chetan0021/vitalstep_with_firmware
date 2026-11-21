@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { 
+import {
   Users, Cpu, Activity, ShieldCheck,
   RefreshCw, Zap, Stethoscope, TrendingUp, Layers, ArrowRight
 } from 'lucide-react'
@@ -93,11 +93,11 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
           {[
             { label: 'Enrolled Patients', val: stats.patients || (loading ? '…' : 1), Icon: Users, color: '#10B981', lightBg: '#ECFDF5', lightBorder: '#A7F3D0', darkBg: 'rgba(16,185,129,0.12)', darkBorder: 'rgba(16,185,129,0.35)' },
-            { label: 'Measurements',      val: stats.measurements || (loading ? '…' : 10), Icon: Activity, color: '#06B6D4', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(6,182,212,0.12)', darkBorder: 'rgba(6,182,212,0.35)' },
-            { label: 'Paired Devices',    val: stats.paired || (loading ? '…' : 1), Icon: Cpu, color: '#8B5CF6', lightBg: '#F5F3FF', lightBorder: '#DDD6FE', darkBg: 'rgba(139,92,246,0.12)', darkBorder: 'rgba(139,92,246,0.35)' },
-            { label: 'Active Fleet',      val: stats.devices || (loading ? '…' : 3), Icon: Zap, color: '#F59E0B', lightBg: '#FFFBEB', lightBorder: '#FDE68A', darkBg: 'rgba(245,158,11,0.12)', darkBorder: 'rgba(245,158,11,0.35)' },
-            { label: 'Manufactured',      val: stats.manufactured || (loading ? '…' : 2), Icon: Layers, color: '#EC4899', lightBg: '#FFF1F2', lightBorder: '#FECDD3', darkBg: 'rgba(236,72,153,0.12)', darkBorder: 'rgba(236,72,153,0.35)' },
-            { label: 'Audit Events',      val: audits.length || (loading ? '…' : 3), Icon: ShieldCheck, color: '#38BDF8', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(56,189,248,0.12)', darkBorder: 'rgba(56,189,248,0.35)' },
+            { label: 'Measurements', val: stats.measurements || (loading ? '…' : 10), Icon: Activity, color: '#06B6D4', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(6,182,212,0.12)', darkBorder: 'rgba(6,182,212,0.35)' },
+            { label: 'Paired Devices', val: stats.paired || (loading ? '…' : 1), Icon: Cpu, color: '#8B5CF6', lightBg: '#F5F3FF', lightBorder: '#DDD6FE', darkBg: 'rgba(139,92,246,0.12)', darkBorder: 'rgba(139,92,246,0.35)' },
+            { label: 'Active Fleet', val: stats.devices || (loading ? '…' : 3), Icon: Zap, color: '#F59E0B', lightBg: '#FFFBEB', lightBorder: '#FDE68A', darkBg: 'rgba(245,158,11,0.12)', darkBorder: 'rgba(245,158,11,0.35)' },
+            { label: 'Manufactured', val: stats.manufactured || (loading ? '…' : 2), Icon: Layers, color: '#EC4899', lightBg: '#FFF1F2', lightBorder: '#FECDD3', darkBg: 'rgba(236,72,153,0.12)', darkBorder: 'rgba(236,72,153,0.35)' },
+            { label: 'Audit Events', val: audits.length || (loading ? '…' : 3), Icon: ShieldCheck, color: '#38BDF8', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(56,189,248,0.12)', darkBorder: 'rgba(56,189,248,0.35)' },
           ].map(({ label, val, Icon, color, lightBorder, darkBorder }) => (
             <div
               key={label}
@@ -276,9 +276,9 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
               {[
                 { label: 'Weight & Height', val: `${p0?.weight_kg ?? 70} kg / ${p0?.height_cm ?? 162} cm`, color: '#0A1C3D', darkColor: '#FFFFFF', bg: 'bg-slate-50 dark:bg-white/[0.03]', border: 'border-slate-200 dark:border-white/[0.08]' },
-                { label: 'Dominant Hand',  val: p0?.dominant_hand === 'R' ? 'Right' : 'Left', color: '#059669', darkColor: '#34D399', bg: 'bg-emerald-50 dark:bg-emerald-500/[0.08]', border: 'border-emerald-200 dark:border-emerald-500/25' },
+                { label: 'Dominant Hand', val: p0?.dominant_hand === 'R' ? 'Right' : 'Left', color: '#059669', darkColor: '#34D399', bg: 'bg-emerald-50 dark:bg-emerald-500/[0.08]', border: 'border-emerald-200 dark:border-emerald-500/25' },
                 { label: 'Target Protocol', val: `${p0?.hand_strength_lo ?? 10} – ${p0?.hand_strength_hi ?? 18} kg`, color: '#0284C7', darkColor: '#67E8F9', bg: 'bg-cyan-50 dark:bg-cyan-500/[0.08]', border: 'border-cyan-200 dark:border-cyan-500/25' },
-                { label: 'Assigned Sensor',val: 'VS-001002', color: '#7C3AED', darkColor: '#C084FC', bg: 'bg-violet-50 dark:bg-violet-500/[0.08]', border: 'border-violet-200 dark:border-violet-500/25' },
+                { label: 'Assigned Sensor', val: 'VS-001002', color: '#7C3AED', darkColor: '#C084FC', bg: 'bg-violet-50 dark:bg-violet-500/[0.08]', border: 'border-violet-200 dark:border-violet-500/25' },
               ].map(({ label, val, color, darkColor, bg, border }) => (
                 <div
                   key={label}
@@ -380,9 +380,9 @@ export default function DashboardPage() {
             </h3>
             {[
               { label: 'Patient Clinical Dossier', desc: 'Inspect bio metrics & condition', href: '/dashboard/patients', c: '#10B981', lightBg: '#ECFDF5', Icon: Users },
-              { label: 'Generate Device Code',     desc: 'Provision hardware activation keys', href: '/dashboard/generate', c: '#F59E0B', lightBg: '#FFFBEB', Icon: Zap },
-              { label: 'Device Inventory',         desc: 'Track manufactured and paired units', href: '/dashboard/devices', c: '#8B5CF6', lightBg: '#F5F3FF', Icon: Cpu },
-              { label: 'System Audit Log',         desc: 'Inspect all operations & security logs', href: '/dashboard/audit', c: '#0284C7', lightBg: '#F0F9FF', Icon: ShieldCheck },
+              { label: 'Generate Device Code', desc: 'Provision hardware activation keys', href: '/dashboard/generate', c: '#F59E0B', lightBg: '#FFFBEB', Icon: Zap },
+              { label: 'Device Inventory', desc: 'Track manufactured and paired units', href: '/dashboard/devices', c: '#8B5CF6', lightBg: '#F5F3FF', Icon: Cpu },
+              { label: 'System Audit Log', desc: 'Inspect all operations & security logs', href: '/dashboard/audit', c: '#0284C7', lightBg: '#F0F9FF', Icon: ShieldCheck },
             ].map(({ label, desc, href, c, lightBg, Icon }) => (
               <Link
                 key={href}
