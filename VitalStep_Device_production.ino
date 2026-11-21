@@ -1,10 +1,7 @@
 /* ======================================================================
-   VitalStep Palm Pressure Monitor  -  ALL-IN-ONE FIRMWARE  [PRODUCTION]
+   VitalStep Palm Pressure Monitor  -  ALL-IN-ONE FIRMWARE
    Board   : ESP32-3248S035 (ESP32-WROOM-32, 3.5" ST7796 + XPT2046 touch)
    Role    : single-user home device (doctor/patient accounts live in the app)
-
-   *** PRODUCTION BUILD - Real hardware, no test mocks, no hardcoded Wi-Fi ***
-   *** Wi-Fi is provisioned via BLE using the VitalStep mobile app          ***
 
    WHAT RUNS ON THIS ONE BOARD
      - Touch UI (home, dashboard, assessments, compare, insight, settings)
@@ -58,20 +55,20 @@
                                 // 1 = verify server with SUPABASE_ROOT_CA below (production)
 static const char SUPABASE_ROOT_CA[] = "";   // paste root CA PEM here when TLS_VERIFY = 1
 
-// ------------------------------ Wi-Fi (provisioned via BLE app - no hardcoded credentials) ---
-#define WIFI_SSID         ""
-#define WIFI_PASSWORD     ""
+// ------------------------------ Wi-Fi (HARDCODED for testing) ---------------
+#define WIFI_SSID         "Julie-2.4G"
+#define WIFI_PASSWORD     "8000143209"
 
 #define FW_VERSION        "1.0.0"
 #define HW_NAME           "VS-3248S035"
 #define TZ_OFFSET_SEC     19800            // IST = UTC+5:30
 
-// ------------------------------ PRODUCTION MODE (real hardware) ---
-#define TEST_MODE         0     // 0 = production mode (real hardware)
-#define MOCK_HX711        0     // 0 = real load cell (HX711)
-#define MOCK_BATTERY      0     // 0 = real battery ADC
-#define MOCK_BUZZER       0     // 0 = real speaker output
-#define REAL_SD           1     // 1 = real SD card writes (always on)
+// ------------------------------ TEST MODE (simulate data without hardware) ---
+#define TEST_MODE         0     // 0 = production mode (show QR code + skip button at startup)
+#define MOCK_HX711        0     // 0 = real load cell (HX711 on GPIO 21, 22)
+#define MOCK_BATTERY      0     // 0 = real battery voltage (ADC on GPIO 35)
+#define MOCK_BUZZER       0     // 0 = real speaker/buzzer output (GPIO 26)
+#define REAL_SD           1     // 1 = real SD card writes
 
 // ------------------------------ PINS (verified for ESP32-3248S035) -------
 #define PIN_HX_DOUT   21     // CN1 socket
@@ -216,7 +213,7 @@ static bool sdOk=false;
 static SemaphoreHandle_t sdMux=nullptr;
 // load cell
 static HX711 scale;
-static bool hxOk=false; static float hxScaleF=HX_DEFAULT_SCALE; static float hxLastKg=0;
+static bool hxOk=false; static float hxScaleF=HX_DEFAULT_SCALE; static float hxLastKg=0; static long hxOffset=0;
 // battery
 static float batPackV=0; static int batPct=-1; static bool batPresent=false, batChg=false;
 // time
@@ -434,6 +431,128 @@ static bool sdWriteText(const char* path,const char* data){
 }
 
 // ===========================================================================
+//  PAIRING STATE PERSISTENCE (SD Card)
+// ===========================================================================
+// Pairing file format on SD: device_code|secret|paired_user_id|paired_at
+// Example: VS-001001|29740c5e5bf1edfb0503264a306b01661836346fd126fa621f40d9d7cdd12c68|d9dd4237-2701-4475-9d9e-2fac790c760f|2024-11-11T10:00:00Z
+
+struct PairingState {
+  char device_code[40];
+  char secret[72];
+  char paired_user_id[48];
+  char paired_at[32];
+  bool paired;
+};
+
+static PairingState pairingState = {"", "", "", "", false};
+
+// Load pairing state from SD card (/pairing.txt)
+// Returns true if paired file exists and is valid
+static bool loadPairingState() {
+  pairingState.paired = false;
+  pairingState.paired_user_id[0] = 0;
+  pairingState.paired_at[0] = 0;
+  
+  if (!sdOk) {
+    claimed = false;  // No SD = no pairing state possible
+    return false;
+  }
+  
+  char content[256];
+  if (!sdReadText("/pairing.txt", content, sizeof content)) {
+    claimed = false;  // No pairing file = not paired
+    return false;  // File doesn't exist or empty
+  }
+  
+  // Parse: device_code|secret|paired_user_id|paired_at
+  char* p = (char*)malloc(strlen(content) + 1);
+  if (!p) return false;
+  strcpy(p, content);
+  
+  char* parts[4] = {nullptr};
+  int partIdx = 0;
+  char* saveptr = nullptr;
+  
+  // Simple tokenizer with strtok_r
+  char* token = strtok_r(p, "|", &saveptr);
+  while (token && partIdx < 4) {
+    parts[partIdx++] = token;
+    token = strtok_r(nullptr, "|", &saveptr);
+  }
+  free(p);
+  
+  // Validate we got all 4 parts
+  if (partIdx != 4) {
+    Serial.println("[PAIR] Invalid pairing file format");
+    return false;
+  }
+  
+  // Copy parsed values
+  strlcpy(pairingState.device_code, parts[0], sizeof pairingState.device_code);
+  strlcpy(pairingState.secret, parts[1], sizeof pairingState.secret);
+  strlcpy(pairingState.paired_user_id, parts[2], sizeof pairingState.paired_user_id);
+  strlcpy(pairingState.paired_at, parts[3], sizeof pairingState.paired_at);
+  
+  // Validate: device_code and secret should match what we have
+  if (strcmp(pairingState.device_code, devCode) != 0 || 
+      strcmp(pairingState.secret, devSecret) != 0) {
+    Serial.println("[PAIR] Device code/secret mismatch in pairing file");
+    return false;
+  }
+  
+  pairingState.paired = (pairingState.paired_user_id[0] != 0);
+  if (pairingState.paired) {
+    Serial.printf("[PAIR] Device is PAIRED to user: %s\n", pairingState.paired_user_id);
+    claimed = true;  // Sync claimed flag with pairing state
+  } else {
+    claimed = false;
+  }
+  return pairingState.paired;
+}
+
+// Save pairing state to SD card
+// Called when device-sync returns paired=true with user_id
+static bool savePairingState(const char* user_id, const char* at_time) {
+  if (!sdOk || !devCode[0] || !devSecret[0]) return false;
+  
+  // Format: device_code|secret|paired_user_id|paired_at
+  char content[256];
+  snprintf(content, sizeof content, "%s|%s|%s|%s", devCode, devSecret, user_id, at_time);
+  
+  bool ok = sdWriteText("/pairing.txt", content);
+  if (ok) {
+    Serial.printf("[PAIR] Saved pairing state for user: %s\n", user_id);
+    strlcpy(pairingState.paired_user_id, user_id, sizeof pairingState.paired_user_id);
+    strlcpy(pairingState.paired_at, at_time, sizeof pairingState.paired_at);
+    pairingState.paired = true;
+  }
+  return ok;
+}
+
+// Remove pairing state from SD card (unpair)
+static bool removePairingState() {
+  if (!sdOk) return false;
+  
+  sdLock();
+  bool ok = !SD.exists("/pairing.txt") || SD.remove("/pairing.txt");
+  sdUnlock();
+  
+  if (ok) {
+    Serial.println("[PAIR] Removed pairing state from SD");
+    pairingState.paired = false;
+    pairingState.paired_user_id[0] = 0;
+    pairingState.paired_at[0] = 0;
+  }
+  return ok;
+}
+
+// Check if device is paired (by checking if pairing file exists on SD)
+// This is called at boot to decide: show HOME (paired) or PAIRING screen (unpaired)
+static bool isPaired() {
+  return pairingState.paired;
+}
+
+// ===========================================================================
 //  IDENTITY  (device code + secret from SD, cached in NVS; device id after pairing)
 // ===========================================================================
 static void identityLoad(){
@@ -466,7 +585,9 @@ static void identitySaveDevId(const char* id){
 // ===========================================================================
 static void optionsLoad(){
   prefs.begin("vs",true);
-  optBright=prefs.getUChar("bright",2); optSound=prefs.getUChar("sound",1); hxScaleF=prefs.getFloat("hxs",HX_DEFAULT_SCALE);
+  optBright=prefs.getUChar("bright",2); optSound=prefs.getUChar("sound",1);
+  hxScaleF=prefs.getFloat("hxs",HX_DEFAULT_SCALE);
+  hxOffset=prefs.getLong("hxo",0);
   claimed=prefs.getBool("claimed",false);
   String n=prefs.getString("pname",""), pid=prefs.getString("ppid",""), sp=prefs.getString("pspec","");
   PROF.lo=prefs.getFloat("plo",10.0f); PROF.hi=prefs.getFloat("phi",18.0f);
@@ -475,7 +596,14 @@ static void optionsLoad(){
   if(PROF.name[0]){ PROF.ini[0]=PROF.name[0]; PROF.ini[1]=0; }
   if(fabsf(hxScaleF)<1.0f) hxScaleF=HX_DEFAULT_SCALE;
 }
-static void optionsSave(){ prefs.begin("vs",false); prefs.putUChar("bright",optBright); prefs.putUChar("sound",optSound); prefs.end(); }
+static void optionsSave(){
+  prefs.begin("vs",false);
+  prefs.putUChar("bright",optBright);
+  prefs.putUChar("sound",optSound);
+  prefs.putFloat("hxs",hxScaleF);
+  prefs.putLong("hxo",hxOffset);
+  prefs.end();
+}
 static void profileSave(){
   prefs.begin("vs",false); prefs.putString("pname",PROF.name); prefs.putString("ppid",PROF.pid); prefs.putString("pspec",PROF.spec);
   prefs.putFloat("plo",PROF.lo); prefs.putFloat("phi",PROF.hi); prefs.putBool("claimed",claimed); prefs.end();
@@ -497,12 +625,37 @@ static void wifiCredsClear(){ prefs.begin("wificreds",false); prefs.clear(); pre
 static void ledSet(bool r,bool g,bool b){
   digitalWrite(PIN_LED_R,(LED_ACTIVE_LOW)?!r:r); digitalWrite(PIN_LED_G,(LED_ACTIVE_LOW)?!g:g); digitalWrite(PIN_LED_B,(LED_ACTIVE_LOW)?!b:b);
 }
-static void beep(int f,int ms){ if(optSound) tone(PIN_SPK,f,ms); }
+static void beep(int f,int ms){
+#if !MOCK_BUZZER
+  if(optSound) tone(PIN_SPK,f,ms);
+#endif
+}
+static void beepClick(){ beep(2800,16); }
 static void beepOk(){ beep(1319,90); }
 static void beepTrial(){ beep(988,120); }
+static void beepCountdown(){ beep(880,40); }
 static void beepErr(){ beep(330,250); }
+static void beepTare(){
+#if !MOCK_BUZZER
+  if(optSound){ tone(PIN_SPK,1800,40); delay(45); tone(PIN_SPK,2400,60); }
+#endif
+}
+static void beepCalibrated(){
+#if !MOCK_BUZZER
+  if(optSound){ tone(PIN_SPK,1046,70); delay(75); tone(PIN_SPK,1318,70); delay(75); tone(PIN_SPK,1568,120); }
+#endif
+}
+static void beepSuccess(){
+#if !MOCK_BUZZER
+  if(optSound){ tone(PIN_SPK,1046,80); delay(85); tone(PIN_SPK,1318,80); delay(85); tone(PIN_SPK,1568,80); delay(85); tone(PIN_SPK,2093,200); }
+#endif
+}
 static void applyBrightness(){
-  static const uint8_t lv[4]={40,110,180,255}; tft.setBrightness(dimmed?20:lv[(optBright>3?3:optBright)]);
+  // CRITICAL FIX: Keep backlight always on to prevent SPI bus contention with touch controller
+  // Both display and touch share SPI2_HOST; brightness changes lock the bus, blocking touch reads
+  // Solution: Always run at maximum brightness (255) to eliminate PWM updates
+  // dimmed flag is ignored; backlight stays on always
+  tft.setBrightness(255);  // Always maximum brightness - prevents touch freeze
 }
 
 // ===========================================================================
@@ -559,14 +712,49 @@ static void hxInit(){ hxOk = true; mockTrialReset(); Serial.println("[HX] MOCK m
 #else
 static bool hxPoll(float* kg){
   if(!hxOk||!scale.is_ready()) return false;
-  hxLastKg=scale.get_units(1)/1000.0f; *kg=hxLastKg; return true;
+  float w = scale.get_units(1);
+  if(w < 0.0f && w > -0.15f) w = 0.0f; // clean baseline zero
+  hxLastKg = w;
+  *kg = w;
+  return true;
 }
-static void hxZero(){ if(hxOk) scale.tare(10); }
+static void hxZero(){
+  if(hxOk){
+    scale.tare(10);
+    hxOffset = scale.get_offset();
+    prefs.begin("vs",false);
+    prefs.putLong("hxo",hxOffset);
+    prefs.end();
+    beepTare();
+  }
+}
 static void hxInit(){
-  scale.begin(PIN_HX_DOUT,PIN_HX_SCK); scale.set_scale(hxScaleF);
-  uint32_t t=millis(); hxOk=false;
-  while(millis()-t<1500){ if(scale.is_ready()){ hxOk=true; break; } delay(20); }
-  if(hxOk) scale.tare(10);
+  scale.begin(PIN_HX_DOUT,PIN_HX_SCK);
+  scale.set_scale(hxScaleF);
+  if(hxOffset != 0){
+    scale.set_offset(hxOffset);
+  }
+  uint32_t t=millis();
+  hxOk=false;
+  while(millis()-t<1500){
+    if(scale.is_ready()){
+      hxOk=true;
+      break;
+    }
+    delay(20);
+  }
+  if(hxOk){
+    if(hxOffset == 0){
+      scale.tare(10);
+      hxOffset = scale.get_offset();
+      prefs.begin("vs",false);
+      prefs.putLong("hxo",hxOffset);
+      prefs.end();
+    }
+    Serial.printf("[HX] Live load cell ready! Scale factor: %.2f counts/kg, Offset: %ld\n", hxScaleF, hxOffset);
+  } else {
+    Serial.println("[HX] Load cell NOT detected on IO21/IO22 - check wiring");
+  }
 }
 #endif
 
@@ -958,10 +1146,33 @@ static int doSync(){
   }
   pendingCnt=pendingCount();
   bool cl=doc["claimed"]|false;
-  if(reqUnpair){ reqUnpair=false; }
+  if(reqUnpair){ reqUnpair=false; removePairingState(); }
   if(cl!=claimed){ claimed=cl; evClaim=true; }
   if(cl){
     const char* did=doc["device_id"]|""; if(did[0]) identitySaveDevId(did);
+    
+    // Save pairing state to SD when device becomes/stays claimed
+    const char* pid=doc["owner"]["patient_code"]|(const char*)"";
+    if(pid[0]){
+      // Use server time if available, or current time
+      const char* server_ts=doc["server_time"]|(const char*)"";
+      char now_ts[32]="";
+      if(!server_ts[0]){
+        uint32_t now=nowEpoch();
+        if(now){
+          struct tm t; localTm(now,&t);
+          snprintf(now_ts,sizeof now_ts,"%04d-%02d-%02dT%02d:%02d:%02dZ",t.tm_year+1900,t.tm_mon+1,t.tm_mday,t.tm_hour,t.tm_min,t.tm_sec);
+          server_ts=now_ts;
+        }
+      }
+      savePairingState(pid,server_ts);
+    } else if(isPaired() && pairingState.paired_user_id[0]){
+      // Device already paired but response missing patient_code - restore from existing pairing state
+      // This handles the case where cloud says claimed=true but response is incomplete
+      Serial.println("[PAIR] Restoring existing pairing state (server response incomplete)");
+      // pairingState already loaded at boot, just validate it's still good
+    }
+    
     profIn=PROF; strlcpy(profIn.name,doc["owner"]["name"]|(const char*)PROF.name,sizeof profIn.name);
     strlcpy(profIn.pid,doc["owner"]["patient_code"]|(const char*)PROF.pid,sizeof profIn.pid);
     strlcpy(profIn.spec,doc["specialist"]["name"]|(const char*)PROF.spec,sizeof profIn.spec);
@@ -1414,7 +1625,7 @@ static void drawSettings(){
   kv(246,146,224,"Load cell",hxOk?"OK":"Not found",hxOk?C_OK:C_BAD);
   kv(246,168,224,"Code",devCode[0]?devCode:"--",C_TXT);
   kv(246,190,224,"Firmware",FW_VERSION,C_TXT);
-  BTN(10,208,146,52,"Wi-Fi setup",C_TEAL,C_INK); BTNO(167,208,146,52,"Sync now",C_LINE,C_TXT); BTNO(324,208,146,52,"Zero scale",C_LINE,C_TXT);
+  BTN(10,208,146,52,"Wi-Fi setup",C_TEAL,C_INK); BTNO(167,208,146,52,"Sync now",C_LINE,C_TXT); BTN(324,208,146,52,"Skip",C_GOLD,C_INK);
 }
 static void tapSettings(){
   if(inR(tx,ty,10,34,224,26)){ uint8_t t=(tx<122)?0:1; if(t!=setPage){ setPage=t; needFull=true; } return; }
@@ -1428,7 +1639,7 @@ static void tapSettings(){
   }
   if(inR(tx,ty,10,208,146,52)){ if(!identOk){ toastC("No device code on SD",C_BAD); return; } goB(S_SETUP,S_SETTINGS); bleStart(); return; }
   if(inR(tx,ty,167,208,146,52)){ doSyncNow(); return; }
-  if(inR(tx,ty,324,208,146,52)){ toast("Zeroing scale..."); hxZero(); toast(hxOk?"Scale zeroed":"Load cell not found"); }
+  if(inR(tx,ty,324,208,146,52)){ go(S_HOME); return; }  // Skip button - return to home
 }
 
 // ===========================================================================
@@ -1448,26 +1659,29 @@ static void drawCalib(){
     DT("2. Place a known weight on the dome",24,90,AL_L,C_TXT,F9B); DT("Set the weight you are using:",24,114,AL_L,C_SUB,F9);
     BTNO(24,140,60,46,"-",C_LINE,C_TXT); snprintf(b,sizeof b,"%.1f kg",calKg); DT(b,154,163,AL_C,C_TXT,F12B); BTNO(224,140,60,46,"+",C_LINE,C_TXT);
     DT("Reading:",300,130,AL_L,C_SUB,F9); calReading();
-    BTN(24,200,260,44,"Calibrate",C_TEAL,C_INK);
+    BTN(24,200,260,44,"Calibrate & Save",C_TEAL,C_INK);
   } else {
     FC(60,120,22,C_OK); icoCheck(60,119,C_INK); DT("Scale calibrated and saved",96,112,AL_L,C_TXT,F12B);
-    snprintf(b,sizeof b,"Factor %.1f",hxScaleF); DT(b,96,142,AL_L,C_SUB,F9); BTN(24,200,200,44,"Done",C_TEAL,C_INK);
+    snprintf(b,sizeof b,"Factor %.1f counts/kg",hxScaleF); DT(b,96,142,AL_L,C_SUB,F9); BTN(24,200,200,44,"Done",C_TEAL,C_INK);
   }
 }
 static void tapCalib(){
-  if(inR(tx,ty,0,26,100,32)){ goB(S_SETTINGS,S_HOME); return; }
+  if(inR(tx,ty,0,26,100,32)){ calStep=0; goB(S_SETTINGS,S_HOME); return; }
   if(calStep==0&&inR(tx,ty,24,196,200,48)){ toast("Zeroing..."); hxZero(); calStep=1; needFull=true; return; }
   if(calStep==1){
     if(inR(tx,ty,24,140,60,46)){ if(calKg>0.5f) calKg-=0.5f; needFull=true; return; }
-    if(inR(tx,ty,224,140,60,46)){ calKg+=0.5f; needFull=true; return; }
+    if(inR(tx,ty,224,140,60,46)){ if(calKg<50.0f) calKg+=0.5f; needFull=true; return; }
     if(inR(tx,ty,24,200,260,44)){
-      if(!hxOk){ toastC("Load cell not found",C_BAD); return; }
-      long raw=scale.read_average(10); long off=scale.get_offset(); float f=(float)(raw-off)/(calKg*1000.0f);
-      if(fabsf(f)<100.0f){ toastC("No weight detected - try again",C_BAD); return; }
-      hxScaleF=f; scale.set_scale(f); prefs.begin("vs",false); prefs.putFloat("hxs",f); prefs.end(); calStep=2; needFull=true; return;
+      if(!hxOk||!scale.is_ready()){ toastC("Load cell not ready",C_BAD); beepErr(); return; }
+      long raw=scale.read_average(10); long off=scale.get_offset();
+      float f=(float)(raw-off)/calKg;
+      if(fabsf(f)<50.0f){ toastC("No weight detected - try again",C_BAD); beepErr(); return; }
+      hxScaleF=f; scale.set_scale(f);
+      prefs.begin("vs",false); prefs.putFloat("hxs",f); prefs.putLong("hxo",off); prefs.end();
+      beepCalibrated(); calStep=2; needFull=true; return;
     }
   }
-  if(calStep==2&&inR(tx,ty,24,200,200,44)) goB(S_SETTINGS,S_HOME);
+  if(calStep==2&&inR(tx,ty,24,200,200,44)){ calStep=0; goB(S_SETTINGS,S_HOME); }
 }
 static void drawInsight(){
   G=&tft; const Patient& p=pts[cur]; Insight in; computeInsight(p,in); uint16_t sc=sevColor(in.sev);
@@ -1708,7 +1922,7 @@ static void enterDone(){
   Serial.printf("[TEST] Triggering Supabase cloud sync...\n");
 #endif
   if(T_.assessId) for(int i=0;i<queueN;i++) if(queueItems[i].id==T_.assessId) queueItems[i].done=true;
-  reqSync=true; T_.ph=TP_DONE; T_.doneT=millis(); needFull=true; if(T_.saved) beepOk(); else beepErr();
+  reqSync=true; T_.ph=TP_DONE; T_.doneT=millis(); needFull=true; if(T_.saved) beepSuccess(); else beepErr();
 }
 static void drawSyncRow(){
   G=&tft; BGR(10,252,460,28); uint32_t now=millis();
@@ -1753,7 +1967,7 @@ static void testTick(uint32_t now){
     case TP_READY: {
       if(!T_.zeroed){ T_.zeroed=true; hxZero(); T_.phT=millis(); now=T_.phT; T_.cdShown=99; }
       uint32_t el=now-T_.phT; int c=3-(int)(el/1000); static uint32_t la=0;
-      if(c!=T_.cdShown){ T_.cdShown=(uint8_t)c; countdownDraw(c); }
+      if(c!=T_.cdShown){ T_.cdShown=(uint8_t)c; countdownDraw(c); if(c>0) beepCountdown(); }
       if(now-la>70){ la=now; countdownRing(el/3000.0f); }
       if(el>=3000){ beepTrial(); startTrial(0); }
       break; }
@@ -1884,17 +2098,30 @@ static void ledTick(uint32_t now){
   else ledSet(0,0,0);
 }
 static void pollTouch(){
-  int32_t x=0,y=0; bool d=tft.getTouch(&x,&y); ttap=false;
-  if(d){ if(!tdown){ if(millis()-tUp>80) ttap=true; tdown=true; } tx=(int)x; ty=(int)y; lastTouchMs=millis(); }
-  else { if(tdown) tUp=millis(); tdown=false; }
+  int32_t x=0,y=0; bool d=tft.getTouch(&x,&y);
+  if(d){ 
+    if(!tdown){ 
+      // Touch detected while not already pressed: register as tap immediately (or after 20ms debounce)
+      if(millis()-tUp>20) ttap=true;  // Reduced from 80ms to 20ms for responsive button feedback
+      tdown=true; 
+    } 
+    tx=(int)x; ty=(int)y; lastTouchMs=millis(); 
+  }
+  else { 
+    if(tdown) tUp=millis(); 
+    tdown=false; 
+    ttap=false;  // Clear tap flag when touch is released
+  }
 }
 static void handleTouch(){
   static bool pd=false;
   if(ttap&&dimmed){ dimmed=false; applyBrightness(); ttap=false; }                 // first touch only wakes the screen
   if(ttap){
+    beepClick();
     if(modal!=M_NONE) modalTap();
     else {
       bool sub=(scr==S_COMPARE||scr==S_INSIGHT);
+      Scr oldScr=scr;  // remember previous screen
       if(sub&&inR(tx,ty,0,26,100,32)) goB(scrBack,S_HOME);
       else if(navVisible()&&ty>=275){
         int t=clampi(tx/120,0,3); Scr s=(t==0)?S_HOME:((t==1)?S_DASH:((t==2)?S_ASSESS:S_SETTINGS)); if(s!=scr) go(s);
@@ -1905,6 +2132,8 @@ static void handleTouch(){
         case S_COMPARE: tapCompare(); break; case S_INSIGHT: tapInsight(); break;
         case S_CALIB: tapCalib(); break;     default: break;
       }
+      // If screen changed, reset lastTouchMs to prevent immediate dimming
+      if(scr!=oldScr) lastTouchMs=millis();
     }
   }
   if(tdown&&scr==S_DASH&&modal==M_NONE) dashDrag();
@@ -1913,7 +2142,8 @@ static void handleTouch(){
 }
 static void tick(uint32_t now){
   batteryUpdate(); timePersist(); statusWatch(now); processNetEvents(); ledTick(now);
-  if(!dimmed&&now-lastTouchMs>90000UL&&scr!=S_TEST&&!bleActive){ dimmed=true; applyBrightness(); }
+  // DISABLED: Automatic screen dimming - causes SPI bus contention with touch
+  // if(!dimmed&&now-lastTouchMs>90000UL&&scr!=S_TEST&&!bleActive){ dimmed=true; applyBrightness(); }
   if(toastUntil&&now>toastUntil){ toastUntil=0; if(scr!=S_TEST&&scr!=S_SPLASH&&scr!=S_SETUP&&scr!=S_CALIB) needFull=true; }
   static bool warned=false;
   if(batPresent&&batPct>=0){
@@ -1943,6 +2173,7 @@ void setup(){
   bootStep("Loading settings...",8);          optionsLoad(); applyBrightness();
   bootStep("Checking SD card...",22);         sdInit(); if(sdOk) logoDraw(240,98);
   bootStep("Reading device identity...",36);  identityLoad();
+  bootStep("Loading pairing state...",40);    if(sdOk) loadPairingState(); else claimed=false;  // If no SD, can't be paired
   bootStep("Loading Wi-Fi and history...",50); wifiCredsLoad(); timeRestore(); historyLoad(); queueLoad(); pendingCnt=pendingCount();
   bootStep("Reading battery...",62);          batteryUpdate();
   bootStep("Starting load cell...",78);       hxInit();
@@ -1956,8 +2187,20 @@ void setup(){
   else if(!identOk||!haveCreds){ goB(S_SETUP,S_HOME); if(identOk&&!haveCreds) bleStart(); }
   else go(S_HOME);  // TEST MODE: skip straight to home - pairing not required
 #else
-  if(force||!identOk||!haveCreds||!claimed){ goB(S_SETUP,S_HOME); if(identOk&&(force||!haveCreds)) bleStart(); }
-  else go(S_HOME);
+  // Production mode: check pairing state from SD
+  // If paired and have creds, go to HOME
+  // If unpaired or no creds, go to SETUP (QR code + pairing screen)
+  if(force||!identOk||!haveCreds){ 
+    goB(S_SETUP,S_HOME); 
+    if(identOk&&(force||!haveCreds)) bleStart(); 
+  }
+  else if(isPaired()){
+    // Device is paired: show HOME directly
+    go(S_HOME);
+  } else {
+    // Device is unpaired: show SETUP (QR code pairing screen)
+    goB(S_SETUP,S_HOME);
+  }
 #endif
   lastTouchMs=millis();
 }
@@ -1966,5 +2209,5 @@ void loop(){
   pollTouch(); handleTouch(); tick(now);
   if(needFull){ needFull=false; drawScreen(); }
   else if(statusDirty) drawStatus();
-  delay(3);
+  delay(5);  // Increased from 3ms to 5ms to allow SPI transactions to complete and reduce touch/display contention
 }

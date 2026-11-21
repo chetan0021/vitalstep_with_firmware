@@ -19,13 +19,22 @@ const supabaseServiceKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   ''
 
-// Client-side Supabase instance
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// Server-side Admin instance with full privileges (bypasses RLS safely in API routes)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey || supabaseAnonKey, {
+// Client-side Supabase instance singleton
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: false,
-    autoRefreshToken: false,
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
   },
 })
+
+// Server-side Admin instance with full privileges (bypasses RLS safely in API routes)
+// Guarded with typeof window === 'undefined' to eliminate "Multiple GoTrueClient instances detected" warning in browser console
+export const supabaseAdmin = typeof window === 'undefined'
+  ? createClient(supabaseUrl, supabaseServiceKey || supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    })
+  : supabase
