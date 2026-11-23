@@ -49,7 +49,7 @@
 
 // ============================ USER CONFIG ================================
 #define SUPABASE_HOST     "oyqecdcpicvzwwvwaeka.supabase.co"   // no https://
-#define SUPABASE_PUB_KEY  "sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**"  // publishable key (safe to ship)
+#define SUPABASE_PUB_KEY  "sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi"  // publishable anon key (safe to ship)
 #define FN_SYNC_PATH      "/functions/v1/device-sync"
 #define TLS_VERIFY        0     // 0 = setInsecure() like your old firmware (dev only)
                                 // 1 = verify server with SUPABASE_ROOT_CA below (production)
@@ -147,7 +147,7 @@ static lgfx::LGFXBase* G = &tft;     // draw target (no off-screen sprites: keep
 // ------------------------------ TYPES ------------------------------------
 typedef const lgfx::IFont* Fnt;
 enum Al : uint8_t { AL_L, AL_C, AL_R };
-enum Scr : uint8_t { S_SPLASH, S_SETUP, S_HOME, S_DASH, S_ASSESS, S_SETTINGS, S_TEST, S_COMPARE, S_INSIGHT, S_CALIB };
+enum Scr : uint8_t { S_SPLASH, S_SETUP, S_HOME, S_DASH, S_ASSESS, S_SETTINGS, S_TEST, S_COMPARE, S_INSIGHT, S_CALIB, S_TUTORIAL };
 enum Modal : uint8_t { M_NONE, M_NOSD, M_UNPAIRED, M_BATT_CRIT, M_EXIT_TEST, M_RESET, M_BLE_EXIT, M_RELEASE };
 enum TP : uint8_t { TP_SETUP, TP_READY, TP_WAIT, TP_APPLY, TP_REST, TP_DONE };
 enum NetState : uint8_t { NS_NO_CREDS, NS_CONNECTING, NS_ONLINE, NS_FAILED, NS_BLE };
@@ -1447,18 +1447,22 @@ static void drawSetupSteps(){
   else setupRow(2,(netState==NS_ONLINE)?1:0,"Reaching the cloud",(netState==NS_ONLINE)?C_TEAL:C_DIM);
   if(claimed){ snprintf(b,sizeof b,"Paired to %s",PROF.name[0]?PROF.name:"your account"); setupRow(3,2,b,C_OK); }
   else setupRow(3,cloudOk?1:0,"Add this device in the app",cloudOk?C_TEAL:C_DIM);
-  BGR(190,214,284,36);
-  if(bleActive){ DT(bleName,190,224,AL_L,C_TEAL,F9B); DT(bleStatus[0]?bleStatus:"READY",190,242,AL_L,C_SUB,F2); }
-  else if(!haveCreds) DT("Tap Wi-Fi setup, then use the app",190,230,AL_L,C_DIM,F2);
+  BGR(190,208,284,20);
+  if(bleActive){ DT(bleName,190,218,AL_L,C_TEAL,F9B); DT(bleStatus[0]?bleStatus:"READY",340,218,AL_L,C_SUB,F2); }
+  else if(!haveCreds) DT("Tap Wi-Fi setup, then use the app",190,218,AL_L,C_DIM,F2);
 }
 static void drawSetupButtons(){
-  G=&tft; BGR(186,254,290,60);
-  if(bleActive) BTNO(190,262,136,42,"Stop setup",C_WARN,C_WARN); else BTN(190,262,136,42,"Wi-Fi setup",C_TEAL,C_INK);
-  // Highlight Skip button in TEAL when cloud is reachable - user can go straight to dashboard
+  G=&tft; BGR(186,230,290,82);
+  // Row 1: Wi-Fi Setup + Watch Tutorial
+  if(bleActive) BTNO(190,232,136,34,"Stop setup",C_WARN,C_WARN);
+  else BTN(190,232,136,34,"Wi-Fi setup",C_TEAL,C_INK);
+  BTN(334,232,136,34,"Tutorial",0x2965,C_WHITE);
+
+  // Row 2: Skip or Continue
   if(cloudOk && !claimed){
-    BTN(334,262,136,42,"Skip->Home",C_TEAL,C_INK);
+    BTN(190,272,280,36,"Skip -> Home",C_TEAL,C_INK);
   } else {
-    BTNO(334,262,136,42,claimed?"Continue":"Skip",C_LINE,C_TXT);
+    BTNO(190,272,280,36,claimed?"Continue":"Skip",C_LINE,C_TXT);
   }
 }
 static void drawSetup(){
@@ -1481,8 +1485,34 @@ static void setupTick(uint32_t now){
 }
 static void tapSetup(){
   if(inR(tx,ty,0,26,96,36)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else go(S_HOME); return; }
-  if(inR(tx,ty,190,262,136,42)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else if(identOk){ bleStart(); drawSetupSteps(); drawSetupButtons(); statusDirty=true; } return; }
-  if(inR(tx,ty,334,262,136,42)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else go(S_HOME); }
+  // Row 1: Wi-Fi Setup / Stop
+  if(inR(tx,ty,190,232,136,34)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else if(identOk){ bleStart(); drawSetupSteps(); drawSetupButtons(); statusDirty=true; } return; }
+  // Row 1: Tutorial
+  if(inR(tx,ty,334,232,136,34)){ beepClick(); goB(S_TUTORIAL,S_SETUP); return; }
+  // Row 2: Skip / Continue
+  if(inR(tx,ty,190,272,280,36)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else go(S_HOME); return; }
+}
+
+// ===========================================================================
+//  TUTORIAL SCREEN  — QR code linking to the device tutorial video
+// ===========================================================================
+#define TUTORIAL_URL "https://drive.google.com/file/d/1osdagMbTrg-geKEcOsgetIH636LCfA1k/view?usp=sharing"
+static void drawTutorial(){
+  G=&tft; titleBar("Tutorial");
+  // Full area card
+  RR(10,64,460,248,16,C_CARD);
+  // Header
+  DT("How to use VitalStep",240,82,AL_C,C_TXT,F12B);
+  DT("Scan this QR with your phone camera",240,102,AL_C,C_SUB,F9);
+  // QR code — centred, white background box, 150x150
+  RR(165,114,150,150,8,C_WHITE);
+  G->qrcode(TUTORIAL_URL, 170, 119, 140, 3);
+  // Instruction below QR
+  DT("Point camera at QR code to open video tutorial",240,278,AL_C,C_TXT,F9);
+  DT("Google Drive video walkthrough",240,296,AL_C,C_DIM,F2);
+}
+static void tapTutorial(){
+  if(inR(tx,ty,0,26,96,36)){ beepClick(); go(scrBack); return; }
 }
 
 // ===========================================================================
@@ -2162,6 +2192,7 @@ static void drawScreen(){
     case S_ASSESS: drawAssess(); break;     case S_SETTINGS: drawSettings(); break;
     case S_TEST: drawTestScreen(); break;   case S_COMPARE: drawCompare(); break;
     case S_INSIGHT: drawInsight(); break;   case S_CALIB: drawCalib(); break;
+    case S_TUTORIAL: drawTutorial(); break;
   }
   G=&tft;
   if(navVisible()) drawNav(scr==S_HOME?0:(scr==S_DASH?1:(scr==S_ASSESS?2:3)));
@@ -2233,7 +2264,7 @@ static void handleTouch(){
     // Only valid buttons call beepClick() - touching empty screen space produces no sound
     if(modal!=M_NONE) modalTap();
     else {
-      bool sub=(scr==S_COMPARE||scr==S_INSIGHT);
+      bool sub=(scr==S_COMPARE||scr==S_INSIGHT||scr==S_TUTORIAL);
       Scr oldScr=scr;  // remember previous screen
       if(sub&&inR(tx,ty,0,26,96,36)){ beepClick(); goB(scrBack,S_HOME); }
       else if(navVisible()&&ty>=275){
@@ -2243,7 +2274,8 @@ static void handleTouch(){
         case S_DASH: tapDash(); break;       case S_ASSESS: tapAssess(); break;
         case S_SETTINGS: tapSettings(); break; case S_TEST: tapTest(); break;
         case S_COMPARE: tapCompare(); break; case S_INSIGHT: tapInsight(); break;
-        case S_CALIB: tapCalib(); break;     default: break;
+        case S_CALIB: tapCalib(); break;     case S_TUTORIAL: tapTutorial(); break;
+        default: break;
       }
       // If screen changed, reset lastTouchMs to prevent immediate dimming
       if(scr!=oldScr) lastTouchMs=millis();
