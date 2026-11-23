@@ -322,10 +322,20 @@ static int WRAP(const char* s,int x,int y,int maxW,int lh,int maxLines,uint16_t 
 }
 
 static void BTNF(int x,int y,int w,int h,const char* s,uint16_t bg,uint16_t fg,bool outline,Fnt f){
-  int r=imin(h/2,16);
-  if(outline){ RR(x,y,w,h,r,C_CARD); RO(x,y,w,h,r,bg); DT(s,x+w/2,y+h/2,AL_C,fg,f); }
-  else if(bg==C_TEAL){ GRRH(x,y,w,h,r,C_G1,C_G2); DT(s,x+w/2,y+h/2,AL_C,fg,f); }
-  else { RR(x,y,w,h,r,bg); DT(s,x+w/2,y+h/2,AL_C,fg,f); }
+  int r=imin(h/2,12);
+  if(outline){
+    RR(x,y,w,h,r,C_CARD2);
+    RO(x,y,w,h,r,bg);
+    DT(s,x+w/2,y+h/2,AL_C,fg,f);
+  } else if(bg==C_TEAL){
+    GRRH(x,y,w,h,r,C_G1,C_G2);
+    RO(x,y,w,h,r,mix(C_G1,C_WHITE,70));
+    DT(s,x+w/2,y+h/2,AL_C,fg,f);
+  } else {
+    RR(x,y,w,h,r,bg);
+    RO(x,y,w,h,r,mix(bg,C_WHITE,60));
+    DT(s,x+w/2,y+h/2,AL_C,fg,f);
+  }
 }
 static void BTN(int x,int y,int w,int h,const char* s,uint16_t bg,uint16_t fg){ BTNF(x,y,w,h,s,bg,fg,false,F9B); }
 static void BTNO(int x,int y,int w,int h,const char* s,uint16_t bg,uint16_t fg){ BTNF(x,y,w,h,s,bg,fg,true,F9B); }
@@ -397,7 +407,7 @@ static void timeRestore(){                      // after power loss: last known 
   if(e>1735689600) timeSetEpoch(e+1,true);
 }
 static void timePersist(){
-  static uint32_t last=0; if(!timeValid()||millis()-last<600000UL) return; last=millis();
+  static uint32_t last=0; if(!timeValid()||millis()-last<60000UL) return; last=millis();
   prefs.begin("vs",false); prefs.putUInt("lastEp",nowEpoch()); prefs.end();
 }
 
@@ -650,6 +660,17 @@ static void beepSuccess(){
   if(optSound){ tone(PIN_SPK,1046,80); delay(85); tone(PIN_SPK,1318,80); delay(85); tone(PIN_SPK,1568,80); delay(85); tone(PIN_SPK,2093,200); }
 #endif
 }
+// Sci-Fi Weyland-Yutani Boot Sequence Chime (Alien: Isolation terminal style)
+static void beepSciFiBoot(){
+#if !MOCK_BUZZER
+  if(!optSound) return;
+  tone(PIN_SPK,440,45); delay(50);
+  tone(PIN_SPK,880,50); delay(55);
+  tone(PIN_SPK,1320,55); delay(60);
+  tone(PIN_SPK,1760,65); delay(70);
+  tone(PIN_SPK,2793,140); delay(150);
+#endif
+}
 static void applyBrightness(){
   // CRITICAL FIX: Keep backlight always on to prevent SPI bus contention with touch controller
   // Both display and touch share SPI2_HOST; brightness changes lock the bus, blocking touch reads
@@ -673,9 +694,12 @@ static void batteryUpdate(){
   uint32_t acc=0; for(int i=0;i<16;i++) acc+=analogReadMilliVolts(PIN_BAT_ADC);
   float pin=(acc/16.0f)/1000.0f, pack=pin*((BAT_R_TOP+BAT_R_BOTTOM)/BAT_R_BOTTOM)*BAT_TRIM;
   batPackV=(batPackV<0.5f)?pack:(batPackV*0.8f+pack*0.2f);
-  batPresent=(batPackV>BAT_CELLS*3.0f);
+  // Auto-detect 1S cell (3.0V-4.2V, 3.7V nominal) vs 2S pack (6.0V-8.4V, 7.4V nominal)
+  int cells = (batPackV > 5.0f) ? 2 : 1;
+  batPresent = (batPackV >= 2.8f);
   if(!batPresent){ batPct=-1; batChg=false; return; }
-  int p=cellPct(batPackV/BAT_CELLS);
+  float vPerCell = batPackV / (float)cells;
+  int p = cellPct(vPerCell);
   if(batPct<0||batChg||p<batPct||p>batPct+8) batPct=p;
   if(millis()-tRef>45000){ if(vRef>0){ float d=batPackV-vRef; if(d>0.05f) batChg=true; else if(d<-0.02f||fabsf(d)<0.01f) batChg=false; } vRef=batPackV; tRef=millis(); }
 }
@@ -921,7 +945,7 @@ static void icoCompare(int x,int y,uint16_t c){ FR(x-10,y-1,8,11,c); FR(x+2,y-9,
 static void icoPeople(int x,int y,uint16_t c){ FC(x-5,y-4,4,c); FC(x+6,y-3,3,c); RR(x-11,y+2,12,8,3,c); RR(x+1,y+3,11,7,3,c); }
 static void icoCheck(int x,int y,uint16_t c){ LN(x-6,y,x-2,y+5,c); LN(x-6,y+1,x-2,y+6,c); LN(x-2,y+5,x+7,y-5,c); LN(x-2,y+6,x+7,y-4,c); }
 static void icoWarn(int x,int y,uint16_t c){ FR(x-1,y-8,3,9,c); FR(x-1,y+3,3,3,c); }
-static void icoBack(int x,int y,uint16_t c){ LN(x+4,y-8,x-4,y,c); LN(x+5,y-8,x-3,y,c); LN(x-4,y,x+4,y+8,c); LN(x-3,y,x+5,y+8,c); }
+static void icoBack(int x,int y,uint16_t c){ LN(x+3,y-6,x-3,y,c); LN(x+4,y-6,x-2,y,c); LN(x-3,y,x+3,y+6,c); LN(x-2,y,x+4,y+6,c); }
 static void icoChev(int x,int y,uint16_t c){ LN(x-3,y-6,x+3,y,c); LN(x+3,y,x-3,y+6,c); LN(x-2,y-6,x+4,y,c); LN(x+4,y,x-2,y+6,c); }
 static void icoClose(int x,int y,uint16_t c){ LN(x-7,y-7,x+7,y+7,c); LN(x-6,y-7,x+8,y+7,c); LN(x+7,y-7,x-7,y+7,c); LN(x+8,y-7,x-6,y+7,c); }
 static void icoBle(int x,int y,uint16_t c){ LN(x,y-8,x,y+8,c); LN(x,y-8,x+5,y-3,c); LN(x+5,y-3,x-5,y+4,c); LN(x-5,y-4,x+5,y+3,c); LN(x+5,y+3,x,y+8,c); }
@@ -1222,7 +1246,15 @@ static void netTask(void*){
   }
 }
 static void titleBar(const char* title){
-  G=&tft; BGR(0,26,480,32); icoBack(22,42,C_TXT); DT(title,42,42,AL_L,C_TXT,F12B); HL(0,58,480,C_LINE);
+  G=&tft; BGR(0,26,480,34);
+  // Tactile Back button with icon and bold label
+  RR(8,29,76,28,8,C_CARD2);
+  RO(8,29,76,28,8,C_LINE);
+  icoBack(20,43,C_TEAL);
+  DT("Back",50,43,AL_C,C_TXT,F9B);
+
+  DT(title,96,43,AL_L,C_TXT,F12B);
+  HL(0,62,480,C_LINE);
 }
 static void drawToast(){
   if(scr==S_TEST||scr==S_SPLASH||toastUntil==0) return;
@@ -1258,9 +1290,9 @@ static void drawStatus(){
   icoWifi(388,13,netState==NS_ONLINE);
   uint16_t cc=cloudOk?C_OK:(authFail?C_BAD:C_DIM);                      // cloud icon
   FC(407,14,4,cc); FC(414,12,5,cc); FR(405,14,13,4,cc);
-  int bp=(batPct<0)?100:batPct; icoBatt(426,7,bp);
-  if(batPct<0) DT("USB",454,13,AL_L,C_SUB,F0);
-  else { snprintf(b,sizeof b,"%d%%",batPct); DT(b,454,13,AL_L,(batPct<=BAT_LOW_PCT)?C_BAD:(batChg?C_OK:C_TXT),F0); }
+  int bp=(batPct<0)?100:batPct; icoBatt(424,7,bp);
+  if(batPct<0) DT("USB",452,13,AL_L,C_SUB,F2);
+  else { snprintf(b,sizeof b,"%d%%",batPct); DT(b,452,13,AL_L,(batPct<=BAT_LOW_PCT)?C_BAD:(batChg?C_OK:C_TXT),F2); }
   statusDirty=false;
 }
 
@@ -1294,13 +1326,25 @@ static void modalTap(){
   bool two=(modal==M_UNPAIRED||modal==M_EXIT_TEST||modal==M_RESET||modal==M_BLE_EXIT||modal==M_RELEASE);
   bool b1=two&&inR(tx,ty,80,190,150,38), b2=two?inR(tx,ty,250,190,150,38):inR(tx,ty,150,190,180,38);
   if(!b1&&!b2) return;
+  beepClick();
   Modal m=modal; modal=M_NONE;
   if(m==M_UNPAIRED&&b1){ go(S_HOME); return; }     // "Skip" - go to dashboard in test mode
   if(m==M_UNPAIRED&&b2){ goB(S_SETUP,S_HOME); return; }
   if(m==M_EXIT_TEST&&b2){ testExit(); return; }
   if(m==M_RESET&&b2){ doFactoryReset(); return; }
   if(m==M_BLE_EXIT&&b2){ bleStop(); delay(200); ESP.restart(); return; }
-  if(m==M_RELEASE&&b2){ if(netState!=NS_ONLINE) toastC("Connect to Wi-Fi to unpair",C_WARN); else if(pendingCnt>0) toastC("Upload pending results first",C_WARN); else { reqUnpair=true; toast("Unpairing..."); } return; }
+  if(m==M_RELEASE&&b2){
+    if(netState!=NS_ONLINE) toastC("Connect to Wi-Fi to unpair",C_WARN);
+    else if(pendingCnt>0) toastC("Upload pending results first",C_WARN);
+    else {
+      reqUnpair=true;
+      toast("Unpairing...");
+      claimed=false;
+      removePairingState();
+      go(S_SETUP); // Immediately show pairing QR code!
+    }
+    return;
+  }
   needFull=true;
 }
 
@@ -1436,9 +1480,9 @@ static void setupTick(uint32_t now){
   if(!claimed) claimShownT=0;
 }
 static void tapSetup(){
-  if(inR(tx,ty,0,26,100,32)){ if(bleActive) modalOpen(M_BLE_EXIT); else go(S_HOME); return; }
-  if(inR(tx,ty,190,262,136,42)){ if(bleActive) modalOpen(M_BLE_EXIT); else if(identOk){ bleStart(); drawSetupSteps(); drawSetupButtons(); statusDirty=true; } return; }
-  if(inR(tx,ty,334,262,136,42)){ if(bleActive) modalOpen(M_BLE_EXIT); else go(S_HOME); }
+  if(inR(tx,ty,0,26,96,36)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else go(S_HOME); return; }
+  if(inR(tx,ty,190,262,136,42)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else if(identOk){ bleStart(); drawSetupSteps(); drawSetupButtons(); statusDirty=true; } return; }
+  if(inR(tx,ty,334,262,136,42)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else go(S_HOME); }
 }
 
 // ===========================================================================
@@ -1489,12 +1533,12 @@ static void doSyncNow(){
   else { reqReconnect=true; toastC("Offline - results are kept on SD",C_WARN); }
 }
 static void tapHome(){
-  if(inR(tx,ty,10,194,460,34)){ goB(S_INSIGHT,S_HOME); return; }
-  if(inR(tx,ty,160,64,160,124)){ goB(S_COMPARE,S_HOME); return; }
-  if(inR(tx,ty,10,64,460,124)){ go(S_DASH); return; }
-  if(inR(tx,ty,10,234,228,36)){ startNextTest(); return; }
-  if(inR(tx,ty,246,234,108,36)){ go(S_DASH); return; }
-  if(inR(tx,ty,362,234,108,36)) doSyncNow();
+  if(inR(tx,ty,10,194,460,34)){ beepClick(); goB(S_INSIGHT,S_HOME); return; }
+  if(inR(tx,ty,160,64,160,124)){ beepClick(); goB(S_COMPARE,S_HOME); return; }
+  if(inR(tx,ty,10,64,460,124)){ beepClick(); go(S_DASH); return; }
+  if(inR(tx,ty,10,234,228,36)){ beepClick(); startNextTest(); return; }
+  if(inR(tx,ty,246,234,108,36)){ beepClick(); go(S_DASH); return; }
+  if(inR(tx,ty,362,234,108,36)){ beepClick(); doSyncNow(); }
 }
 
 // ===========================================================================
@@ -1540,8 +1584,8 @@ static void drawDash(){
   drawChart(p,10,112,460,158,dashRange,scrub,false); G=&tft;
 }
 static void tapDash(){
-  if(inR(tx,ty,10,34,224,26)){ uint8_t t=(tx<122)?0:1; if(t!=dashTab){ dashTab=t; scrub=-1; needFull=true; } return; }
-  if(dashTab==0&&ty>=34&&ty<60&&tx>=350){ int i=(tx-350)/42; if(i>=0&&i<3&&i!=dashRange){ dashRange=i; scrub=-1; needFull=true; } }
+  if(inR(tx,ty,10,34,224,26)){ beepClick(); uint8_t t=(tx<122)?0:1; if(t!=dashTab){ dashTab=t; scrub=-1; needFull=true; } return; }
+  if(dashTab==0&&ty>=34&&ty<60&&tx>=350){ int i=(tx-350)/42; if(i>=0&&i<3&&i!=dashRange){ beepClick(); dashRange=i; scrub=-1; needFull=true; } }
 }
 static void dashDrag(){
   if(dashTab!=0||chCnt<=0) return;
@@ -1561,25 +1605,39 @@ static void assessCard(int y,const char* title,const char* sub,const char* tag,u
 static void drawAssess(){
   G=&tft; char b[64], d[16], sub[60];
   DT("Assessments",14,44,AL_L,C_TXT,F12B);
+  if(PROF.spec[0]){
+    char sp[48]; snprintf(sp,sizeof sp,"Doctor: %s",PROF.spec);
+    DT(sp,170,44,AL_L,C_TEAL,F9B);
+  }
   if(nowEpoch()){ fmtTs(nowEpoch(),d,sizeof d); snprintf(b,sizeof b,"Today, %s",d); DT(b,468,44,AL_R,C_SUB,F9); }
   int y=62, shown=0;
   for(int i=0;i<queueN&&shown<2;i++){
     const QItem& q=queueItems[i]; snprintf(sub,sizeof sub,"%s hand | %s | 3 trials",q.hand?"Right":"Left",q.posture?"Standing":"Sitting");
     assessCard(y,q.title,sub,q.done?"DONE":"ASSIGNED",q.done?C_OK:C_WARN,!q.done); y+=68; shown++;
   }
-  if(shown==0){ RR(10,y,460,62,16,C_CARD); DT("No assessment assigned",24,y+22,AL_L,C_TXT,F9B); DT(haveCreds?"Your specialist can assign one in the app":"Connect Wi-Fi to receive assignments",24,y+43,AL_L,C_SUB,F9); y+=68; }
+  if(shown==0){
+    RR(10,y,460,62,16,C_CARD);
+    DT("No assigned doctor assessment",24,y+20,AL_L,C_TXT,F9B);
+    if(PROF.spec[0]){
+      char docMsg[64]; snprintf(docMsg, sizeof docMsg, "Prescriptions from %s will appear here", PROF.spec);
+      DT(docMsg,24,y+42,AL_L,C_SUB,F9);
+    } else {
+      DT(haveCreds?"Your doctor can assign tests in the app":"Connect Wi-Fi to receive assignments",24,y+42,AL_L,C_SUB,F9);
+    }
+    y+=68;
+  }
   int wk=weakerHand(pts[cur]);
-  snprintf(sub,sizeof sub,"%s hand | Sitting | not assigned",wk?"Right":"Left");
-  assessCard(y,"Quick test",sub,"ANYTIME",C_TEAL,true);
+  snprintf(sub,sizeof sub,"%s hand | Sitting | unprescribed practice",wk?"Right":"Left");
+  assessCard(y,"Quick Test",sub,"ANYTIME",C_TEAL,true);
   if(!cloudOk&&queueN>0) DT("Showing the last list saved on this device",240,262,AL_C,C_DIM,F2);
 }
 static void tapAssess(){
   int y=62, shown=0;
   for(int i=0;i<queueN&&shown<2;i++){ const QItem& q=queueItems[i];
-    if(!q.done&&inR(tx,ty,376,y+14,86,34)){ testFromUI(q.hand,q.posture,q.id); return; }
+    if(!q.done&&inR(tx,ty,376,y+14,86,34)){ beepClick(); testFromUI(q.hand,q.posture,q.id); return; }
     y+=68; shown++; }
   if(shown==0) y+=68;
-  if(inR(tx,ty,376,y+14,86,34)) testFromUI((uint8_t)weakerHand(pts[cur]),0,0);
+  if(inR(tx,ty,376,y+14,86,34)){ beepClick(); testFromUI((uint8_t)weakerHand(pts[cur]),0,0); }
 }
 
 // ===========================================================================
@@ -1594,84 +1652,128 @@ static void drawSettings(){
   DT("Status",67,47,AL_C,setPage==0?C_INK:C_SUB,F9B); DT("Options",177,47,AL_C,setPage==1?C_INK:C_SUB,F9B);
   if(setPage==1){
     static const char* bl[4]={"Low","Med","High","Max"};
+    // 1. Brightness
     RR(10,66,460,34,14,C_CARD); DT("Brightness",24,83,AL_L,C_TXT,F9B);
     for(int i=0;i<4;i++){ int x=240+i*58; if(optBright==i) GRRH(x,70,52,26,13,C_G1,C_G2); else RR(x,70,52,26,13,C_CARD2); DT(bl[i],x+26,83,AL_C,optBright==i?C_INK:C_SUB,F9B); }
-    RR(10,104,460,34,14,C_CARD); DT("Sound",24,121,AL_L,C_TXT,F9B);
+    // 2. Sound Buzzer
+    RR(10,104,460,34,14,C_CARD); DT("Sound buzzer",24,121,AL_L,C_TXT,F9B);
     RR(366,108,94,26,13,optSound?mix(C_CARD,C_OK,80):C_CARD2); DT(optSound?"On":"Off",413,121,AL_C,optSound?C_OK:C_SUB,F9B);
-    RR(10,142,460,34,14,C_CARD); DT("Calibrate scale",24,159,AL_L,C_TXT,F9B); icoChev(456,159,C_DIM);
-    RR(10,180,460,34,14,C_CARD); DT("Unpair device",24,197,AL_L,C_WARN,F9B); icoChev(456,197,C_DIM);
-    RR(10,218,460,34,14,C_CARD); DT("Reset device",24,235,AL_L,C_BAD,F9B); icoChev(456,235,C_DIM);
+    // 3. Wi-Fi Setup (BLE Mode) - moved from Status tab
+    RR(10,142,460,34,14,C_CARD); icoWifi(24,159,true); DT("Wi-Fi Setup (Bluetooth Mode)",44,159,AL_L,C_TXT,F9B); icoChev(456,159,C_TEAL);
+    // 4. Calibrate scale
+    RR(10,180,460,34,14,C_CARD); DT("Calibrate scale (Load Cell)",24,197,AL_L,C_TXT,F9B); icoChev(456,197,C_DIM);
+    // 5. Pairing QR & Unpair Device
+    RR(10,218,226,34,14,C_CARD); DT("Pairing QR Code",24,235,AL_L,C_TEAL,F9B); icoChev(220,235,C_TEAL);
+    RR(244,218,226,34,14,C_CARD); DT("Unpair Device",258,235,AL_L,C_WARN,F9B); icoChev(456,235,C_WARN);
     snprintf(b,sizeof b,"%s | fw %s | %s",HW_NAME,FW_VERSION,devCode[0]?devCode:"no code");
     DT(b,240,262,AL_C,C_DIM,F2); return;
   }
+  // STATUS TAB (setPage == 0)
   RR(10,66,228,136,16,C_CARD); DT("CONNECTION",24,80,AL_L,C_DIM,F2);
   const char* ws; uint16_t wc;
   if(netState==NS_ONLINE){ snprintf(b,sizeof b,"%s",wifiSsid); ws=b; wc=C_OK; }
   else if(netState==NS_CONNECTING){ ws="Connecting..."; wc=C_WARN; }
-  else if(netState==NS_BLE){ ws="Setup mode"; wc=C_TEAL; }
+  else if(netState==NS_BLE){ ws="BLE Setup"; wc=C_TEAL; }
   else if(netState==NS_FAILED){ ws="Not connected"; wc=C_BAD; }
   else { ws="Not set"; wc=C_BAD; }
   kv(10,102,228,"Wi-Fi",ws,wc);
   kv(10,124,228,"Cloud",cloudOk?"Online":(authFail?"Rejected":"Offline"),cloudOk?C_OK:(authFail?C_BAD:C_WARN));
   kv(10,146,228,"Paired",claimed?(PROF.name[0]?PROF.name:"Yes"):"Not paired",claimed?C_OK:C_WARN);
-  char pc[16]; snprintf(pc,sizeof pc,pendingCnt>0?"%d queued":"All synced",(int)pendingCnt);
-  kv(10,168,228,"Uploads",pc,pendingCnt>0?C_WARN:C_OK);
+  kv(10,168,228,"Doctor",PROF.spec[0]?PROF.spec:"Unassigned",C_TEAL);
   char ls[16]="never"; if(lastSyncEpoch){ struct tm t; localTm(lastSyncEpoch,&t); snprintf(ls,sizeof ls,"%02d:%02d",t.tm_hour,t.tm_min); }
   kv(10,190,228,"Last sync",ls,C_TXT);
+
+  // DEVICE CARD
   RR(246,66,224,136,16,C_CARD); DT("DEVICE",260,80,AL_L,C_DIM,F2);
-  char bt[24]; if(batPct<0) snprintf(bt,sizeof bt,"USB power"); else snprintf(bt,sizeof bt,"%d%% %.1fV%s",batPct,batPackV,batChg?" +":"");
+  char bt[28];
+  if(batPct<0) snprintf(bt,sizeof bt,"USB Power");
+  else snprintf(bt,sizeof bt,"%d%% (%.1fV)%s",batPct,batPackV,batChg?" +":"");
   kv(246,102,224,"Battery",bt,batPct<0?C_SUB:(batPct<=BAT_LOW_PCT?C_BAD:(batChg?C_OK:C_TXT)));
   kv(246,124,224,"SD card",sdOk?"OK":"Missing",sdOk?C_OK:C_BAD);
   kv(246,146,224,"Load cell",hxOk?"OK":"Not found",hxOk?C_OK:C_BAD);
   kv(246,168,224,"Code",devCode[0]?devCode:"--",C_TXT);
   kv(246,190,224,"Firmware",FW_VERSION,C_TXT);
-  BTN(10,208,146,52,"Wi-Fi setup",C_TEAL,C_INK); BTNO(167,208,146,52,"Sync now",C_LINE,C_TXT); BTN(324,208,146,52,"Skip",C_GOLD,C_INK);
+
+  // FAQ & CLINICAL QUICK GUIDE (Replaces old buttons)
+  RR(10,208,304,54,14,C_CARD);
+  DT("FAQ & QUICK GUIDE",24,219,AL_L,C_GOLD,F2);
+  DT("Hold steady for 15s during test; green LED = complete.",24,234,AL_L,C_TXT,F2);
+  DT("Offline tests save to SD card & auto-upload on Wi-Fi.",24,248,AL_L,C_SUB,F2);
+
+  // PROMINENT SYNC CLOUD BUTTON
+  BTN(324,208,146,54,"Sync Cloud",C_TEAL,C_INK);
 }
 static void tapSettings(){
-  if(inR(tx,ty,10,34,224,26)){ uint8_t t=(tx<122)?0:1; if(t!=setPage){ setPage=t; needFull=true; } return; }
+  if(inR(tx,ty,10,34,224,26)){ beepClick(); uint8_t t=(tx<122)?0:1; if(t!=setPage){ setPage=t; needFull=true; } return; }
   if(setPage==1){
-    for(int i=0;i<4;i++) if(inR(tx,ty,240+i*58,70,52,26)){ optBright=(uint8_t)i; optionsSave(); applyBrightness(); needFull=true; return; }
-    if(inR(tx,ty,366,108,94,26)){ optSound=!optSound; optionsSave(); beepOk(); needFull=true; return; }
-    if(inR(tx,ty,10,142,460,34)){ calStep=0; goB(S_CALIB,S_SETTINGS); return; }
-    if(inR(tx,ty,10,180,460,34)){ if(!claimed) toastC("This device is not paired",C_WARN); else modalOpen(M_RELEASE); return; }
-    if(inR(tx,ty,10,218,460,34)){ modalOpen(M_RESET); return; }
+    for(int i=0;i<4;i++) if(inR(tx,ty,240+i*58,70,52,26)){ beepClick(); optBright=(uint8_t)i; optionsSave(); applyBrightness(); needFull=true; return; }
+    if(inR(tx,ty,366,108,94,26)){ beepClick(); optSound=!optSound; optionsSave(); beepOk(); needFull=true; return; }
+    // Wi-Fi Setup via BLE
+    if(inR(tx,ty,10,142,460,34)){ beepClick(); if(!identOk){ toastC("No device code on SD",C_BAD); return; } goB(S_SETUP,S_SETTINGS); bleStart(); return; }
+    // Calibrate scale
+    if(inR(tx,ty,10,180,460,34)){ beepClick(); calStep=0; goB(S_CALIB,S_SETTINGS); return; }
+    // Pairing QR Code
+    if(inR(tx,ty,10,218,226,34)){ beepClick(); goB(S_SETUP,S_SETTINGS); return; }
+    // Unpair Device
+    if(inR(tx,ty,244,218,226,34)){ beepClick(); if(!claimed) toastC("Device not paired",C_WARN); else modalOpen(M_RELEASE); return; }
     return;
   }
-  if(inR(tx,ty,10,208,146,52)){ if(!identOk){ toastC("No device code on SD",C_BAD); return; } goB(S_SETUP,S_SETTINGS); bleStart(); return; }
-  if(inR(tx,ty,167,208,146,52)){ doSyncNow(); return; }
-  if(inR(tx,ty,324,208,146,52)){ go(S_HOME); return; }  // Skip button - return to home
+  // Status tab buttons:
+  if(inR(tx,ty,324,208,146,54)){ beepClick(); doSyncNow(); return; }
 }
 
 // ===========================================================================
 //  SCALE CALIBRATION  (zero, then a known weight)
 // ===========================================================================
 static void calReading(){
-  float kg=0; static float last=0; if(hxPoll(&kg)) last=kg; char b[24]; snprintf(b,sizeof b,"%.2f kg",last);
-  G=&tft; FR(250,150,210,44,C_CARD); DT(b,355,172,AL_C,C_TXT,F12B);
+  float kg=0; static float last=0; if(hxPoll(&kg)) last=kg; char b[32]; snprintf(b,sizeof b,"%.3f kg (%.0f g)",last,last*1000.0f);
+  G=&tft; FR(240,166,220,38,C_CARD); DT(b,350,185,AL_C,C_TXT,F9B);
 }
 static void drawCalib(){
-  G=&tft; titleBar("Calibrate scale"); char b[40];
+  G=&tft; titleBar("Calibrate scale"); char b[48];
   RR(10,64,460,200,16,C_CARD);
   if(calStep==0){
-    DT("1. Remove everything from the dome",24,90,AL_L,C_TXT,F9B); DT("The scale will be set to zero.",24,114,AL_L,C_SUB,F9);
+    DT("1. Remove all items from the dome",24,90,AL_L,C_TXT,F9B);
+    DT("The scale will establish zero baseline.",24,114,AL_L,C_SUB,F9);
     BTN(24,196,200,48,"Zero now",C_TEAL,C_INK);
   } else if(calStep==1){
-    DT("2. Place a known weight on the dome",24,90,AL_L,C_TXT,F9B); DT("Set the weight you are using:",24,114,AL_L,C_SUB,F9);
-    BTNO(24,140,60,46,"-",C_LINE,C_TXT); snprintf(b,sizeof b,"%.1f kg",calKg); DT(b,154,163,AL_C,C_TXT,F12B); BTNO(224,140,60,46,"+",C_LINE,C_TXT);
-    DT("Reading:",300,130,AL_L,C_SUB,F9); calReading();
-    BTN(24,200,260,44,"Calibrate & Save",C_TEAL,C_INK);
+    DT("2. Place known weight on the dome",24,86,AL_L,C_TXT,F9B);
+    DT("Fine-tune weight to match your object (down to 1 gram):",24,106,AL_L,C_SUB,F2);
+    // 4 Adjustment Buttons: [-100g] [-1g]   [+1g] [+100g]
+    BTNO(24,126,68,36,"-100g",C_LINE,C_TXT);
+    BTNO(98,126,58,36,"-1g",C_LINE,C_TXT);
+    snprintf(b,sizeof b,"%.3f kg",calKg); DT(b,230,136,AL_C,C_TXT,F12B);
+    snprintf(b,sizeof b,"(%.0f grams)",calKg*1000.0f); DT(b,230,154,AL_C,C_GOLD,F2);
+    BTNO(304,126,58,36,"+1g",C_LINE,C_TXT);
+    BTNO(368,126,68,36,"+100g",C_LINE,C_TXT);
+
+    DT("Live reading:",24,185,AL_L,C_SUB,F9);
+    calReading();
+
+    BTN(24,212,250,42,"Calibrate & Save",C_TEAL,C_INK);
   } else {
-    FC(60,120,22,C_OK); icoCheck(60,119,C_INK); DT("Scale calibrated and saved",96,112,AL_L,C_TXT,F12B);
-    snprintf(b,sizeof b,"Factor %.1f counts/kg",hxScaleF); DT(b,96,142,AL_L,C_SUB,F9); BTN(24,200,200,44,"Done",C_TEAL,C_INK);
+    FC(60,120,22,C_OK); icoCheck(60,119,C_INK); DT("Scale calibrated and saved to flash",96,112,AL_L,C_TXT,F12B);
+    snprintf(b,sizeof b,"Factor: %.1f counts/kg",hxScaleF); DT(b,96,142,AL_L,C_SUB,F9);
+    BTN(24,200,200,44,"Done",C_TEAL,C_INK);
   }
 }
 static void tapCalib(){
-  if(inR(tx,ty,0,26,100,32)){ calStep=0; goB(S_SETTINGS,S_HOME); return; }
-  if(calStep==0&&inR(tx,ty,24,196,200,48)){ toast("Zeroing..."); hxZero(); calStep=1; needFull=true; return; }
+  if(inR(tx,ty,0,26,96,36)){ beepClick(); calStep=0; goB(S_SETTINGS,S_HOME); return; }
+  if(calStep==0&&inR(tx,ty,24,196,200,48)){
+    beepClick(); toast("Zeroing scale..."); hxZero(); calStep=1; needFull=true; return;
+  }
   if(calStep==1){
-    if(inR(tx,ty,24,140,60,46)){ if(calKg>0.5f) calKg-=0.5f; needFull=true; return; }
-    if(inR(tx,ty,224,140,60,46)){ if(calKg<50.0f) calKg+=0.5f; needFull=true; return; }
-    if(inR(tx,ty,24,200,260,44)){
+    // [-100g]
+    if(inR(tx,ty,24,126,68,36)){ beepClick(); if(calKg>0.100f) calKg-=0.100f; needFull=true; return; }
+    // [-1g]
+    if(inR(tx,ty,98,126,58,36)){ beepClick(); if(calKg>0.010f) calKg-=0.001f; needFull=true; return; }
+    // [+1g]
+    if(inR(tx,ty,304,126,58,36)){ beepClick(); if(calKg<50.0f) calKg+=0.001f; needFull=true; return; }
+    // [+100g]
+    if(inR(tx,ty,368,126,68,36)){ beepClick(); if(calKg<50.0f) calKg+=0.100f; needFull=true; return; }
+    // Calibrate & Save
+    if(inR(tx,ty,24,212,250,42)){
+      beepClick();
       if(!hxOk||!scale.is_ready()){ toastC("Load cell not ready",C_BAD); beepErr(); return; }
       long raw=scale.read_average(10); long off=scale.get_offset();
       float f=(float)(raw-off)/calKg;
@@ -1681,7 +1783,7 @@ static void tapCalib(){
       beepCalibrated(); calStep=2; needFull=true; return;
     }
   }
-  if(calStep==2&&inR(tx,ty,24,200,200,44)){ calStep=0; goB(S_SETTINGS,S_HOME); }
+  if(calStep==2&&inR(tx,ty,24,200,200,44)){ beepClick(); calStep=0; goB(S_SETTINGS,S_HOME); }
 }
 static void drawInsight(){
   G=&tft; const Patient& p=pts[cur]; Insight in; computeInsight(p,in); uint16_t sc=sevColor(in.sev);
@@ -1699,7 +1801,9 @@ static void drawInsight(){
   FC(34,274,3,sc); DT(in.tip1,46,274,AL_L,C_TXT,F9);
   FC(34,294,3,sc); DT(in.tip2,46,294,AL_L,C_TXT,F9);
 }
-static void tapInsight(){}
+static void tapInsight(){
+  if(inR(tx,ty,0,26,96,36)){ beepClick(); go(S_DASH); return; }
+}
 
 static void drawCompare(){
   G=&tft; const Patient& p=pts[cur]; titleBar("Compare"); char b[64],d[16];
@@ -1742,7 +1846,8 @@ static void drawCompare(){
 }
 
 static void tapCompare(){
-  if(inR(tx,ty,10,64,250,26)){ uint8_t t=(tx<135)?0:1; if(t!=cmpTab){ cmpTab=t; needFull=true; } }
+  if(inR(tx,ty,0,26,96,36)){ beepClick(); go(S_DASH); return; }
+  if(inR(tx,ty,10,64,250,26)){ beepClick(); uint8_t t=(tx<135)?0:1; if(t!=cmpTab){ cmpTab=t; needFull=true; } }
 }
 
 
@@ -1977,27 +2082,36 @@ static void testTick(uint32_t now){
   }
 }
 static void tapTest(){
-  bool back=inR(tx,ty,0,26,100,32);
+  bool back=inR(tx,ty,0,26,96,36);
   if(T_.ph==TP_SETUP){
-    if(back){ testExit(); return; }
-    if(T_.assessId==0) for(int i=0;i<2;i++){ if(inR(tx,ty,24+i*104,146,98,32)){ T_.hand=(uint8_t)i; needFull=true; } if(inR(tx,ty,24+i*104,212,98,32)){ T_.posture=(uint8_t)i; needFull=true; } }
-    if(inR(tx,ty,254,256,216,56)) testBegin();
-  } else if(T_.ph==TP_READY){ if(back) testExit(); }
+    if(back){ beepClick(); testExit(); return; }
+    if(T_.assessId==0) for(int i=0;i<2;i++){
+      if(inR(tx,ty,24+i*104,146,98,32)){ beepClick(); T_.hand=(uint8_t)i; needFull=true; }
+      if(inR(tx,ty,24+i*104,212,98,32)){ beepClick(); T_.posture=(uint8_t)i; needFull=true; }
+    }
+    if(inR(tx,ty,254,256,216,56)){ beepClick(); testBegin(); }
+  } else if(T_.ph==TP_READY){ if(back){ beepClick(); testExit(); } }
   else if(T_.ph==TP_DONE){
-    if(inR(tx,ty,10,284,144,30)){ uint8_t h=T_.hand,ps=T_.posture; int32_t a=T_.assessId; testOpen(h,ps,a); }
-    else if(inR(tx,ty,168,284,144,30)) goB(S_COMPARE,S_HOME);
-    else if(inR(tx,ty,326,284,144,30)){ goB(S_HOME,S_HOME); toast(T_.saved?"Result saved":"Result NOT saved"); }
-  } else { if(inR(tx,ty,420,26,60,32)) modalOpen(M_EXIT_TEST); }
+    if(inR(tx,ty,10,284,144,30)){ beepClick(); uint8_t h=T_.hand,ps=T_.posture; int32_t a=T_.assessId; testOpen(h,ps,a); }
+    else if(inR(tx,ty,168,284,144,30)){ beepClick(); goB(S_COMPARE,S_HOME); }
+    else if(inR(tx,ty,326,284,144,30)){ beepClick(); goB(S_HOME,S_HOME); toast(T_.saved?"Result saved":"Result NOT saved"); }
+  } else { if(inR(tx,ty,420,26,60,32)){ beepClick(); modalOpen(M_EXIT_TEST); } }
 }
 
 // ===========================================================================
 //  SCREEN DISPATCH, EVENTS, INPUT, MAIN LOOP
 // ===========================================================================
 static void drawSplash(){
-  G=&tft; FC(240,100,46,C_TEAL);
-  int cx=240, cy=100; int px[6]={-30,-12,-6,6,12,30}, py[6]={0,0,-26,26,0,0};
-  for(int i=0;i<5;i++){ LN(cx+px[i],cy+py[i],cx+px[i+1],cy+py[i+1],C_INK); LN(cx+px[i],cy+py[i]+1,cx+px[i+1],cy+py[i+1]+1,C_INK); LN(cx+px[i]+1,cy+py[i],cx+px[i+1]+1,cy+py[i+1],C_INK); }
-  DT("VitalStep",240,170,AL_C,C_TXT,F24B); DT("Palm Pressure Monitor",240,204,AL_C,C_SUB,F9);
+  G=&tft;
+  // Clinical VitalStep Vector Emblem
+  GRR(200,52,80,80,20,C_HERO1,C_HERO2);
+  RO(200,52,80,80,20,C_TEAL);
+  FC(240,92,24,C_CARD);
+  icoPulse(240,92,C_TEAL);
+
+  DT("VitalStep",240,158,AL_C,C_TXT,F24B);
+  CHIP(188,186,"CLINICAL CONSOLE",C_TEAL);
+  DT("Palm Pressure Telemetry",240,218,AL_C,C_SUB,F9);
   RR(140,254,200,8,4,C_CARD2);
 }
 static bool imgSize(const char* path,int* w,int* h){
@@ -2019,16 +2133,15 @@ static bool imgSize(const char* path,int* w,int* h){
 }
 // Logo: put logo.jpg (or logo.png, max 420x150 px) in the /vs folder of the SD card.
 static bool logoDraw(int cx,int cy){
-  // Logo drawing removed - LovyanGFX DataWrapper compatibility issue with SDFS
-  // Device will boot without logo, all features work fine
   return false;
 }
 static void pinNew(){ snprintf(pairPin,sizeof pairPin,"%06lu",(unsigned long)(esp_random()%1000000UL)); }
-static void wipeOwnerData(){                       // privacy: a released device must not show the previous patient
+static void wipeOwnerData(){                       // unpair: privacy without deleting measurement history
   Patient& pp=pts[cur]; memset(&pp,0,sizeof pp); pp.s=&PROF;
   memset(&PROF,0,sizeof PROF); strlcpy(PROF.ini,"--",sizeof PROF.ini); PROF.lo=10.0f; PROF.hi=18.0f;
   queueN=0;
-  if(sdOk){ sdLock(); SD.remove("/vs/history.csv"); SD.remove("/vs/queue.json"); sdUnlock(); }
+  // NOTE: /vs/history.csv is intentionally preserved so user data is NOT deleted!
+  if(sdOk){ sdLock(); SD.remove("/vs/queue.json"); sdUnlock(); }
   profileSave();
 }
 static void bootStep(const char* msg,int pct){
@@ -2117,14 +2230,14 @@ static void handleTouch(){
   static bool pd=false;
   if(ttap&&dimmed){ dimmed=false; applyBrightness(); ttap=false; }                 // first touch only wakes the screen
   if(ttap){
-    beepClick();
+    // Only valid buttons call beepClick() - touching empty screen space produces no sound
     if(modal!=M_NONE) modalTap();
     else {
       bool sub=(scr==S_COMPARE||scr==S_INSIGHT);
       Scr oldScr=scr;  // remember previous screen
-      if(sub&&inR(tx,ty,0,26,100,32)) goB(scrBack,S_HOME);
+      if(sub&&inR(tx,ty,0,26,96,36)){ beepClick(); goB(scrBack,S_HOME); }
       else if(navVisible()&&ty>=275){
-        int t=clampi(tx/120,0,3); Scr s=(t==0)?S_HOME:((t==1)?S_DASH:((t==2)?S_ASSESS:S_SETTINGS)); if(s!=scr) go(s);
+        int t=clampi(tx/120,0,3); Scr s=(t==0)?S_HOME:((t==1)?S_DASH:((t==2)?S_ASSESS:S_SETTINGS)); if(s!=scr){ beepClick(); go(s); }
       } else switch(scr){
         case S_SETUP: tapSetup(); break;     case S_HOME: tapHome(); break;
         case S_DASH: tapDash(); break;       case S_ASSESS: tapAssess(); break;
@@ -2170,6 +2283,7 @@ void setup(){
   G=&tft; BGR(0,0,480,320);
   uint32_t r=esp_random(); snprintf(bootId,sizeof bootId,"%08lx",(unsigned long)r); rs^=r;
   drawSplash(); pinNew();
+  beepSciFiBoot();
   bootStep("Loading settings...",8);          optionsLoad(); applyBrightness();
   bootStep("Checking SD card...",22);         sdInit(); if(sdOk) logoDraw(240,98);
   bootStep("Reading device identity...",36);  identityLoad();

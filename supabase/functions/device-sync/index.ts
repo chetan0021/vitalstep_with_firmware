@@ -352,6 +352,20 @@ serve(async (req) => {
           });
         } else {
           response.accepted?.push(m.client_id);
+          // If measurement belongs to an assessment_queue item, mark it completed in the database
+          if (m.assessment_id && m.assessment_id > 0) {
+            try {
+              await supabase
+                .from("assessment_queue")
+                .update({
+                  status: "Completed",
+                  completed_at: new Date().toISOString(),
+                })
+                .eq("id", m.assessment_id);
+            } catch (err) {
+              console.warn("Could not update assessment_queue status:", err);
+            }
+          }
         }
       }
     }
