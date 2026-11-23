@@ -42,7 +42,7 @@ Future<void> main() async {
   // Initializes GotrueAsyncStorage, SharedPreferences, and auth state management
   await Supabase.initialize(
     url: 'https://oyqecdcpicvzwwvwaeka.supabase.co',
-    anonKey: 'sb_publishable_**REDACTED_USE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ENV_VAR**',
+    anonKey: 'sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi',
     authOptions: const FlutterAuthClientOptions(
       authFlowType: AuthFlowType.implicit,
     ),

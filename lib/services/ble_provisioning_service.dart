@@ -9,11 +9,13 @@ class BleProvisioningService with ListenableServiceMixin {
   static const String wifiScanUuid = "6b1a0002-4b4a-4a3f-9f0a-3a2b6c8e1a10";
   static const String wifiCredsUuid = "6b1a0003-4b4a-4a3f-9f0a-3a2b6c8e1a10";
   static const String wifiStatusUuid = "6b1a0004-4b4a-4a3f-9f0a-3a2b6c8e1a10";
+  static const String adminCfgUuid = "6b1a0006-4b4a-4a3f-9f0a-3a2b6c8e1a10";
 
   BluetoothDevice? _connectedDevice;
   BluetoothCharacteristic? _scanChar;
   BluetoothCharacteristic? _credsChar;
   BluetoothCharacteristic? _statusChar;
+  BluetoothCharacteristic? _adminChar;
 
   StreamSubscription<List<ScanResult>>? _scanSubscription;
   StreamSubscription<List<int>>? _wifiScanSubscription;
@@ -87,6 +89,7 @@ class BleProvisioningService with ListenableServiceMixin {
         if (char.uuid.toString() == wifiScanUuid) _scanChar = char;
         if (char.uuid.toString() == wifiCredsUuid) _credsChar = char;
         if (char.uuid.toString() == wifiStatusUuid) _statusChar = char;
+        if (char.uuid.toString() == adminCfgUuid) _adminChar = char;
       }
 
       if (_statusChar != null) {
@@ -143,6 +146,31 @@ class BleProvisioningService with ListenableServiceMixin {
     });
     
     await _credsChar!.write(utf8.encode(payload));
+  }
+
+  BluetoothDevice? get connectedDevice => _connectedDevice;
+  bool get hasAdminCharacteristic => _adminChar != null;
+
+  /// Send OTA Admin Device Identity (Device Code, Secret, optional ID)
+  Future<void> sendAdminDeviceConfig({
+    required String deviceCode,
+    required String deviceSecret,
+    String? deviceId,
+  }) async {
+    if (_adminChar == null) {
+      throw Exception("Admin configuration characteristic (6b1a0006) not found on device");
+    }
+
+    final Map<String, dynamic> payloadMap = {
+      "code": deviceCode.trim(),
+      "secret": deviceSecret.trim(),
+    };
+    if (deviceId != null && deviceId.trim().isNotEmpty) {
+      payloadMap["devid"] = deviceId.trim();
+    }
+
+    final payload = jsonEncode(payloadMap);
+    await _adminChar!.write(utf8.encode(payload), withoutResponse: false);
   }
 
   Future<void> disconnect() async {

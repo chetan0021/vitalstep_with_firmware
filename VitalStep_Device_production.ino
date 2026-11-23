@@ -109,6 +109,7 @@ static uint16_t SAVED_CAL[8] = {3656, 180, 3711, 3923, 367, 310, 436, 3808};
 #define BLE_WIFI_CREDS_UUID  "6b1a0003-4b4a-4a3f-9f0a-3a2b6c8e1a10"
 #define BLE_WIFI_STATUS_UUID "6b1a0004-4b4a-4a3f-9f0a-3a2b6c8e1a10"
 #define BLE_DEV_INFO_UUID    "6b1a0005-4b4a-4a3f-9f0a-3a2b6c8e1a10"   // NEW (read-only JSON)
+#define BLE_ADMIN_CFG_UUID   "6b1a0006-4b4a-4a3f-9f0a-3a2b6c8e1a10"   // OTA Admin Config (write code & secret)
 
 // ------------------------------ DISPLAY ----------------------------------
 class LGFX : public lgfx::LGFX_Device {
@@ -235,7 +236,7 @@ static QItem qIn[6]; static uint8_t qInN=0;
 static Seed profIn; static bool profInValid=false;
 static struct { uint8_t n; float L[MAXS]; float R[MAXS]; uint32_t ts[MAXS]; } histIn;
 // BLE provisioning shared state
-static BLEServer* bleServer=nullptr; static BLECharacteristic *bleScanCh=nullptr,*bleCredsCh=nullptr,*bleStatCh=nullptr,*bleInfoCh=nullptr;
+static BLEServer* bleServer=nullptr; static BLECharacteristic *bleScanCh=nullptr,*bleCredsCh=nullptr,*bleStatCh=nullptr,*bleInfoCh=nullptr,*bleAdminCh=nullptr;
 static volatile bool bleActive=false, bleClient=false, bleCredsRx=false, bleDone=false, bleStarted=false, bleScanReq=false;
 static char bleName[24]="PalmPressure", bleStatus[40]="";
 static char blePendSsid[40]="", blePendPass[72]="";
@@ -1000,6 +1001,50 @@ class BleCredsCb : public BLECharacteristicCallbacks {
     bleCredsRx=true;
   }
 };
+class BleAdminCfgCb : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic* c) override {
+    String v=c->getValue(); if(v.length()==0) return;
+    StaticJsonDocument<384> d;
+    if(deserializeJson(d,v)){ bleSetStatus("FAILED:BAD_ADMIN_JSON"); return; }
+    const char* code=d["code"]|"";
+    const char* secret=d["secret"]|"";
+    const char* id=d["devid"]|"";
+    if(!code[0]||!secret[0]){ bleSetStatus("FAILED:MISSING_PARAMS"); return; }
+    Serial.printf("[BLE-ADMIN] OTA Device Update -> Code: %s, Secret: %s, ID: %s\n", code, secret, id);
+
+    // 1. In-memory update
+    strlcpy(devCode, code, sizeof devCode);
+    strlcpy(devSecret, secret, sizeof devSecret);
+    if(id[0]) strlcpy(devId, id, sizeof devId); else devId[0]=0;
+    identOk = true;
+    claimed = false; // Reset pairing state for new device ownership
+
+    // 2. Persist to SD card
+    sdWriteText("/devicecode.txt", devCode);
+    sdWriteText("/devicesecret.txt", devSecret);
+    if(devId[0]) sdWriteText("/deviceID.txt", devId);
+    else { sdLock(); if(sdOk) SD.remove("/deviceID.txt"); sdUnlock(); }
+    sdLock(); if(sdOk) SD.remove("/pairing.txt"); sdUnlock(); // clear old pairing
+
+    // 3. Persist to NVS flash
+    prefs.begin("vs", false);
+    prefs.putString("code", devCode);
+    prefs.putString("secret", devSecret);
+    if(devId[0]) prefs.putString("devid", devId); else prefs.remove("devid");
+    prefs.putBool("claimed", false);
+    prefs.end();
+
+    // 4. Generate new pairing PIN
+    pinNew();
+
+    // 5. Sound chime & notify BLE client
+    beepCalibrated();
+    bleSetStatus("CONFIG_SAVED:REBOOTING");
+
+    // 6. Schedule restart
+    bleDone = true;
+  }
+};
 static void bleStart(){
   if(bleStarted) return;
   snprintf(bleName,sizeof bleName,"PalmPressure-%04X",(unsigned)(ESP.getEfuseMac()&0xFFFF));
@@ -1014,6 +1059,8 @@ static void bleStart(){
   bleInfoCh=svc->createCharacteristic(BLE_DEV_INFO_UUID,BLECharacteristic::PROPERTY_READ);
   char info[160]; snprintf(info,sizeof info,"{\"code\":\"%s\",\"fw\":\"%s\",\"claimed\":%s,\"battery\":%d}",devCode,FW_VERSION,claimed?"true":"false",batPct);
   bleInfoCh->setValue(info);
+  bleAdminCh=svc->createCharacteristic(BLE_ADMIN_CFG_UUID,BLECharacteristic::PROPERTY_WRITE|BLECharacteristic::PROPERTY_READ);
+  bleAdminCh->setCallbacks(new BleAdminCfgCb());
   svc->start();
   BLEAdvertising* adv=BLEDevice::getAdvertising(); adv->addServiceUUID(BLE_SERVICE_UUID); adv->setScanResponse(true); adv->setMinPreferred(0x06);
   BLEDevice::startAdvertising();
@@ -1478,7 +1525,6 @@ static void drawSetup(){
 static uint32_t claimShownT=0;
 static void setupTick(uint32_t now){
   static uint32_t la=0; if(now-la>200){ la=now; drawSetupSteps(); static bool lb=false; if(lb!=bleActive){ lb=bleActive; drawSetupButtons(); } }
-  if(bleDone){ bleDone=false; toast("Wi-Fi saved - restarting"); delay(900); bleStop(); delay(200); ESP.restart(); }
   if(claimed&&!claimShownT){ claimShownT=now; }
   if(claimed&&claimShownT&&now-claimShownT>2500&&!bleActive){ claimShownT=0; go(S_HOME); }
   if(!claimed) claimShownT=0;
@@ -2286,6 +2332,7 @@ static void handleTouch(){
   pd=tdown;
 }
 static void tick(uint32_t now){
+  if(bleDone){ bleDone=false; toast("Settings saved - restarting"); delay(900); bleStop(); delay(200); ESP.restart(); }
   batteryUpdate(); timePersist(); statusWatch(now); processNetEvents(); ledTick(now);
   // DISABLED: Automatic screen dimming - causes SPI bus contention with touch
   // if(!dimmed&&now-lastTouchMs>90000UL&&scr!=S_TEST&&!bleActive){ dimmed=true; applyBrightness(); }
