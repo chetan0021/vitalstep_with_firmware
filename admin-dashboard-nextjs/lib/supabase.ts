@@ -12,12 +12,13 @@ if (typeof globalThis !== 'undefined' && typeof (globalThis as any).WebSocket ==
 }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://oyqecdcpicvzwwvwaeka.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  'sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi'
 const supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  ''
+  supabaseAnonKey
 
 // Client-side Supabase instance singleton
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
