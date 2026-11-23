@@ -661,16 +661,23 @@ static void beepSuccess(){
   if(optSound){ tone(PIN_SPK,1046,80); delay(85); tone(PIN_SPK,1318,80); delay(85); tone(PIN_SPK,1568,80); delay(85); tone(PIN_SPK,2093,200); }
 #endif
 }
-// Beautiful Titanic ("My Heart Will Go On") Startup Melody
+// Star Wars: The Imperial March (Darth Vader's Theme) — Fast-paced, punchy, crisp
 static void beepStartupMelody(){
 #if !MOCK_BUZZER
   if(!optSound) return;
-  // Iconic flute theme: F4, G4, A4, G4, F4, G4, C5, A4, G4, F4, G4, C5, D5, C5
-  const uint16_t notes[] =     {349, 392, 440, 392, 349, 392, 523, 440, 392, 349, 392, 523, 587, 523};
-  const uint16_t durations[] = {320, 320, 560, 260, 260, 540, 680, 480, 360, 260, 260, 540, 480, 750};
+  // Notes: A4=440, F4=349, C5=523, E5=659, F5=698, GS4(Ab4)=415
+  const uint16_t notes[] = {
+    440, 440, 440, 349, 523, 440, 349, 523, 440,
+    659, 659, 659, 698, 523, 415, 349, 523, 440
+  };
+  const uint16_t durations[] = {
+    240, 240, 240, 160, 100, 240, 160, 100, 400,
+    240, 240, 240, 160, 100, 240, 160, 100, 420
+  };
   for(size_t i = 0; i < sizeof(notes)/sizeof(notes[0]); i++){
-    tone(PIN_SPK, notes[i], durations[i]);
-    delay(durations[i] + 25);
+    tone(PIN_SPK, notes[i], (uint32_t)(durations[i] * 0.88f));
+    delay(durations[i]);
+    noTone(PIN_SPK);
   }
 #endif
 }
