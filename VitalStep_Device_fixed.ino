@@ -148,7 +148,7 @@ static lgfx::LGFXBase* G = &tft;     // draw target (no off-screen sprites: keep
 // ------------------------------ TYPES ------------------------------------
 typedef const lgfx::IFont* Fnt;
 enum Al : uint8_t { AL_L, AL_C, AL_R };
-enum Scr : uint8_t { S_SPLASH, S_SETUP, S_HOME, S_DASH, S_ASSESS, S_SETTINGS, S_TEST, S_COMPARE, S_INSIGHT, S_CALIB, S_TUTORIAL };
+enum Scr : uint8_t { S_SPLASH, S_SETUP, S_HOME, S_DASH, S_ASSESS, S_SETTINGS, S_TEST, S_COMPARE, S_INSIGHT, S_CALIB, S_TUTORIAL, S_FAQ };
 enum Modal : uint8_t { M_NONE, M_NOSD, M_UNPAIRED, M_BATT_CRIT, M_EXIT_TEST, M_RESET, M_BLE_EXIT, M_RELEASE };
 enum TP : uint8_t { TP_SETUP, TP_READY, TP_WAIT, TP_APPLY, TP_REST, TP_DONE };
 enum NetState : uint8_t { NS_NO_CREDS, NS_CONNECTING, NS_ONLINE, NS_FAILED, NS_BLE };
@@ -661,17 +661,20 @@ static void beepSuccess(){
   if(optSound){ tone(PIN_SPK,1046,80); delay(85); tone(PIN_SPK,1318,80); delay(85); tone(PIN_SPK,1568,80); delay(85); tone(PIN_SPK,2093,200); }
 #endif
 }
-// Sci-Fi Weyland-Yutani Boot Sequence Chime (Alien: Isolation terminal style)
-static void beepSciFiBoot(){
+// Beautiful Titanic ("My Heart Will Go On") Startup Melody
+static void beepStartupMelody(){
 #if !MOCK_BUZZER
   if(!optSound) return;
-  tone(PIN_SPK,440,45); delay(50);
-  tone(PIN_SPK,880,50); delay(55);
-  tone(PIN_SPK,1320,55); delay(60);
-  tone(PIN_SPK,1760,65); delay(70);
-  tone(PIN_SPK,2793,140); delay(150);
+  // Iconic flute theme: F4, G4, A4, G4, F4, G4, C5, A4, G4, F4, G4, C5, D5, C5
+  const uint16_t notes[] =     {349, 392, 440, 392, 349, 392, 523, 440, 392, 349, 392, 523, 587, 523};
+  const uint16_t durations[] = {320, 320, 560, 260, 260, 540, 680, 480, 360, 260, 260, 540, 480, 750};
+  for(size_t i = 0; i < sizeof(notes)/sizeof(notes[0]); i++){
+    tone(PIN_SPK, notes[i], durations[i]);
+    delay(durations[i] + 25);
+  }
 #endif
 }
+static void beepSciFiBoot(){ beepStartupMelody(); }
 static void applyBrightness(){
   // CRITICAL FIX: Keep backlight always on to prevent SPI bus contention with touch controller
   // Both display and touch share SPI2_HOST; brightness changes lock the bus, blocking touch reads
@@ -1046,27 +1049,38 @@ class BleAdminCfgCb : public BLECharacteristicCallbacks {
   }
 };
 static void bleStart(){
-  if(bleStarted) return;
-  snprintf(bleName,sizeof bleName,"PalmPressure-%04X",(unsigned)(ESP.getEfuseMac()&0xFFFF));
-  BLEDevice::init(bleName); bleStarted=true;
-  bleServer=BLEDevice::createServer(); bleServer->setCallbacks(new BleSrvCb());
-  BLEService* svc=bleServer->createService(BLE_SERVICE_UUID);
-  bleScanCh=svc->createCharacteristic(BLE_WIFI_SCAN_UUID,BLECharacteristic::PROPERTY_READ|BLECharacteristic::PROPERTY_NOTIFY|BLECharacteristic::PROPERTY_WRITE);
-  bleScanCh->addDescriptor(new BLE2902()); bleScanCh->setCallbacks(new BleScanCb());
-  bleCredsCh=svc->createCharacteristic(BLE_WIFI_CREDS_UUID,BLECharacteristic::PROPERTY_WRITE); bleCredsCh->setCallbacks(new BleCredsCb());
-  bleStatCh=svc->createCharacteristic(BLE_WIFI_STATUS_UUID,BLECharacteristic::PROPERTY_READ|BLECharacteristic::PROPERTY_NOTIFY);
-  bleStatCh->addDescriptor(new BLE2902());
-  bleInfoCh=svc->createCharacteristic(BLE_DEV_INFO_UUID,BLECharacteristic::PROPERTY_READ);
+  if(bleActive) return;
+  // Disconnect WiFi to avoid radio contention and free heap memory
+  WiFi.disconnect(false,false);
+  vTaskDelay(60/portTICK_PERIOD_MS);
+
+  if(!bleStarted){
+    snprintf(bleName,sizeof bleName,"PalmPressure-%04X",(unsigned)(ESP.getEfuseMac()&0xFFFF));
+    BLEDevice::init(bleName); bleStarted=true;
+    bleServer=BLEDevice::createServer(); bleServer->setCallbacks(new BleSrvCb());
+    BLEService* svc=bleServer->createService(BLE_SERVICE_UUID);
+    bleScanCh=svc->createCharacteristic(BLE_WIFI_SCAN_UUID,BLECharacteristic::PROPERTY_READ|BLECharacteristic::PROPERTY_NOTIFY|BLECharacteristic::PROPERTY_WRITE);
+    bleScanCh->addDescriptor(new BLE2902()); bleScanCh->setCallbacks(new BleScanCb());
+    bleCredsCh=svc->createCharacteristic(BLE_WIFI_CREDS_UUID,BLECharacteristic::PROPERTY_WRITE); bleCredsCh->setCallbacks(new BleCredsCb());
+    bleStatCh=svc->createCharacteristic(BLE_WIFI_STATUS_UUID,BLECharacteristic::PROPERTY_READ|BLECharacteristic::PROPERTY_NOTIFY);
+    bleStatCh->addDescriptor(new BLE2902());
+    bleInfoCh=svc->createCharacteristic(BLE_DEV_INFO_UUID,BLECharacteristic::PROPERTY_READ);
+    bleAdminCh=svc->createCharacteristic(BLE_ADMIN_CFG_UUID,BLECharacteristic::PROPERTY_WRITE|BLECharacteristic::PROPERTY_READ);
+    bleAdminCh->setCallbacks(new BleAdminCfgCb());
+    svc->start();
+    BLEAdvertising* adv=BLEDevice::getAdvertising(); adv->addServiceUUID(BLE_SERVICE_UUID); adv->setScanResponse(true); adv->setMinPreferred(0x06);
+  }
   char info[160]; snprintf(info,sizeof info,"{\"code\":\"%s\",\"fw\":\"%s\",\"claimed\":%s,\"battery\":%d}",devCode,FW_VERSION,claimed?"true":"false",batPct);
-  bleInfoCh->setValue(info);
-  bleAdminCh=svc->createCharacteristic(BLE_ADMIN_CFG_UUID,BLECharacteristic::PROPERTY_WRITE|BLECharacteristic::PROPERTY_READ);
-  bleAdminCh->setCallbacks(new BleAdminCfgCb());
-  svc->start();
-  BLEAdvertising* adv=BLEDevice::getAdvertising(); adv->addServiceUUID(BLE_SERVICE_UUID); adv->setScanResponse(true); adv->setMinPreferred(0x06);
+  if(bleInfoCh) bleInfoCh->setValue(info);
   BLEDevice::startAdvertising();
   bleDone=false; bleActive=true; netState=NS_BLE; bleSetStatus("AWAITING_CREDENTIALS");
 }
-static void bleStop(){ if(!bleStarted) return; bleActive=false; BLEDevice::deinit(true); bleStarted=false; }
+static void bleStop(){
+  if(!bleStarted) return;
+  bleActive=false;
+  // Safely stop advertising instead of deinit(true) to avoid Bluedroid crash on re-init
+  if(bleServer) BLEDevice::getAdvertising()->stop();
+}
 
 static bool wifiConnect(const char* ssid,const char* pass,uint32_t ms){
   WiFi.persistent(false); WiFi.mode(WIFI_STA); WiFi.setAutoReconnect(true);
@@ -1562,6 +1576,40 @@ static void tapTutorial(){
 }
 
 // ===========================================================================
+//  FAQ SCREEN  — Full-screen clinical & device FAQs and operating instructions
+// ===========================================================================
+static void drawFaq(){
+  G=&tft; titleBar("Device FAQs & Guide");
+
+  // Card 1: How to take a test (Top-Left)
+  RR(10,64,226,118,14,C_CARD);
+  CHIP(22,74,"TAKING A TEST",C_TEAL);
+  DT("How to perform test?",22,102,AL_L,C_TXT,F9B);
+  DT("Sit upright with arm at 90 deg.\nSqueeze handle with maximal\neffort through all 3 trials.",22,120,AL_L,C_SUB,F2);
+
+  // Card 2: LED indicators (Top-Right)
+  RR(244,64,226,118,14,C_CARD);
+  CHIP(256,74,"STATUS LED",C_GOLD);
+  DT("What do LEDs mean?",256,102,AL_L,C_TXT,F9B);
+  DT("Blue = Active test in progress.\nGreen = Valid trial saved.\nRed = Sensor error / low bat.",256,120,AL_L,C_SUB,F2);
+
+  // Card 3: Cloud & Offline (Bottom-Left)
+  RR(10,190,226,118,14,C_CARD);
+  CHIP(22,200,"CLOUD & SYNC",C_OK);
+  DT("How does sync work?",22,228,AL_L,C_TXT,F9B);
+  DT("Tests save offline to SD card.\nWhen Wi-Fi connects, results\nauto-upload to your doctor.",22,246,AL_L,C_SUB,F2);
+
+  // Card 4: Calibration & BLE (Bottom-Right)
+  RR(244,190,226,118,14,C_CARD);
+  CHIP(256,200,"CALIBRATION",0x3B7F);
+  DT("How to recalibrate?",256,228,AL_L,C_TXT,F9B);
+  DT("Go to Options -> Calibrate.\nTare scale with no weight,\nthen place known weight & save.",256,246,AL_L,C_SUB,F2);
+}
+static void tapFaq(){
+  if(inR(tx,ty,0,26,96,36)){ beepClick(); goB(scrBack,S_SETTINGS); return; }
+}
+
+// ===========================================================================
 //  HOME
 // ===========================================================================
 static void lastTestStr(const Patient& p,char* o,size_t n){
@@ -1770,13 +1818,12 @@ static void drawSettings(){
   kv(246,168,224,"Code",devCode[0]?devCode:"--",C_TXT);
   kv(246,190,224,"Firmware",FW_VERSION,C_TXT);
 
-  // FAQ & CLINICAL QUICK GUIDE (Replaces old buttons)
-  RR(10,208,304,54,14,C_CARD);
-  DT("FAQ & QUICK GUIDE",24,219,AL_L,C_GOLD,F2);
-  DT("Hold steady for 15s during test; green LED = complete.",24,234,AL_L,C_TXT,F2);
-  DT("Offline tests save to SD card & auto-upload on Wi-Fi.",24,248,AL_L,C_SUB,F2);
-
-  // PROMINENT SYNC CLOUD BUTTON
+  // 3 ACTION BUTTONS (Clean, no cramped text):
+  // 1. Full-screen FAQs & Operating Guide
+  BTN(10,208,146,54,"FAQs & Guide",0x1A2F,C_WHITE);
+  // 2. Watch Tutorial (Video Walkthrough QR)
+  BTN(166,208,148,54,"Watch Tutorial",0x2965,C_WHITE);
+  // 3. Prominent Sync Cloud Button
   BTN(324,208,146,54,"Sync Cloud",C_TEAL,C_INK);
 }
 static void tapSettings(){
@@ -1795,6 +1842,8 @@ static void tapSettings(){
     return;
   }
   // Status tab buttons:
+  if(inR(tx,ty,10,208,146,54)){ beepClick(); goB(S_FAQ,S_SETTINGS); return; }
+  if(inR(tx,ty,166,208,148,54)){ beepClick(); goB(S_TUTORIAL,S_SETTINGS); return; }
   if(inR(tx,ty,324,208,146,54)){ beepClick(); doSyncNow(); return; }
 }
 
@@ -2239,6 +2288,7 @@ static void drawScreen(){
     case S_TEST: drawTestScreen(); break;   case S_COMPARE: drawCompare(); break;
     case S_INSIGHT: drawInsight(); break;   case S_CALIB: drawCalib(); break;
     case S_TUTORIAL: drawTutorial(); break;
+    case S_FAQ: drawFaq(); break;
   }
   G=&tft;
   if(navVisible()) drawNav(scr==S_HOME?0:(scr==S_DASH?1:(scr==S_ASSESS?2:3)));
@@ -2310,7 +2360,7 @@ static void handleTouch(){
     // Only valid buttons call beepClick() - touching empty screen space produces no sound
     if(modal!=M_NONE) modalTap();
     else {
-      bool sub=(scr==S_COMPARE||scr==S_INSIGHT||scr==S_TUTORIAL);
+      bool sub=(scr==S_COMPARE||scr==S_INSIGHT||scr==S_TUTORIAL||scr==S_FAQ);
       Scr oldScr=scr;  // remember previous screen
       if(sub&&inR(tx,ty,0,26,96,36)){ beepClick(); goB(scrBack,S_HOME); }
       else if(navVisible()&&ty>=275){
@@ -2321,6 +2371,7 @@ static void handleTouch(){
         case S_SETTINGS: tapSettings(); break; case S_TEST: tapTest(); break;
         case S_COMPARE: tapCompare(); break; case S_INSIGHT: tapInsight(); break;
         case S_CALIB: tapCalib(); break;     case S_TUTORIAL: tapTutorial(); break;
+        case S_FAQ: tapFaq(); break;
         default: break;
       }
       // If screen changed, reset lastTouchMs to prevent immediate dimming
@@ -2362,7 +2413,7 @@ void setup(){
   G=&tft; BGR(0,0,480,320);
   uint32_t r=esp_random(); snprintf(bootId,sizeof bootId,"%08lx",(unsigned long)r); rs^=r;
   drawSplash(); pinNew();
-  beepSciFiBoot();
+  beepStartupMelody();
   bootStep("Loading settings...",8);          optionsLoad(); applyBrightness();
   bootStep("Checking SD card...",22);         sdInit(); if(sdOk) logoDraw(240,98);
   bootStep("Reading device identity...",36);  identityLoad();

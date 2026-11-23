@@ -271,9 +271,9 @@ serve(async (req) => {
     response.device_id = device.id;
 
     // =========================================================================
-    // STEP 4: VALIDATE & STORE MEASUREMENTS (only if claimed)
+    // STEP 4: VALIDATE & STORE MEASUREMENTS
     // =========================================================================
-    if (isClaimed && body.measurements && body.measurements.length > 0) {
+    if (body.measurements && body.measurements.length > 0) {
       for (const m of body.measurements) {
         const validationError = validateMeasurement(m);
 
@@ -288,7 +288,7 @@ serve(async (req) => {
         // Compute time source
         const timeData = computeTimeSource(m, serverTime, body.device_time);
 
-        // Get user_id from device.paired_user_id to satisfy foreign key constraint
+        // Get user_id from device.paired_user_id or fallback system user to satisfy foreign key constraint
         // We need to create a device record if one doesn't exist, OR use the paired_user_id
         
         // First, try to find or create a device record in devices table
@@ -306,7 +306,7 @@ serve(async (req) => {
             .from("devices")
             .insert({
               device_code: device.device_code,
-              user_id: device.paired_user_id,
+              user_id: device.paired_user_id || '09c41189-b0c7-4dc0-b9f9-153162041dfa',
               is_active: true,
             })
             .select("id")

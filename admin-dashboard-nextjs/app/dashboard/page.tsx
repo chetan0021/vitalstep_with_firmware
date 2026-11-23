@@ -43,7 +43,12 @@ export default function DashboardPage() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    // Live Auto-Refresh every 8 seconds so device telemetry appears automatically
+    const interval = setInterval(load, 8000)
+    return () => clearInterval(interval)
+  }, [])
 
   const p0 = patients[0] ?? null
 
@@ -92,12 +97,12 @@ export default function DashboardPage() {
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
           {[
-            { label: 'Enrolled Patients', val: stats.patients || (loading ? '…' : 1), Icon: Users, color: '#10B981', lightBg: '#ECFDF5', lightBorder: '#A7F3D0', darkBg: 'rgba(16,185,129,0.12)', darkBorder: 'rgba(16,185,129,0.35)' },
-            { label: 'Measurements', val: stats.measurements || (loading ? '…' : 10), Icon: Activity, color: '#06B6D4', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(6,182,212,0.12)', darkBorder: 'rgba(6,182,212,0.35)' },
-            { label: 'Paired Devices', val: stats.paired || (loading ? '…' : 1), Icon: Cpu, color: '#8B5CF6', lightBg: '#F5F3FF', lightBorder: '#DDD6FE', darkBg: 'rgba(139,92,246,0.12)', darkBorder: 'rgba(139,92,246,0.35)' },
-            { label: 'Active Fleet', val: stats.devices || (loading ? '…' : 3), Icon: Zap, color: '#F59E0B', lightBg: '#FFFBEB', lightBorder: '#FDE68A', darkBg: 'rgba(245,158,11,0.12)', darkBorder: 'rgba(245,158,11,0.35)' },
-            { label: 'Manufactured', val: stats.manufactured || (loading ? '…' : 2), Icon: Layers, color: '#EC4899', lightBg: '#FFF1F2', lightBorder: '#FECDD3', darkBg: 'rgba(236,72,153,0.12)', darkBorder: 'rgba(236,72,153,0.35)' },
-            { label: 'Audit Events', val: audits.length || (loading ? '…' : 3), Icon: ShieldCheck, color: '#38BDF8', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(56,189,248,0.12)', darkBorder: 'rgba(56,189,248,0.35)' },
+            { label: 'Enrolled Patients', val: loading ? '…' : (stats.patients ?? 0), Icon: Users, color: '#10B981', lightBg: '#ECFDF5', lightBorder: '#A7F3D0', darkBg: 'rgba(16,185,129,0.12)', darkBorder: 'rgba(16,185,129,0.35)' },
+            { label: 'Measurements', val: loading ? '…' : (stats.measurements ?? 0), Icon: Activity, color: '#06B6D4', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(6,182,212,0.12)', darkBorder: 'rgba(6,182,212,0.35)' },
+            { label: 'Paired Devices', val: loading ? '…' : (stats.paired ?? 0), Icon: Cpu, color: '#8B5CF6', lightBg: '#F5F3FF', lightBorder: '#DDD6FE', darkBg: 'rgba(139,92,246,0.12)', darkBorder: 'rgba(139,92,246,0.35)' },
+            { label: 'Active Fleet', val: loading ? '…' : (stats.devices ?? 0), Icon: Zap, color: '#F59E0B', lightBg: '#FFFBEB', lightBorder: '#FDE68A', darkBg: 'rgba(245,158,11,0.12)', darkBorder: 'rgba(245,158,11,0.35)' },
+            { label: 'Manufactured', val: loading ? '…' : (stats.manufactured ?? 0), Icon: Layers, color: '#EC4899', lightBg: '#FFF1F2', lightBorder: '#FECDD3', darkBg: 'rgba(236,72,153,0.12)', darkBorder: 'rgba(236,72,153,0.35)' },
+            { label: 'Audit Events', val: loading ? '…' : (audits.length ?? 0), Icon: ShieldCheck, color: '#38BDF8', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(56,189,248,0.12)', darkBorder: 'rgba(56,189,248,0.35)' },
           ].map(({ label, val, Icon, color, lightBorder, darkBorder }) => (
             <div
               key={label}
@@ -326,7 +331,7 @@ export default function DashboardPage() {
                 <h3 className="text-base sm:text-lg font-black text-[#0A1C3D] dark:text-white">Latest Palm Pressure Assessments</h3>
               </div>
               <span className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 font-mono">
-                {measures.length || 10} Recorded Assessments
+                {measures.length} Recorded Assessments
               </span>
             </div>
 

@@ -44,13 +44,19 @@ export default function GeneratePage() {
 
       if (insertError) throw new Error(insertError.message)
 
-      if (admin_id) {
-        await supabase.from('device_audit').insert({
-          admin_id,
-          action: 'create',
-          device_code,
-          details: 'Device code provisioned from admin console',
+      try {
+        await fetch('/api/admin/audit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            admin_id: admin_id || '09c41189-b0c7-4dc0-b9f9-153162041dfa',
+            action: 'generated',
+            device_code,
+            details: 'Device credentials minted from admin console',
+          }),
         })
+      } catch (auditErr) {
+        console.warn('Audit log write error:', auditErr)
       }
 
       setResult({ device_code, device_secret })
