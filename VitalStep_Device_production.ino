@@ -56,8 +56,8 @@
 static const char SUPABASE_ROOT_CA[] = "";   // paste root CA PEM here when TLS_VERIFY = 1
 
 // ------------------------------ Wi-Fi (HARDCODED for testing) ---------------
-#define WIFI_SSID         "Julie-2.4G"
-#define WIFI_PASSWORD     "8000143209"
+#define WIFI_SSID         "DESKTOP-M1M4TT5 2298"
+#define WIFI_PASSWORD     "password"
 
 #define FW_VERSION        "1.0.0"
 #define HW_NAME           "VS-3248S035"
