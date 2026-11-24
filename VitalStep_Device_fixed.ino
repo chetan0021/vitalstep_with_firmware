@@ -661,22 +661,15 @@ static void beepSuccess(){
   if(optSound){ tone(PIN_SPK,1046,80); delay(85); tone(PIN_SPK,1318,80); delay(85); tone(PIN_SPK,1568,80); delay(85); tone(PIN_SPK,2093,200); }
 #endif
 }
-// Star Wars: The Imperial March (Darth Vader's Theme) — Fast-paced, punchy, crisp
+// Sleek, futuristic medical boot chime (fast 4-tone ascending harmonic: 880Hz -> 1318Hz -> 1760Hz -> 2217Hz, ~300ms total)
 static void beepStartupMelody(){
 #if !MOCK_BUZZER
   if(!optSound) return;
-  // Notes: A4=440, F4=349, C5=523, E5=659, F5=698, GS4(Ab4)=415
-  const uint16_t notes[] = {
-    440, 440, 440, 349, 523, 440, 349, 523, 440,
-    659, 659, 659, 698, 523, 415, 349, 523, 440
-  };
-  const uint16_t durations[] = {
-    240, 240, 240, 160, 100, 240, 160, 100, 400,
-    240, 240, 240, 160, 100, 240, 160, 100, 420
-  };
-  for(size_t i = 0; i < sizeof(notes)/sizeof(notes[0]); i++){
-    tone(PIN_SPK, notes[i], (uint32_t)(durations[i] * 0.88f));
-    delay(durations[i]);
+  const uint16_t notes[]     = { 880, 1318, 1760, 2217 };
+  const uint16_t durations[] = {  55,   55,   65,  130 };
+  for(size_t i = 0; i < 4; i++){
+    tone(PIN_SPK, notes[i], durations[i]);
+    delay(durations[i] + 12);
     noTone(PIN_SPK);
   }
 #endif
