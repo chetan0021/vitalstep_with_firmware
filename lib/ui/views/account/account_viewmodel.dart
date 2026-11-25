@@ -31,13 +31,16 @@ class AccountViewModel extends BaseViewModel {
       profile = await _accountService.getAccountDetails();
       notifyListeners();
     } catch (e) {
-      _logger.e("Error loading profile: $e");
-      await _dialogService.showDialog(
-        title: 'Error Loading Profile',
-        description:
-            'Unable to load your profile. Please try again or contact support.',
-        buttonTitle: 'OK',
+      _logger.w("Warning loading profile details: $e");
+      final cachedName = _accountService.box.read<String>('user_name') ??
+          _accountService.box.read<String>('userName') ??
+          'User';
+      profile = Profile(
+        name: cachedName,
+        email: _accountService.box.read<String>('user_email') ?? '',
+        device: [],
       );
+      notifyListeners();
     } finally {
       setBusy(false);
     }

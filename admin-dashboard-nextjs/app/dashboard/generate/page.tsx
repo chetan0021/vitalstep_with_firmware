@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Zap, Copy, Check, ArrowRight, RefreshCw, KeyRound } from 'lucide-react'
+import { Zap, Copy, Check, ArrowRight, RefreshCw, KeyRound, QrCode } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
 import { supabase } from '@/lib/supabase'
 
 export default function GeneratePage() {
@@ -202,6 +203,34 @@ export default function GeneratePage() {
                     </>
                   )}
                 </button>
+              </div>
+            </div>
+
+            {/* QR Code Provisioning Card */}
+            <div className="p-5 rounded-2xl bg-white dark:bg-black/60 border border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center gap-6">
+              <div className="p-3 bg-white rounded-xl shadow-md border border-slate-200 shrink-0">
+                <QRCodeSVG
+                  value={JSON.stringify({
+                    code: result.device_code,
+                    secret: result.device_secret,
+                    type: 'vitalstep_admin_provision',
+                  })}
+                  size={160}
+                  level="M"
+                  includeMargin={false}
+                />
+              </div>
+              <div className="space-y-2 text-center sm:text-left">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>Instant Mobile QR Setup</span>
+                </div>
+                <h3 className="text-base font-bold text-[#0A1C3D] dark:text-white">
+                  Scan with VitalStep Mobile App
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Open <strong>Account → Admin Device Setup</strong> on the mobile app, tap <strong>Scan QR Code</strong>, and aim your phone camera here. Both the Device Code and 64-char Secret will be flashed directly to the ESP32 over BLE!
+                </p>
               </div>
             </div>
 

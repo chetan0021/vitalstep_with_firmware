@@ -73,7 +73,8 @@ class HomeTabViewModel extends BaseViewModel {
 
   String get leftHandStrength {
     if (userTests.isEmpty) return "0.0";
-    final leftTests = userTests.where((t) => t.hand == "Left").toList();
+    final leftTests = userTests.where((t) => t.hand == "Left").toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     if (leftTests.isEmpty) return "0.0";
     final latest = leftTests.first;
     try {
@@ -89,7 +90,8 @@ class HomeTabViewModel extends BaseViewModel {
 
   String get rightHandStrength {
     if (userTests.isEmpty) return "0.0";
-    final rightTests = userTests.where((t) => t.hand == "Right").toList();
+    final rightTests = userTests.where((t) => t.hand == "Right").toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     if (rightTests.isEmpty) return "0.0";
     final latest = rightTests.first;
     try {
@@ -118,10 +120,12 @@ class HomeTabViewModel extends BaseViewModel {
     if (symmetry > 0.9) {
       return "Excellent symmetry! Your hand strength is well-balanced. Keep up with your regular exercise routine.";
     }
+    final weaker = left < right ? "Left" : "Right";
+    final stronger = left < right ? "Right" : "Left";
     if (symmetry > 0.8) {
-      return "Good balance maintained. There is a slight variance, which is often normal, but worth monitoring over time.";
+      return "Good balance maintained with a mild variance ($weaker hand is slightly weaker). Worth monitoring over time.";
     }
-    return "Significant asymmetry detected. Consider focusing on your non-dominant hand exercises or consult your specialist for a detailed review.";
+    return "Significant asymmetry detected ($weaker hand is weaker than $stronger hand). Consider focusing on $weaker hand rehabilitation exercises or consult your specialist.";
   }
 
   Color get healthStatusColor {
@@ -243,9 +247,10 @@ class HomeTabViewModel extends BaseViewModel {
   }
 
   void _computeHandValuesFromTests() {
-    final dominantHand = profile?.dominantHand;
-    final leftTests = userTests.where((t) => t.hand == 'Left').toList();
-    final rightTests = userTests.where((t) => t.hand == 'Right').toList();
+    final leftTests = userTests.where((t) => t.hand == 'Left').toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final rightTests = userTests.where((t) => t.hand == 'Right').toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     double? leftAvg;
     double? rightAvg;
@@ -266,12 +271,10 @@ class HomeTabViewModel extends BaseViewModel {
     }
 
     if (leftAvg != null && rightAvg != null) {
-      if (dominantHand == 'Right') {
-        rightHandValue = '100 %';
-        leftHandValue = '${(leftAvg / rightAvg * 100).toStringAsFixed(2)} %';
-      } else {
-        leftHandValue = '100 %';
-        rightHandValue = '${(rightAvg / leftAvg * 100).toStringAsFixed(2)} %';
+      final maxAvg = leftAvg > rightAvg ? leftAvg : rightAvg;
+      if (maxAvg > 0) {
+        leftHandValue = '${(leftAvg / maxAvg * 100).toStringAsFixed(1)} %';
+        rightHandValue = '${(rightAvg / maxAvg * 100).toStringAsFixed(1)} %';
       }
     } else {
       if (leftAvg != null) leftHandValue = leftAvg.toStringAsFixed(1);

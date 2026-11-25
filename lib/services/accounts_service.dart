@@ -17,17 +17,36 @@ class AccountsService {
 
   Future<Profile> getAccountDetails({String? patientUserId}) async {
     try {
-      final uid = patientUserId ?? patientSupabaseClient.auth.currentUser?.id;
-      if (uid == null) throw Exception('No user ID available');
+      final uid = patientUserId ??
+          patientSupabaseClient.auth.currentUser?.id ??
+          box.read("userId")?.toString();
 
-      // Fetch minimal profile (id, name, email, user_type, dominant_hand)
-      final profileData = await patientSupabaseClient
-          .from('profiles')
-          .select('id, name, email, user_type, dominant_hand')
-          .eq('id', uid)
-          .single();
+      // If absolutely no user ID found, fall back to cached values
+      if (uid == null) {
+        final cachedName = box.read<String>('user_name') ?? box.read<String>('userName') ?? 'User';
+        return Profile(
+          id: 0,
+          name: cachedName,
+          email: box.read<String>('user_email'),
+          countryCode: '',
+          device: [],
+        );
+      }
 
-      // Fetch full clinical data from patients table (may fail if RLS not fixed yet)
+      // Fetch minimal profile (id, name, email, user_type, dominant_hand) safely
+      Map<String, dynamic>? profileData;
+      try {
+        profileData = await patientSupabaseClient
+            .from('profiles')
+            .select('id, name, email, user_type, dominant_hand')
+            .eq('id', uid)
+            .maybeSingle();
+      } catch (e) {
+        _logger.w('profiles query failed or missing: $e');
+        profileData = null;
+      }
+
+      // Fetch full clinical data from patients table (may match user_id or id)
       Map<String, dynamic>? patientData;
       try {
         patientData = await patientSupabaseClient
@@ -36,7 +55,7 @@ class AccountsService {
             .eq('user_id', uid)
             .maybeSingle();
       } catch (e) {
-        _logger.w('patients table query failed (RLS?): $e');
+        _logger.w('patients table query failed: $e');
         patientData = null;
       }
 
@@ -66,17 +85,19 @@ class AccountsService {
       }).toList();
 
       // dominant_hand: patients table stores 'R'/'L'; map to 'Right'/'Left' for display
-      String? dominantHand = profileData['dominant_hand'] as String?;
+      String? dominantHand = profileData?['dominant_hand'] as String?;
       if (dominantHand == null && patientData != null) {
         final raw = patientData['dominant_hand'] as String?;
         dominantHand = raw == 'R' ? 'Right' : raw == 'L' ? 'Left' : raw;
       }
 
       // Instantiate Profile directly to avoid fragile fromJson num/String casts
+      final fallbackName = box.read<String>('user_name') ?? box.read<String>('userName') ?? 'User';
+      final fallbackEmail = box.read<String>('user_email');
       return Profile(
         id: uid.hashCode,
-        name: (profileData['name'] ?? patientData?['name'] ?? 'User').toString(),
-        email: profileData['email']?.toString() ?? patientData?['email']?.toString(),
+        name: (profileData?['name'] ?? patientData?['name'] ?? fallbackName).toString(),
+        email: profileData?['email']?.toString() ?? patientData?['email']?.toString() ?? fallbackEmail,
         countryCode: '',
         weight: _parseInt(patientData?['weight_kg']),
         height: _parseInt(patientData?['height_cm']),
@@ -96,7 +117,14 @@ class AccountsService {
       );
     } catch (e) {
       _logger.e('getAccountDetails error: $e');
-      rethrow;
+      final fallbackName = box.read<String>('user_name') ?? box.read<String>('userName') ?? 'User';
+      return Profile(
+        id: 0,
+        name: fallbackName,
+        email: box.read<String>('user_email'),
+        countryCode: '',
+        device: [],
+      );
     }
   }
 

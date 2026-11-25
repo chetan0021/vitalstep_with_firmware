@@ -148,7 +148,7 @@ static lgfx::LGFXBase* G = &tft;     // draw target (no off-screen sprites: keep
 // ------------------------------ TYPES ------------------------------------
 typedef const lgfx::IFont* Fnt;
 enum Al : uint8_t { AL_L, AL_C, AL_R };
-enum Scr : uint8_t { S_SPLASH, S_SETUP, S_HOME, S_DASH, S_ASSESS, S_SETTINGS, S_TEST, S_COMPARE, S_INSIGHT, S_CALIB, S_TUTORIAL, S_FAQ };
+enum Scr : uint8_t { S_SPLASH, S_SETUP, S_HOME, S_DASH, S_ASSESS, S_SETTINGS, S_TEST, S_COMPARE, S_INSIGHT, S_CALIB, S_TUTORIAL, S_FAQ, S_ADMIN_SETUP };
 enum Modal : uint8_t { M_NONE, M_NOSD, M_UNPAIRED, M_BATT_CRIT, M_EXIT_TEST, M_RESET, M_BLE_EXIT, M_RELEASE };
 enum TP : uint8_t { TP_SETUP, TP_READY, TP_WAIT, TP_APPLY, TP_REST, TP_DONE };
 enum NetState : uint8_t { NS_NO_CREDS, NS_CONNECTING, NS_ONLINE, NS_FAILED, NS_BLE };
@@ -238,6 +238,7 @@ static struct { uint8_t n; float L[MAXS]; float R[MAXS]; uint32_t ts[MAXS]; } hi
 // BLE provisioning shared state
 static BLEServer* bleServer=nullptr; static BLECharacteristic *bleScanCh=nullptr,*bleCredsCh=nullptr,*bleStatCh=nullptr,*bleInfoCh=nullptr,*bleAdminCh=nullptr;
 static volatile bool bleActive=false, bleClient=false, bleCredsRx=false, bleDone=false, bleStarted=false, bleScanReq=false, reqBleStart=false;
+static volatile uint8_t adminStep=0;
 static char bleName[24]="PalmPressure", bleStatus[40]="";
 static char blePendSsid[40]="", blePendPass[72]="";
 
@@ -856,9 +857,16 @@ static bool pendingSave(int hand,int posture,int32_t assessId,const float* tr,fl
 }
 static int weakerHand(const Patient& p){
   if(p.n==0) return 1;
-  float l=p.L[p.n-1], r=p.R[p.n-1];
-  if(l<=0||r<=0) return 1;
-  return (l<r)?0:1;
+  float l=0, r=0;
+  for(int i=p.n-1; i>=0; i--){
+    if(l<=0 && p.L[i]>0) l=p.L[i];
+    if(r<=0 && p.R[i]>0) r=p.R[i];
+    if(l>0 && r>0) break;
+  }
+  if(l<=0 && r<=0) return 1;
+  if(l<=0) return 0; // No left reading -> left is considered weaker
+  if(r<=0) return 1; // No right reading -> right is considered weaker
+  return (l<r)?0:1;  // 0 = Left weaker (l < r), 1 = Right weaker (r < l)
 }
 static float trendOf(const float* a,int n){          // % change of latest vs avg of up to 3 previous
   if(n<2) return 0; int m=imin(3,n-1); float s=0; int c=0;
@@ -882,7 +890,12 @@ static void computeInsight(const Patient& p,Insight& o){
     snprintf(o.tip2,sizeof o.tip2,"Then test the other hand");
     return;
   }
-  float l=p.L[p.n-1], r=p.R[p.n-1];
+  float l=0, r=0;
+  for(int i=p.n-1; i>=0; i--){
+    if(l<=0 && p.L[i]>0) l=p.L[i];
+    if(r<=0 && p.R[i]>0) r=p.R[i];
+    if(l>0 && r>0) break;
+  }
   if(l<=0||r<=0){
     o.sev=0;
     snprintf(o.head,sizeof o.head,"Test the other hand to compare");
@@ -987,8 +1000,8 @@ static void bleSetStatus(const char* s){
   if(bleStatCh){ bleStatCh->setValue(s); bleStatCh->notify(); }
 }
 class BleSrvCb : public BLEServerCallbacks {
-  void onConnect(BLEServer* s) override { bleClient=true; }
-  void onDisconnect(BLEServer* s) override { bleClient=false; if(bleActive){ delay(300); s->getAdvertising()->start(); } }
+  void onConnect(BLEServer* s) override { bleClient=true; adminStep=1; needFull=true; }
+  void onDisconnect(BLEServer* s) override { bleClient=false; if(adminStep<2) adminStep=0; needFull=true; if(bleActive){ delay(300); s->getAdvertising()->start(); } }
 };
 class BleScanCb : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic* c) override { bleScanReq=true; }           // scan runs in the net task
@@ -1015,6 +1028,8 @@ class BleAdminCfgCb : public BLECharacteristicCallbacks {
     if(!code[0]||!secret[0]){ bleSetStatus("FAILED:MISSING_PARAMS"); return; }
     Serial.printf("[BLE-ADMIN] OTA Device Update -> Code: %s, Secret: %s, ID: %s\n", code, secret, id);
 
+    adminStep = 2; needFull = true;
+
     // 1. In-memory update
     strlcpy(devCode, code, sizeof devCode);
     strlcpy(devSecret, secret, sizeof devSecret);
@@ -1023,6 +1038,7 @@ class BleAdminCfgCb : public BLECharacteristicCallbacks {
     claimed = false; // Reset pairing state for new device ownership
 
     // 2. Persist to SD card
+    adminStep = 3; needFull = true;
     sdWriteText("/devicecode.txt", devCode);
     sdWriteText("/devicesecret.txt", devSecret);
     if(devId[0]) sdWriteText("/deviceID.txt", devId);
@@ -1043,6 +1059,7 @@ class BleAdminCfgCb : public BLECharacteristicCallbacks {
     // 5. Sound chime & notify BLE client
     beepCalibrated();
     bleSetStatus("CONFIG_SAVED:REBOOTING");
+    adminStep = 4; needFull = true;
 
     // 6. Schedule restart
     bleDone = true;
@@ -1822,8 +1839,9 @@ static void drawSettings(){
     // 2. Sound Buzzer
     RR(10,104,460,34,14,C_CARD); DT("Sound buzzer",24,121,AL_L,C_TXT,F9B);
     RR(366,108,94,26,13,optSound?mix(C_CARD,C_OK,80):C_CARD2); DT(optSound?"On":"Off",413,121,AL_C,optSound?C_OK:C_SUB,F9B);
-    // 3. Wi-Fi Setup (BLE Mode) - moved from Status tab
-    RR(10,142,460,34,14,C_CARD); icoWifi(24,159,true); DT("Wi-Fi Setup (Bluetooth Mode)",44,159,AL_L,C_TXT,F9B); icoChev(456,159,C_TEAL);
+    // 3. Wi-Fi Setup (BLE Mode) & Admin Device Code Mode
+    RR(10,142,226,34,14,C_CARD); icoWifi(24,159,true); DT("Wi-Fi Setup",44,159,AL_L,C_TXT,F9B); icoChev(220,159,C_TEAL);
+    RR(244,142,226,34,14,C_CARD); DT("Admin Code Mode",258,159,AL_L,C_TEAL,F9B); icoChev(456,159,C_TEAL);
     // 4. Calibrate scale
     RR(10,180,460,34,14,C_CARD); DT("Calibrate scale (Load Cell)",24,197,AL_L,C_TXT,F9B); icoChev(456,197,C_DIM);
     // 5. Pairing QR & Unpair Device
@@ -1872,11 +1890,18 @@ static void tapSettings(){
     for(int i=0;i<4;i++) if(inR(tx,ty,240+i*58,70,52,26)){ beepClick(); optBright=(uint8_t)i; optionsSave(); applyBrightness(); needFull=true; return; }
     if(inR(tx,ty,366,108,94,26)){ beepClick(); optSound=!optSound; optionsSave(); beepOk(); needFull=true; return; }
     // Wi-Fi Setup via BLE
-    if(inR(tx,ty,10,142,460,34)){
+    if(inR(tx,ty,10,142,226,34)){
       beepClick();
-      if(!identOk){ toastC("No device code on SD",C_BAD); return; }
       bleActive=true; netState=NS_BLE; reqBleStart=true;
       goB(S_SETUP,S_SETTINGS);
+      return;
+    }
+    // Admin Device Code Setup via BLE
+    if(inR(tx,ty,244,142,226,34)){
+      beepClick();
+      adminStep=0;
+      bleActive=true; netState=NS_BLE; reqBleStart=true;
+      goB(S_ADMIN_SETUP,S_SETTINGS);
       return;
     }
     // Calibrate scale
@@ -1891,6 +1916,42 @@ static void tapSettings(){
   if(inR(tx,ty,10,208,146,54)){ beepClick(); goB(S_FAQ,S_SETTINGS); return; }
   if(inR(tx,ty,166,208,148,54)){ beepClick(); goB(S_TUTORIAL,S_SETTINGS); return; }
   if(inR(tx,ty,324,208,146,54)){ beepClick(); doSyncNow(); return; }
+}
+
+// ===========================================================================
+//  ADMIN DEVICE SETUP SCREEN (OTA Provisioning over BLE)
+// ===========================================================================
+static void drawAdminSetup(){
+  G=&tft; titleBar("Admin Device Setup");
+  RR(10,64,460,200,16,C_CARD);
+  DT("HARDWARE IDENTITY PROVISIONING",24,82,AL_L,C_TEAL,F2);
+  char b[64];
+  snprintf(b,sizeof b,"Current Code: %s",devCode[0]?devCode:"-- NO CODE --");
+  DT(b,24,104,AL_L,C_TXT,F9B);
+  snprintf(b,sizeof b,"BLE Beacon: %s  |  FW %s",bleName,FW_VERSION);
+  DT(b,24,124,AL_L,C_DIM,F2);
+
+  // Real-time step progress card
+  RR(20,138,440,78,10,C_CARD2);
+  const char* stTxt="[1/4] Ready: Waiting for Mobile App...";
+  uint16_t stCol=C_WARN;
+  if(adminStep==1 || bleClient){ stTxt="[2/4] App Connected! Waiting for Code..."; stCol=C_TEAL; }
+  else if(adminStep==2){ stTxt="[3/4] Code received! Writing to SD card..."; stCol=C_TEAL; }
+  else if(adminStep>=3){ stTxt="[4/4] Successfully saved! Rebooting..."; stCol=C_OK; }
+  DT(stTxt,32,160,AL_L,stCol,F9B);
+  DT("Scan QR or enter code in Mobile App Admin Setup",32,186,AL_L,C_SUB,F2);
+
+  // Cancel / Back button
+  BTN(10,272,460,40,"Exit Admin Mode",C_LINE,C_TXT);
+}
+
+static void tapAdminSetup(){
+  if(inR(tx,ty,10,272,460,40) || inR(tx,ty,0,26,96,36)){
+    beepClick();
+    bleActive=false; reqBleStart=false;
+    WiFi.mode(WIFI_STA);
+    go(S_SETTINGS);
+  }
 }
 
 // ===========================================================================
@@ -2333,7 +2394,7 @@ static void drawScreen(){
     case S_ASSESS: drawAssess(); break;     case S_SETTINGS: drawSettings(); break;
     case S_TEST: drawTestScreen(); break;   case S_COMPARE: drawCompare(); break;
     case S_INSIGHT: drawInsight(); break;   case S_CALIB: drawCalib(); break;
-    case S_TUTORIAL: drawTutorial(); break;
+    case S_TUTORIAL: drawTutorial(); break; case S_ADMIN_SETUP: drawAdminSetup(); break;
     case S_FAQ: drawFaq(); break;
   }
   G=&tft;
@@ -2406,7 +2467,7 @@ static void handleTouch(){
     // Only valid buttons call beepClick() - touching empty screen space produces no sound
     if(modal!=M_NONE) modalTap();
     else {
-      bool sub=(scr==S_COMPARE||scr==S_INSIGHT||scr==S_TUTORIAL||scr==S_FAQ);
+      bool sub=(scr==S_COMPARE||scr==S_INSIGHT||scr==S_TUTORIAL||scr==S_FAQ||scr==S_ADMIN_SETUP);
       Scr oldScr=scr;  // remember previous screen
       if(sub&&inR(tx,ty,0,26,96,36)){ beepClick(); goB(scrBack,S_HOME); }
       else if(navVisible()&&ty>=275){
@@ -2417,7 +2478,7 @@ static void handleTouch(){
         case S_SETTINGS: tapSettings(); break; case S_TEST: tapTest(); break;
         case S_COMPARE: tapCompare(); break; case S_INSIGHT: tapInsight(); break;
         case S_CALIB: tapCalib(); break;     case S_TUTORIAL: tapTutorial(); break;
-        case S_FAQ: tapFaq(); break;
+        case S_FAQ: tapFaq(); break;         case S_ADMIN_SETUP: tapAdminSetup(); break;
         default: break;
       }
       // If screen changed, reset lastTouchMs to prevent immediate dimming

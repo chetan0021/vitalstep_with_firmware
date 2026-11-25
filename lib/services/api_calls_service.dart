@@ -62,7 +62,7 @@ class ApiCallsService {
           .from('measurements')
           .select('*, devices!inner(user_id)')
           .eq('devices.user_id', uid)
-          .order('recorded_at', ascending: true);
+          .order('recorded_at', ascending: false);
 
       return (data as List).map((e) => _mapToTest(e)).toList();
     } catch (e) {
@@ -86,7 +86,7 @@ class ApiCallsService {
           .from('measurements')
           .select('*, devices!inner(user_id)')
           .eq('devices.user_id', uid)
-          .order('recorded_at', ascending: true);
+          .order('recorded_at', ascending: false);
 
       return (data as List).map((e) => _mapToTest(e)).toList();
     } catch (e) {

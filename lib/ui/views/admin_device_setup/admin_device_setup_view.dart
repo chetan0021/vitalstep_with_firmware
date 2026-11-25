@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:stacked/stacked.dart';
 import 'package:vital_step/ui/common/app_colors.dart';
 import 'package:vital_step/ui/common/ui_helpers.dart';
@@ -41,6 +44,134 @@ class _AdminDeviceSetupContentState extends State<_AdminDeviceSetupContent> {
   final TextEditingController _secretController = TextEditingController();
   final TextEditingController _idController = TextEditingController();
   bool _obscureSecret = true;
+
+  void _openAdminQrScanner(BuildContext context) {
+    final MobileScannerController scannerController = MobileScannerController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Scan Admin Dashboard QR',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () {
+                      scannerController.dispose();
+                      Navigator.pop(ctx);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  children: [
+                    MobileScanner(
+                      controller: scannerController,
+                      onDetect: (capture) {
+                        final barcode = capture.barcodes.firstOrNull;
+                        if (barcode?.rawValue != null) {
+                          final raw = barcode!.rawValue!;
+                          scannerController.dispose();
+                          Navigator.pop(ctx);
+                          _processAdminQrCode(raw);
+                        }
+                      },
+                    ),
+                    Center(
+                      child: Container(
+                        width: 220,
+                        height: 220,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFF0284C7), width: 3),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Point camera at the QR code on the Admin Dashboard',
+                style: TextStyle(color: Colors.white70, fontSize: 13),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _processAdminQrCode(String raw) {
+    try {
+      final trimmed = raw.trim();
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        final Map<String, dynamic> data = jsonDecode(trimmed);
+        if (data.containsKey('code')) {
+          _codeController.text = (data['code'] ?? '').toString();
+        }
+        if (data.containsKey('secret')) {
+          _secretController.text = (data['secret'] ?? '').toString();
+        }
+        if (data.containsKey('devid')) {
+          _idController.text = (data['devid'] ?? '').toString();
+        }
+        Fluttertoast.showToast(msg: "Credentials loaded from QR code!");
+        setState(() {});
+        widget.viewModel.startScan();
+        return;
+      }
+      if (trimmed.startsWith('vitalstep://')) {
+        final uri = Uri.parse(trimmed);
+        final code = uri.queryParameters['code'];
+        final secret = uri.queryParameters['secret'];
+        if (code != null) _codeController.text = code;
+        if (secret != null) _secretController.text = secret;
+        Fluttertoast.showToast(msg: "Credentials loaded from QR code!");
+        setState(() {});
+        widget.viewModel.startScan();
+        return;
+      }
+      if (trimmed.contains('|')) {
+        final parts = trimmed.split('|');
+        if (parts.length >= 2) {
+          _codeController.text = parts[0].trim();
+          _secretController.text = parts[1].trim();
+          Fluttertoast.showToast(msg: "Credentials loaded from QR code!");
+          setState(() {});
+          widget.viewModel.startScan();
+          return;
+        }
+      }
+      _codeController.text = trimmed;
+      Fluttertoast.showToast(msg: "Device code scanned: $trimmed");
+      setState(() {});
+      widget.viewModel.startScan();
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Failed to parse QR: $e");
+    }
+  }
 
   @override
   void dispose() {
@@ -399,6 +530,34 @@ class _AdminDeviceSetupContentState extends State<_AdminDeviceSetupContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Instant QR Scanner from Dashboard
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0284C7),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                elevation: 0,
+              ),
+              icon: const Icon(Icons.qr_code_scanner_rounded, size: 22),
+              label: const Text(
+                "Scan QR Code from Admin Dashboard",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              onPressed: () => _openAdminQrScanner(context),
+            ),
+          ),
+          verticalSpaceSmall,
+          const Center(
+            child: Text(
+              "— or enter credentials manually —",
+              style: TextStyle(fontSize: 11, color: kcMediumGrey, fontWeight: FontWeight.w500),
+            ),
+          ),
+          verticalSpaceMedium,
+
           // Device Code
           const Text(
             "Device Code (Hardware ID)",
