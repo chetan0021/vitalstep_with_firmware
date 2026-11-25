@@ -237,7 +237,7 @@ static Seed profIn; static bool profInValid=false;
 static struct { uint8_t n; float L[MAXS]; float R[MAXS]; uint32_t ts[MAXS]; } histIn;
 // BLE provisioning shared state
 static BLEServer* bleServer=nullptr; static BLECharacteristic *bleScanCh=nullptr,*bleCredsCh=nullptr,*bleStatCh=nullptr,*bleInfoCh=nullptr,*bleAdminCh=nullptr;
-static volatile bool bleActive=false, bleClient=false, bleCredsRx=false, bleDone=false, bleStarted=false, bleScanReq=false;
+static volatile bool bleActive=false, bleClient=false, bleCredsRx=false, bleDone=false, bleStarted=false, bleScanReq=false, reqBleStart=false;
 static char bleName[24]="PalmPressure", bleStatus[40]="";
 static char blePendSsid[40]="", blePendPass[72]="";
 
@@ -1049,31 +1049,49 @@ class BleAdminCfgCb : public BLECharacteristicCallbacks {
   }
 };
 static void bleStart(){
-  if(bleActive) return;
+  if(bleActive && bleStarted && bleServer){
+    BLEDevice::startAdvertising();
+    return;
+  }
   // Disconnect WiFi to avoid radio contention and free heap memory
-  WiFi.disconnect(false,false);
-  vTaskDelay(60/portTICK_PERIOD_MS);
+  WiFi.disconnect(true, true);
+  WiFi.mode(WIFI_OFF);
+  vTaskDelay(100/portTICK_PERIOD_MS);
 
   if(!bleStarted){
     snprintf(bleName,sizeof bleName,"PalmPressure-%04X",(unsigned)(ESP.getEfuseMac()&0xFFFF));
-    BLEDevice::init(bleName); bleStarted=true;
-    bleServer=BLEDevice::createServer(); bleServer->setCallbacks(new BleSrvCb());
-    BLEService* svc=bleServer->createService(BLE_SERVICE_UUID);
-    bleScanCh=svc->createCharacteristic(BLE_WIFI_SCAN_UUID,BLECharacteristic::PROPERTY_READ|BLECharacteristic::PROPERTY_NOTIFY|BLECharacteristic::PROPERTY_WRITE);
-    bleScanCh->addDescriptor(new BLE2902()); bleScanCh->setCallbacks(new BleScanCb());
-    bleCredsCh=svc->createCharacteristic(BLE_WIFI_CREDS_UUID,BLECharacteristic::PROPERTY_WRITE); bleCredsCh->setCallbacks(new BleCredsCb());
-    bleStatCh=svc->createCharacteristic(BLE_WIFI_STATUS_UUID,BLECharacteristic::PROPERTY_READ|BLECharacteristic::PROPERTY_NOTIFY);
-    bleStatCh->addDescriptor(new BLE2902());
-    bleInfoCh=svc->createCharacteristic(BLE_DEV_INFO_UUID,BLECharacteristic::PROPERTY_READ);
-    bleAdminCh=svc->createCharacteristic(BLE_ADMIN_CFG_UUID,BLECharacteristic::PROPERTY_WRITE|BLECharacteristic::PROPERTY_READ);
-    bleAdminCh->setCallbacks(new BleAdminCfgCb());
-    svc->start();
-    BLEAdvertising* adv=BLEDevice::getAdvertising(); adv->addServiceUUID(BLE_SERVICE_UUID); adv->setScanResponse(true); adv->setMinPreferred(0x06);
+    Serial.printf("[BLE] Initializing BLE stack '%s' (free heap: %u)...\n", bleName, (unsigned)ESP.getFreeHeap());
+    BLEDevice::init(bleName);
+    bleStarted=true;
+    bleServer=BLEDevice::createServer();
+    if(bleServer){
+      bleServer->setCallbacks(new BleSrvCb());
+      BLEService* svc=bleServer->createService(BLE_SERVICE_UUID);
+      if(svc){
+        bleScanCh=svc->createCharacteristic(BLE_WIFI_SCAN_UUID,BLECharacteristic::PROPERTY_READ|BLECharacteristic::PROPERTY_NOTIFY|BLECharacteristic::PROPERTY_WRITE);
+        if(bleScanCh){ bleScanCh->addDescriptor(new BLE2902()); bleScanCh->setCallbacks(new BleScanCb()); }
+        bleCredsCh=svc->createCharacteristic(BLE_WIFI_CREDS_UUID,BLECharacteristic::PROPERTY_WRITE);
+        if(bleCredsCh) bleCredsCh->setCallbacks(new BleCredsCb());
+        bleStatCh=svc->createCharacteristic(BLE_WIFI_STATUS_UUID,BLECharacteristic::PROPERTY_READ|BLECharacteristic::PROPERTY_NOTIFY);
+        if(bleStatCh) bleStatCh->addDescriptor(new BLE2902());
+        bleInfoCh=svc->createCharacteristic(BLE_DEV_INFO_UUID,BLECharacteristic::PROPERTY_READ);
+        bleAdminCh=svc->createCharacteristic(BLE_ADMIN_CFG_UUID,BLECharacteristic::PROPERTY_WRITE|BLECharacteristic::PROPERTY_READ);
+        if(bleAdminCh) bleAdminCh->setCallbacks(new BleAdminCfgCb());
+        svc->start();
+      }
+      BLEAdvertising* adv=BLEDevice::getAdvertising();
+      if(adv){
+        adv->addServiceUUID(BLE_SERVICE_UUID);
+        adv->setScanResponse(true);
+        adv->setMinPreferred(0x06);
+      }
+    }
   }
   char info[160]; snprintf(info,sizeof info,"{\"code\":\"%s\",\"fw\":\"%s\",\"claimed\":%s,\"battery\":%d}",devCode,FW_VERSION,claimed?"true":"false",batPct);
   if(bleInfoCh) bleInfoCh->setValue(info);
   BLEDevice::startAdvertising();
   bleDone=false; bleActive=true; netState=NS_BLE; bleSetStatus("AWAITING_CREDENTIALS");
+  Serial.printf("[BLE] BLE Advertising started successfully (free heap: %u)\n", (unsigned)ESP.getFreeHeap());
 }
 static void bleStop(){
   if(!bleStarted) return;
@@ -1088,6 +1106,11 @@ static bool wifiConnect(const char* ssid,const char* pass,uint32_t ms){
   if(pass&&pass[0]) WiFi.begin(ssid,pass); else WiFi.begin(ssid);
   uint32_t t=millis(); 
   while(WiFi.status()!=WL_CONNECTED&&millis()-t<ms){
+    if(bleActive || reqBleStart){
+      WiFi.disconnect(true, true);
+      WiFi.mode(WIFI_OFF);
+      return false;
+    }
     Serial.printf("[WIFI] Status: %d (%d/%d ms)\n",WiFi.status(),millis()-t,ms);
     vTaskDelay(100/portTICK_PERIOD_MS);
   }
@@ -1127,6 +1150,7 @@ static void bleProvisionStep(){                      // runs in the net task whi
 //   auth    : headers  apikey (publishable) + x-device-code + x-device-secret
 // ===========================================================================
 static int cloudPost(const String& body,String& resp){
+  if(bleActive || reqBleStart) return -1;
   // Verify we have credentials
   if(!devCode[0] || !devSecret[0]) {
     Serial.printf("[CLOUD] ERROR: Missing credentials (code=%s, secret=%s)\n", devCode[0]?"OK":"EMPTY", devSecret[0]?"OK":"EMPTY");
@@ -1274,6 +1298,14 @@ static int doSync(){
 static void netTask(void*){
   uint32_t lastSync=0, nextTry=0; bool ntpAsked=false;
   for(;;){
+    if(reqBleStart){
+      reqBleStart=false;
+      Serial.println("[RADIO] Stopping Wi-Fi and initializing BLE on net core...");
+      WiFi.disconnect(true,true);
+      WiFi.mode(WIFI_OFF);
+      vTaskDelay(120/portTICK_PERIOD_MS);
+      bleStart();
+    }
     if(bleActive){ bleProvisionStep(); vTaskDelay(100/portTICK_PERIOD_MS); continue; }
     if(!identOk){ cloudOk=false; vTaskDelay(500/portTICK_PERIOD_MS); continue; }
     if(!haveCreds){ netState=NS_NO_CREDS; cloudOk=false; vTaskDelay(500/portTICK_PERIOD_MS); continue; }
@@ -1546,7 +1578,15 @@ static void setupTick(uint32_t now){
 static void tapSetup(){
   if(inR(tx,ty,0,26,96,36)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else go(S_HOME); return; }
   // Row 1: Wi-Fi Setup / Stop
-  if(inR(tx,ty,190,232,136,34)){ beepClick(); if(bleActive) modalOpen(M_BLE_EXIT); else if(identOk){ bleStart(); drawSetupSteps(); drawSetupButtons(); statusDirty=true; } return; }
+  if(inR(tx,ty,190,232,136,34)){
+    beepClick();
+    if(bleActive) modalOpen(M_BLE_EXIT);
+    else if(identOk){
+      bleActive=true; netState=NS_BLE; reqBleStart=true;
+      drawSetupSteps(); drawSetupButtons(); statusDirty=true;
+    }
+    return;
+  }
   // Row 1: Tutorial
   if(inR(tx,ty,334,232,136,34)){ beepClick(); goB(S_TUTORIAL,S_SETUP); return; }
   // Row 2: Skip / Continue
@@ -1832,7 +1872,13 @@ static void tapSettings(){
     for(int i=0;i<4;i++) if(inR(tx,ty,240+i*58,70,52,26)){ beepClick(); optBright=(uint8_t)i; optionsSave(); applyBrightness(); needFull=true; return; }
     if(inR(tx,ty,366,108,94,26)){ beepClick(); optSound=!optSound; optionsSave(); beepOk(); needFull=true; return; }
     // Wi-Fi Setup via BLE
-    if(inR(tx,ty,10,142,460,34)){ beepClick(); if(!identOk){ toastC("No device code on SD",C_BAD); return; } goB(S_SETUP,S_SETTINGS); bleStart(); return; }
+    if(inR(tx,ty,10,142,460,34)){
+      beepClick();
+      if(!identOk){ toastC("No device code on SD",C_BAD); return; }
+      bleActive=true; netState=NS_BLE; reqBleStart=true;
+      goB(S_SETUP,S_SETTINGS);
+      return;
+    }
     // Calibrate scale
     if(inR(tx,ty,10,180,460,34)){ beepClick(); calStep=0; goB(S_CALIB,S_SETTINGS); return; }
     // Pairing QR Code
@@ -2427,8 +2473,8 @@ void setup(){
   bool force=(digitalRead(PIN_BOOT)==LOW);                          // hold BOOT during splash = Wi-Fi setup
 #if TEST_MODE
   // In test mode: skip pairing requirement and go straight to home if we have Wi-Fi creds
-  if(force){ goB(S_SETUP,S_HOME); if(identOk) bleStart(); }
-  else if(!identOk||!haveCreds){ goB(S_SETUP,S_HOME); if(identOk&&!haveCreds) bleStart(); }
+  if(force){ goB(S_SETUP,S_HOME); if(identOk){ bleActive=true; netState=NS_BLE; reqBleStart=true; } }
+  else if(!identOk||!haveCreds){ goB(S_SETUP,S_HOME); if(identOk&&!haveCreds){ bleActive=true; netState=NS_BLE; reqBleStart=true; } }
   else go(S_HOME);  // TEST MODE: skip straight to home - pairing not required
 #else
   // Production mode: check pairing state from SD
@@ -2436,7 +2482,7 @@ void setup(){
   // If unpaired or no creds, go to SETUP (QR code + pairing screen)
   if(force||!identOk||!haveCreds){ 
     goB(S_SETUP,S_HOME); 
-    if(identOk&&(force||!haveCreds)) bleStart(); 
+    if(identOk&&(force||!haveCreds)){ bleActive=true; netState=NS_BLE; reqBleStart=true; }
   }
   else if(isPaired()){
     // Device is paired: show HOME directly
