@@ -38,6 +38,9 @@ class AccountViewModel extends BaseViewModel {
       profile = Profile(
         name: cachedName,
         email: _accountService.box.read<String>('user_email') ?? '',
+        countryCode: '',
+        weight: 0,
+        height: 0,
         device: [],
       );
       notifyListeners();

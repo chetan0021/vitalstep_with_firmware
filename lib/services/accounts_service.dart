@@ -29,6 +29,8 @@ class AccountsService {
           name: cachedName,
           email: box.read<String>('user_email'),
           countryCode: '',
+          weight: 0,
+          height: 0,
           device: [],
         );
       }
@@ -123,6 +125,8 @@ class AccountsService {
         name: fallbackName,
         email: box.read<String>('user_email'),
         countryCode: '',
+        weight: 0,
+        height: 0,
         device: [],
       );
     }
