@@ -35,12 +35,16 @@ class AccountViewModel extends BaseViewModel {
       final cachedName = _accountService.box.read<String>('user_name') ??
           _accountService.box.read<String>('userName') ??
           'User';
+      final cachedWeight = _accountService.box.read('weight_kg');
+      final cachedHeight = _accountService.box.read('height_cm');
       profile = Profile(
         name: cachedName,
         email: _accountService.box.read<String>('user_email') ?? '',
         countryCode: '',
-        weight: 0,
-        height: 0,
+        weight: cachedWeight is num ? cachedWeight.toInt() : (int.tryParse(cachedWeight?.toString() ?? '') ?? 0),
+        height: cachedHeight is num ? cachedHeight.toInt() : (int.tryParse(cachedHeight?.toString() ?? '') ?? 0),
+        dob: _accountService.box.read<String>('date_of_birth'),
+        access_code: _accountService.box.read<String>('patient_code'),
         device: [],
       );
       notifyListeners();

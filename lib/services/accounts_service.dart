@@ -43,6 +43,12 @@ class AccountsService {
             .select('id, name, email, user_type, dominant_hand')
             .eq('id', uid)
             .maybeSingle();
+        if (profileData != null && profileData['name'] != null) {
+          box.write('user_name', profileData['name'].toString());
+          box.write('userName', profileData['name'].toString());
+          box.write('user_email', profileData['email']?.toString());
+          box.write('host_profile_name', profileData['name'].toString().split(' ')[0]);
+        }
       } catch (e) {
         _logger.w('profiles query failed or missing: $e');
         profileData = null;
@@ -56,6 +62,14 @@ class AccountsService {
             .select()
             .eq('user_id', uid)
             .maybeSingle();
+        if (patientData != null) {
+          box.write('patient_code', patientData['patient_code']?.toString());
+          box.write('date_of_birth', patientData['date_of_birth']?.toString());
+          box.write('weight_kg', patientData['weight_kg']);
+          box.write('height_cm', patientData['height_cm']);
+          box.write('dominant_hand', patientData['dominant_hand']?.toString());
+          box.write('patient_phone', patientData['phone']?.toString());
+        }
       } catch (e) {
         _logger.w('patients table query failed: $e');
         patientData = null;
@@ -92,29 +106,46 @@ class AccountsService {
         final raw = patientData['dominant_hand'] as String?;
         dominantHand = raw == 'R' ? 'Right' : raw == 'L' ? 'Left' : raw;
       }
+      if (dominantHand == null) {
+        final cachedHand = box.read<String>('dominant_hand');
+        dominantHand = cachedHand == 'R' ? 'Right' : cachedHand == 'L' ? 'Left' : cachedHand;
+      }
 
-      // Instantiate Profile directly to avoid fragile fromJson num/String casts
+      // Fallbacks from local cache if offline or restricted
       final fallbackName = box.read<String>('user_name') ?? box.read<String>('userName') ?? 'User';
       final fallbackEmail = box.read<String>('user_email');
+      final fallbackPatientCode = box.read<String>('patient_code');
+      final fallbackWeight = _parseInt(box.read('weight_kg'));
+      final fallbackHeight = _parseInt(box.read('height_cm'));
+      final fallbackDob = box.read<String>('date_of_birth');
+      final fallbackPhone = box.read<String>('patient_phone');
+
+      final finalWeight = _parseInt(patientData?['weight_kg']) > 0
+          ? _parseInt(patientData?['weight_kg'])
+          : fallbackWeight;
+      final finalHeight = _parseInt(patientData?['height_cm']) > 0
+          ? _parseInt(patientData?['height_cm'])
+          : fallbackHeight;
+
       return Profile(
         id: uid.hashCode,
         name: (profileData?['name'] ?? patientData?['name'] ?? fallbackName).toString(),
         email: profileData?['email']?.toString() ?? patientData?['email']?.toString() ?? fallbackEmail,
         countryCode: '',
-        weight: _parseInt(patientData?['weight_kg']),
-        height: _parseInt(patientData?['height_cm']),
-        dob: patientData?['date_of_birth']?.toString(),
+        weight: finalWeight,
+        height: finalHeight,
+        dob: patientData?['date_of_birth']?.toString() ?? fallbackDob,
         dominantHand: dominantHand,
         palmLength: patientData?['palm_length_mm'],
         palmWidth: patientData?['palm_width_mm'],
         knucklesLength: patientData?['knuckle_length_mm'],
-        phone: patientData?['phone']?.toString(),
+        phone: patientData?['phone']?.toString() ?? fallbackPhone,
         city: patientData?['city']?.toString(),
         country: patientData?['country']?.toString(),
         address: patientData?['address']?.toString(),
         pincode: patientData?['pincode']?.toString(),
         gender: patientData?['gender']?.toString(),
-        access_code: patientData?['patient_code']?.toString(),
+        access_code: patientData?['patient_code']?.toString() ?? fallbackPatientCode,
         device: devicesList,
       );
     } catch (e) {
@@ -125,8 +156,10 @@ class AccountsService {
         name: fallbackName,
         email: box.read<String>('user_email'),
         countryCode: '',
-        weight: 0,
-        height: 0,
+        weight: _parseInt(box.read('weight_kg')),
+        height: _parseInt(box.read('height_cm')),
+        dob: box.read<String>('date_of_birth'),
+        access_code: box.read<String>('patient_code'),
         device: [],
       );
     }

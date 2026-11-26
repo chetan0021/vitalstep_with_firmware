@@ -55,16 +55,38 @@ class ApiCallsService {
 
   Future<List<Test>> getAllUserTests() async {
     try {
-      final uid = patientSupabaseClient.auth.currentUser?.id;
+      final uid = patientSupabaseClient.auth.currentUser?.id ?? box.read("userId")?.toString();
       if (uid == null) return [];
 
-      final data = await patientSupabaseClient
-          .from('measurements')
-          .select('*, devices!inner(user_id)')
-          .eq('devices.user_id', uid)
-          .order('recorded_at', ascending: false);
+      try {
+        final data = await patientSupabaseClient
+            .from('measurements')
+            .select('*, devices!inner(user_id)')
+            .eq('devices.user_id', uid)
+            .order('recorded_at', ascending: false);
 
-      return (data as List).map((e) => _mapToTest(e)).toList();
+        final list = (data as List).map((e) => _mapToTest(e)).toList();
+        if (list.isNotEmpty) return list;
+      } catch (innerError) {
+        _logger.w('getAllUserTests join query warning: $innerError');
+      }
+
+      // Fallback: query measurements directly using user's device IDs
+      final userDevices = await patientSupabaseClient
+          .from('devices')
+          .select('id')
+          .eq('user_id', uid);
+      final deviceIds = (userDevices as List).map((d) => d['id'].toString()).toList();
+      if (deviceIds.isNotEmpty) {
+        final data = await patientSupabaseClient
+            .from('measurements')
+            .select('*')
+            .filter('device_id', 'in', deviceIds)
+            .order('recorded_at', ascending: false);
+        return (data as List).map((e) => _mapToTest(e)).toList();
+      }
+
+      return [];
     } catch (e) {
       _logger.e('getAllUserTests error: $e');
       return [];
@@ -78,49 +100,54 @@ class ApiCallsService {
   }
 
   Future<List<Test>> getAllAssessmentTests({required int assessmentId}) async {
-    try {
-      final uid = patientSupabaseClient.auth.currentUser?.id;
-      if (uid == null) return [];
-
-      final data = await patientSupabaseClient
-          .from('measurements')
-          .select('*, devices!inner(user_id)')
-          .eq('devices.user_id', uid)
-          .order('recorded_at', ascending: false);
-
-      return (data as List).map((e) => _mapToTest(e)).toList();
-    } catch (e) {
-      _logger.e('getAllAssessmentTests error: $e');
-      return [];
-    }
+    return getAllUserTests();
   }
 
   Future<Map<String, Test?>> getHandsValues() async {
     try {
-      final uid = patientSupabaseClient.auth.currentUser?.id;
+      final uid = patientSupabaseClient.auth.currentUser?.id ?? box.read("userId")?.toString();
       if (uid == null) return {'Left': null, 'Right': null};
 
-      final leftData = await patientSupabaseClient
-          .from('measurements')
-          .select('*, devices!inner(user_id)')
-          .eq('devices.user_id', uid)
-          .eq('hand', 'Left')
-          .order('recorded_at', ascending: false)
-          .limit(1);
+      Test? left;
+      Test? right;
 
-      final rightData = await patientSupabaseClient
-          .from('measurements')
-          .select('*, devices!inner(user_id)')
-          .eq('devices.user_id', uid)
-          .eq('hand', 'Right')
-          .order('recorded_at', ascending: false)
-          .limit(1);
+      try {
+        final leftData = await patientSupabaseClient
+            .from('measurements')
+            .select('*, devices!inner(user_id)')
+            .eq('devices.user_id', uid)
+            .eq('hand', 'Left')
+            .order('recorded_at', ascending: false)
+            .limit(1);
 
-      return {
-        'Left': (leftData as List).isNotEmpty ? _mapToTest(leftData[0]) : null,
-        'Right':
-            (rightData as List).isNotEmpty ? _mapToTest(rightData[0]) : null,
-      };
+        final rightData = await patientSupabaseClient
+            .from('measurements')
+            .select('*, devices!inner(user_id)')
+            .eq('devices.user_id', uid)
+            .eq('hand', 'Right')
+            .order('recorded_at', ascending: false)
+            .limit(1);
+
+        if ((leftData as List).isNotEmpty) left = _mapToTest(leftData[0]);
+        if ((rightData as List).isNotEmpty) right = _mapToTest(rightData[0]);
+      } catch (e) {
+        _logger.w('getHandsValues inner join warning: $e');
+      }
+
+      // If either hand is still null, search from all user tests fallback
+      if (left == null || right == null) {
+        final allTests = await getAllUserTests();
+        if (left == null) {
+          final lTests = allTests.where((t) => t.hand == 'Left').toList();
+          if (lTests.isNotEmpty) left = lTests.first;
+        }
+        if (right == null) {
+          final rTests = allTests.where((t) => t.hand == 'Right').toList();
+          if (rTests.isNotEmpty) right = rTests.first;
+        }
+      }
+
+      return {'Left': left, 'Right': right};
     } catch (e) {
       _logger.e('getHandsValues error: $e');
       return {'Left': null, 'Right': null};

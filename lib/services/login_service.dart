@@ -15,8 +15,36 @@ class LoginService {
   final DialogService _dialogService = locator<DialogService>();
 
   Future<bool> isLoggedIn() async {
-    final userId = await getUserId();
-    return userId != null;
+    // 1. If we have a live active session, verify it's working
+    if (patientSupabaseClient.auth.currentUser != null) {
+      return true;
+    }
+
+    // 2. Try to refresh the session token if expired
+    try {
+      final res = await patientSupabaseClient.auth.refreshSession();
+      if (res.user != null) return true;
+    } catch (_) {}
+
+    // 3. Attempt silent auto-login using saved credentials
+    final savedEmail = box.read<String>('saved_email') ?? box.read<String>('userEmail');
+    final savedPassword = box.read<String>('saved_password');
+    if (savedEmail != null && savedPassword != null && savedEmail.isNotEmpty && savedPassword.isNotEmpty) {
+      try {
+        final res = await patientSupabaseClient.auth.signInWithPassword(
+          email: savedEmail.trim().toLowerCase(),
+          password: savedPassword.trim(),
+        );
+        if (res.user != null) {
+          box.write('userId', res.user!.id);
+          return true;
+        }
+      } catch (_) {}
+    }
+
+    // 4. If no live Supabase session could be established, require fresh login
+    // so the app never enters an unauthenticated zombie state where RLS blocks queries
+    return false;
   }
 
   Future<String?> getUserId() async {
@@ -55,7 +83,7 @@ class LoginService {
       // Verify user type matches selected type
       final profileData = await patientSupabaseClient
           .from('profiles')
-          .select('user_type')
+          .select('user_type, name, email, dominant_hand')
           .eq('id', userId)
           .maybeSingle();
 
@@ -71,9 +99,37 @@ class LoginService {
         return;
       }
 
+      // Persist auth and profile cache
       box.write('userId', userId);
       box.write('userType', dbUserType);
-      box.write('userEmail', email);
+      box.write('userEmail', cleanEmail);
+      box.write('saved_email', cleanEmail);
+      box.write('saved_password', cleanPassword);
+
+      if (profileData != null) {
+        final name = profileData['name']?.toString() ?? 'User';
+        box.write('user_name', name);
+        box.write('userName', name);
+        box.write('user_email', profileData['email']?.toString() ?? cleanEmail);
+        box.write('host_profile_name', name.split(' ')[0]);
+      }
+
+      // Cache clinical data from patients table
+      try {
+        final patientData = await patientSupabaseClient
+            .from('patients')
+            .select()
+            .eq('user_id', userId)
+            .maybeSingle();
+        if (patientData != null) {
+          box.write('patient_code', patientData['patient_code']?.toString());
+          box.write('date_of_birth', patientData['date_of_birth']?.toString());
+          box.write('weight_kg', patientData['weight_kg']);
+          box.write('height_cm', patientData['height_cm']);
+          box.write('dominant_hand', patientData['dominant_hand']?.toString());
+          box.write('patient_phone', patientData['phone']?.toString());
+        }
+      } catch (_) {}
 
       NavigationService().navigateToStartupView();
     } catch (e) {

@@ -44,7 +44,7 @@ Future<void> main() async {
     url: 'https://oyqecdcpicvzwwvwaeka.supabase.co',
     anonKey: 'sb_publishable_5ovuyYHtObqNMcjEFrNo6Q_Bo4dDFQi',
     authOptions: const FlutterAuthClientOptions(
-      authFlowType: AuthFlowType.implicit,
+      authFlowType: AuthFlowType.pkce,
     ),
   );
   patientSupabaseClient = Supabase.instance.client;

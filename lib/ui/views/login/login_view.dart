@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:vital_step/app/app.locator.dart';
@@ -12,9 +13,9 @@ import 'login_viewmodel.dart';
 class LoginView extends StackedView<LoginViewModel> {
   LoginView({Key? key}) : super(key: key);
   final _formKey = GlobalKey<FormState>();
-  String _selectedUserType = 'Patient'; // Initial value for the dropdown
-  String _email = 'a';
-  String _password = '';
+  String _selectedUserType = GetStorage().read<String>('userType') ?? 'Patient';
+  String _email = GetStorage().read<String>('saved_email') ?? GetStorage().read<String>('userEmail') ?? '';
+  String _password = GetStorage().read<String>('saved_password') ?? '';
 
   double generalTextFontSize = 15;
 
@@ -93,6 +94,7 @@ class LoginView extends StackedView<LoginViewModel> {
           const SizedBox(height: 20),
           _buildLabel("Email Address"),
           TextFormField(
+            initialValue: _email,
             decoration: premiumInputDecoration("e.g. name@email.com"),
             keyboardType: TextInputType.emailAddress,
             onSaved: (val) => _email = val?.trim() ?? "",
@@ -101,6 +103,7 @@ class LoginView extends StackedView<LoginViewModel> {
           const SizedBox(height: 20),
           _buildLabel("Password"),
           TextFormField(
+            initialValue: _password,
             obscureText: !viewModel.passwordVisible,
             decoration: premiumInputDecoration("••••••••").copyWith(
               suffixIcon: IconButton(
