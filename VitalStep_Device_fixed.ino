@@ -1271,6 +1271,15 @@ static int doSync(){
     for(int i=0;i<np;i++) if(cids[i][0]&&strcmp(cids[i],id)==0){ sdLock(); SD.remove(paths[i]); sdUnlock(); }
   }
   pendingCnt=pendingCount();
+  bool clearData=doc["clear_data"]|false;
+  if(clearData&&sdOk){
+    sdLock();
+    SD.remove("/vs/history.csv");
+    sdUnlock();
+    Patient& pp=pts[cur]; pp.n=0; pp.tests=0;
+    toastC("SD history wiped by Admin",C_TEAL);
+    needFull=true;
+  }
   bool cl=doc["claimed"]|false;
   if(reqUnpair){ reqUnpair=false; removePairingState(); }
   if(cl!=claimed){ claimed=cl; evClaim=true; }

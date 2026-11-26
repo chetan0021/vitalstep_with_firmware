@@ -270,6 +270,17 @@ serve(async (req) => {
     response.claimed = isClaimed;
     response.device_id = device.id;
 
+    // Admin SD data wipe: ONLY executed if the device is UNPAIRED
+    if (!isClaimed && device.notes === "CLEAR_DATA_REQUESTED") {
+      (response as any).clear_data = true;
+      // Clear the request flag
+      await supabase
+        .from("device_inventory")
+        .update({ notes: null })
+        .eq("id", device.id);
+      console.log(`[DEVICE-SYNC] Dispatched clear_data command to unpaired device ${deviceCode}`);
+    }
+
     // =========================================================================
     // STEP 4: VALIDATE & STORE MEASUREMENTS
     // =========================================================================

@@ -164,6 +164,15 @@ class DeviceView extends StackedView<DeviceViewModel> with $DeviceView {
                   ),
                 ),
               ),
+              verticalSpaceSmall,
+              Center(
+                child: TextButton.icon(
+                  onPressed: () => viewModel.unpairDevice(selected),
+                  icon: const Icon(Icons.link_off_rounded, color: kcErrorColor, size: 18),
+                  label: const Text('Unpair This Device',
+                      style: TextStyle(color: kcErrorColor, fontWeight: FontWeight.w600, fontSize: 13)),
+                ),
+              ),
             ],
           );
         }
@@ -372,6 +381,15 @@ class DeviceView extends StackedView<DeviceViewModel> with $DeviceView {
                                   ],
                                 ),
                               ),
+                              IconButton(
+                                icon: const Icon(Icons.link_off_rounded,
+                                    color: kcErrorColor, size: 20),
+                                tooltip: 'Unpair Device',
+                                onPressed: () {
+                                  Navigator.pop(ctx);
+                                  viewModel.unpairDevice(device);
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -487,6 +505,11 @@ class DeviceView extends StackedView<DeviceViewModel> with $DeviceView {
                   ),
                 ],
               ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.link_off_rounded, color: kcErrorColor, size: 20),
+              tooltip: 'Unpair Device',
+              onPressed: () => viewModel.unpairDevice(device),
             ),
             const Icon(Icons.chevron_right, color: kcMediumGrey),
           ],

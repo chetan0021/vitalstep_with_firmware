@@ -249,6 +249,44 @@ class AccountsService {
     }
   }
 
+  Future<void> unpairDevice({required String deviceCode}) async {
+    try {
+      final userId = patientSupabaseClient.auth.currentUser?.id ?? box.read('userId')?.toString();
+      if (userId == null) throw Exception('No user logged in');
+
+      // 1. Mark device pairing as inactive in device_pairings
+      await patientSupabaseClient
+          .from('device_pairings')
+          .update({'is_active': false})
+          .eq('device_code', deviceCode)
+          .eq('user_id', userId);
+
+      // 2. Clear paired_user_id in device_inventory so it becomes free for any user to pair
+      await patientSupabaseClient
+          .from('device_inventory')
+          .update({
+            'paired_user_id': null,
+            'paired_at': null,
+            'status': 'manufactured',
+          })
+          .eq('device_code', deviceCode);
+
+      // 3. Also update legacy devices table if present
+      try {
+        await patientSupabaseClient
+            .from('devices')
+            .update({'is_active': false})
+            .eq('device_code', deviceCode)
+            .eq('user_id', userId);
+      } catch (_) {}
+
+      _logger.i('Device unpaired successfully: $deviceCode');
+    } catch (e) {
+      _logger.e('unpairDevice error: $e');
+      throw Exception('Failed to unpair device: $e');
+    }
+  }
+
   Future<bool> killApp() async {
     try {
       final mainResult = await patientSupabaseClient

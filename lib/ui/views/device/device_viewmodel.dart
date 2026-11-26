@@ -217,6 +217,36 @@ class DeviceViewModel extends FormViewModel {
     }
   }
 
+  /// Unpair a device from this account with confirmation
+  Future<void> unpairDevice(Device device) async {
+    final response = await _dialogService.showConfirmationDialog(
+      title: 'Unpair Device',
+      description:
+          'Are you sure you want to unpair "${device.deviceName}" (${device.deviceCode})? This will release the device so it can be paired with any account.',
+      confirmationTitle: 'Unpair',
+      cancelTitle: 'Cancel',
+      barrierDismissible: true,
+    );
+
+    if (response == null || !response.confirmed) return;
+
+    setBusy(true);
+    try {
+      if (selectedDevice?.deviceCode == device.deviceCode) {
+        await clearSelection();
+      }
+      await _accountsService.unpairDevice(deviceCode: device.deviceCode);
+      Fluttertoast.showToast(msg: "Device unpaired successfully");
+      await init();
+    } catch (e) {
+      _logger.e('Failed to unpair device: $e');
+      Fluttertoast.showToast(msg: "Failed to unpair device");
+    } finally {
+      setBusy(false);
+      notifyListeners();
+    }
+  }
+
   /// Check if a device is currently selected
   bool isDeviceSelected(Device device) {
     return selectedDevice?.deviceCode == device.deviceCode;
