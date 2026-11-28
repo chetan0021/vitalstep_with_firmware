@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:stacked/stacked.dart';
 
 class BleProvisioningService with ListenableServiceMixin {
@@ -47,17 +48,27 @@ class BleProvisioningService with ListenableServiceMixin {
   Future<void> startBleScan() async {
     discoveredDevices.clear();
     isScanningBle.value = true;
-    
+
+    // Request BLE & Location permissions (required on Android 11 for BLE scan)
+    await [
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.locationWhenInUse,
+    ].request();
+
     // Ensure Bluetooth is on
     if (await FlutterBluePlus.adapterState.first == BluetoothAdapterState.off) {
       isScanningBle.value = false;
-      throw Exception('Bluetooth is off');
+      throw Exception('Bluetooth is off. Please turn on Bluetooth and Location.');
     }
 
     await _scanSubscription?.cancel();
     _scanSubscription = FlutterBluePlus.onScanResults.listen((results) {
       for (ScanResult r in results) {
-        if (r.device.platformName.startsWith("PalmPressure") || r.advertisementData.advName.startsWith("PalmPressure")) {
+        final name = r.device.platformName.isNotEmpty
+            ? r.device.platformName
+            : r.advertisementData.advName;
+        if (name.startsWith("PalmPressure")) {
           if (!discoveredDevices.any((d) => d.device.remoteId == r.device.remoteId)) {
             discoveredDevices.add(r);
           }
@@ -65,8 +76,9 @@ class BleProvisioningService with ListenableServiceMixin {
       }
     });
 
+    // Note: startScan returns as soon as scanning begins;
+    // FlutterBluePlus.isScanning stream sets isScanningBle.value = false after 10s.
     await FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
-    isScanningBle.value = false;
   }
 
   Future<void> stopBleScan() async {

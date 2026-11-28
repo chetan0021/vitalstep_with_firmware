@@ -1140,8 +1140,12 @@ static void bleSendScan(){
   bleSetStatus("SCANNING");
   WiFi.mode(WIFI_STA);
   WiFi.disconnect(false);
-  vTaskDelay(100/portTICK_PERIOD_MS);
+  vTaskDelay(150/portTICK_PERIOD_MS);
   int n=WiFi.scanNetworks();
+  if(n<=0){
+    vTaskDelay(300/portTICK_PERIOD_MS);
+    n=WiFi.scanNetworks();
+  }
   Serial.printf("[BLE] Wi-Fi scan found %d networks\n", n);
   if(n>0){
     for(int i=0;i<n;i++){
