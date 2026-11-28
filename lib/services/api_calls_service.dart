@@ -86,6 +86,33 @@ class ApiCallsService {
         return (data as List).map((e) => _mapToTest(e)).toList();
       }
 
+      // Fallback 2: get device codes from device_pairings, resolve to device IDs, then query
+      try {
+        final pairings = await patientSupabaseClient
+            .from('device_pairings')
+            .select('device_code')
+            .eq('user_id', uid)
+            .eq('is_active', true);
+        final codes = (pairings as List).map((p) => p['device_code'].toString()).toList();
+        if (codes.isNotEmpty) {
+          final devicesFromCodes = await patientSupabaseClient
+              .from('devices')
+              .select('id')
+              .filter('device_code', 'in', codes);
+          final idsFromCodes = (devicesFromCodes as List).map((d) => d['id'].toString()).toList();
+          if (idsFromCodes.isNotEmpty) {
+            final data = await patientSupabaseClient
+                .from('measurements')
+                .select('*')
+                .filter('device_id', 'in', idsFromCodes)
+                .order('recorded_at', ascending: false);
+            return (data as List).map((e) => _mapToTest(e)).toList();
+          }
+        }
+      } catch (pairingErr) {
+        _logger.w('device_pairings fallback failed: $pairingErr');
+      }
+
       return [];
     } catch (e) {
       _logger.e('getAllUserTests error: $e');

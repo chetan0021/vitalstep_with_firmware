@@ -15,16 +15,30 @@ class LoginService {
   final DialogService _dialogService = locator<DialogService>();
 
   Future<bool> isLoggedIn() async {
-    // 1. If we have a live active session, verify it's working
-    if (patientSupabaseClient.auth.currentUser != null) {
-      return true;
-    }
-
-    // 2. Try to refresh the session token if expired
+    // 1. Always try to refresh the session first — even if currentUser is
+    //    non-null, the access token may be expired (Supabase SDK auto-restores
+    //    sessions from SharedPreferences on init, but the JWT could have expired
+    //    since then). Without a valid token, RLS blocks every query.
     try {
       final res = await patientSupabaseClient.auth.refreshSession();
-      if (res.user != null) return true;
+      if (res.user != null) {
+        box.write('userId', res.user!.id);
+        return true;
+      }
     } catch (_) {}
+
+    // 2. If refresh failed, check whether the current token is still valid
+    //    (not yet expired). This handles the case where the network is briefly
+    //    unavailable but the token is still usable.
+    final session = patientSupabaseClient.auth.currentSession;
+    if (session != null && patientSupabaseClient.auth.currentUser != null) {
+      final expiresAt = session.expiresAt;
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      if (expiresAt != null && expiresAt > now + 60) {
+        box.write('userId', patientSupabaseClient.auth.currentUser!.id);
+        return true;
+      }
+    }
 
     // 3. Attempt silent auto-login using saved credentials
     final savedEmail = box.read<String>('saved_email') ?? box.read<String>('userEmail');
@@ -37,6 +51,8 @@ class LoginService {
         );
         if (res.user != null) {
           box.write('userId', res.user!.id);
+          // Cache profile data immediately after successful login
+          _cacheProfileAfterLogin(res.user!.id);
           return true;
         }
       } catch (_) {}
@@ -45,6 +61,72 @@ class LoginService {
     // 4. If no live Supabase session could be established, require fresh login
     // so the app never enters an unauthenticated zombie state where RLS blocks queries
     return false;
+  }
+
+  /// Refreshes the Supabase session if the access token is expired or about to expire.
+  /// Call this before making any RLS-protected queries.
+  Future<bool> ensureValidSession() async {
+    final session = patientSupabaseClient.auth.currentSession;
+    if (session == null) return false;
+
+    final expiresAt = session.expiresAt;
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+    // Token still valid for more than 60 seconds
+    if (expiresAt != null && expiresAt > now + 60) return true;
+
+    // Token expired or about to expire — refresh
+    try {
+      final res = await patientSupabaseClient.auth.refreshSession();
+      return res.user != null;
+    } catch (_) {}
+
+    // Try re-auth with saved credentials
+    final savedEmail = box.read<String>('saved_email') ?? box.read<String>('userEmail');
+    final savedPassword = box.read<String>('saved_password');
+    if (savedEmail != null && savedPassword != null && savedEmail.isNotEmpty && savedPassword.isNotEmpty) {
+      try {
+        final res = await patientSupabaseClient.auth.signInWithPassword(
+          email: savedEmail.trim().toLowerCase(),
+          password: savedPassword.trim(),
+        );
+        return res.user != null;
+      } catch (_) {}
+    }
+    return false;
+  }
+
+  /// Background-caches profile and patient data after a successful login/re-auth.
+  Future<void> _cacheProfileAfterLogin(String userId) async {
+    try {
+      final profileData = await patientSupabaseClient
+          .from('profiles')
+          .select('name, email')
+          .eq('id', userId)
+          .maybeSingle();
+      if (profileData != null && profileData['name'] != null) {
+        final name = profileData['name'].toString();
+        box.write('user_name', name);
+        box.write('userName', name);
+        box.write('user_email', profileData['email']?.toString());
+        box.write('host_profile_name', name.split(' ')[0]);
+      }
+    } catch (_) {}
+    try {
+      final patientData = await patientSupabaseClient
+          .from('patients')
+          .select()
+          .eq('user_id', userId)
+          .maybeSingle();
+      if (patientData != null) {
+        box.write('patient_code', patientData['patient_code']?.toString());
+        box.write('date_of_birth', patientData['date_of_birth']?.toString());
+        box.write('weight_kg', patientData['weight_kg']);
+        box.write('height_cm', patientData['height_cm']);
+        box.write('dominant_hand', patientData['dominant_hand']?.toString());
+        box.write('patient_phone', patientData['phone']?.toString());
+      }
+    } catch (_) {}
   }
 
   Future<String?> getUserId() async {

@@ -28,6 +28,10 @@ class AccountViewModel extends BaseViewModel {
   Future<void> init() async {
     setBusy(true);
     try {
+      // Ensure session is valid before fetching profile (prevents RLS blocks)
+      final loginService = locator<LoginService>();
+      await loginService.ensureValidSession();
+
       profile = await _accountService.getAccountDetails();
       notifyListeners();
     } catch (e) {

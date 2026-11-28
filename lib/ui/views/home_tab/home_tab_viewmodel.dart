@@ -15,6 +15,7 @@ import 'package:vital_step/services/analysis_service.dart';
 import 'package:vital_step/services/ai_service.dart';
 import 'package:vital_step/services/mode_service.dart';
 import 'package:vital_step/services/patient_service.dart';
+import 'package:vital_step/services/login_service.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:vital_step/app/app.router.dart';
 import 'package:get_storage/get_storage.dart';
@@ -156,6 +157,10 @@ class HomeTabViewModel extends BaseViewModel {
 
   Future<void> refreshData() async {
     try {
+      // Ensure we have a valid Supabase session before making any queries
+      final loginService = locator<LoginService>();
+      await loginService.ensureValidSession();
+
       // Reset specialists cache on refresh
       _specialistsFuture = null;
       
