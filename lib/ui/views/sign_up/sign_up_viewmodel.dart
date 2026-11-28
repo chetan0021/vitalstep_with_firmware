@@ -61,17 +61,19 @@ class SignUpViewModel extends FormViewModel {
           variant: DialogType.infoAlert,
           title: 'Invalid name',
           description: message);
-    } else if (FormValidators.passwordValidator(passwordValue) != null) {
+    } else if (!update && FormValidators.passwordValidator(passwordValue) != null) {
       final message = FormValidators.passwordValidator(passwordValue);
       _dialogService.showCustomDialog(
           variant: DialogType.infoAlert,
-          title: 'Invalid name',
+          title: 'Invalid password',
           description: message);
-    } else if (FormValidators.dobValidator(
-            DateFormat("dd-MM-yyyy").parse(viewDobController.text)) !=
-        null) {
-      final message = FormValidators.dobValidator(
-          DateFormat("dd-MM-yyyy").parse(viewDobController.text));
+    } else if (_parseDob(viewDobController.text) == null ||
+        FormValidators.dobValidator(_parseDob(viewDobController.text)!) !=
+            null) {
+      final parsed = _parseDob(viewDobController.text);
+      final message = parsed == null
+          ? 'Please select your Date of Birth'
+          : FormValidators.dobValidator(parsed);
       _dialogService.showCustomDialog(
           variant: DialogType.infoAlert,
           title: 'Invalid Date of Birth',
@@ -110,12 +112,13 @@ class SignUpViewModel extends FormViewModel {
       );
     } else {
       try {
+        final parsedDob = dobValue ?? _parseDob(viewDobController.text);
         SignUpInfo signUpInfo = SignUpInfo(
             name: nameValue!,
             phone: int.parse(mobileNumberValue!),
             email: emailValue!,
-            password: passwordValue!,
-            dob: dobValue != null ? DateFormat("yyyy-MM-dd").format(dobValue!) : viewDobController.text, // Use ISO format for backend
+            password: passwordValue ?? '',
+            dob: parsedDob != null ? DateFormat("yyyy-MM-dd").format(parsedDob) : viewDobController.text, // Use ISO format for backend
             city: cityValue,
             country: countryValue,
             pincode: int.tryParse(pincodeValue!),
@@ -150,27 +153,53 @@ class SignUpViewModel extends FormViewModel {
     setBusy(false);
   }
 
+  DateTime? _parseDob(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+    final trimmed = raw.trim();
+    final iso = DateTime.tryParse(trimmed);
+    if (iso != null) return iso;
+    try {
+      return DateFormat("dd-MM-yyyy").parse(trimmed);
+    } catch (_) {
+      return null;
+    }
+  }
+
   void setProfile(Profile profile) {
-    nameValue = profile.name;
-    // countryCodeValue = profile.countryCode;
-    setCountryCodesDropDown(profile.countryCode);
-    mobileNumberValue = profile.phone.toString();
-    emailValue = profile.email;
-    addressValue = profile.address;
-    cityValue = profile.city;
+    nameValue = profile.name ?? '';
+    setCountryCodesDropDown(
+      (profile.countryCode.isNotEmpty) ? profile.countryCode : '+91',
+    );
+    mobileNumberValue = profile.phone?.toString() ?? '';
+    emailValue = profile.email ?? '';
+    addressValue = profile.address ?? '';
+    cityValue = profile.city ?? '';
     pincodeValue = profile.pincode == null ? "" : profile.pincode.toString();
-    countryValue = profile.country;
-    weightValue = profile.weight.toString();
-    heightValue = profile.height.toString();
+    countryValue = profile.country ?? '';
+    weightValue = profile.weight > 0 ? profile.weight.toString() : '';
+    heightValue = profile.height > 0 ? profile.height.toString() : '';
     palmLengthValue =
         profile.palmLength == null ? "" : profile.palmLength.toString();
     palmWidthValue =
         profile.palmWidth == null ? "" : profile.palmWidth.toString();
     knucklesLengthValue =
         profile.knucklesLength == null ? "" : profile.knucklesLength.toString();
-    setDominantHand(profile.dominantHand!);
-    setGender(profile.gender!);
-    viewDobController.text =
-        DateFormat("dd-MM-yyyy").format(DateTime.parse(profile.dob!));
+
+    final rawHand = profile.dominantHand ?? 'Right';
+    final normalizedHand = (rawHand == 'L' || rawHand == 'Left') ? 'Left' : 'Right';
+    setDominantHand(normalizedHand);
+
+    final rawGender = profile.gender;
+    if (rawGender != null &&
+        const ['Male', 'Female', 'Prefer not to say', 'Other'].contains(rawGender)) {
+      setGender(rawGender);
+    } else {
+      setGender('Male');
+    }
+
+    final parsedDob = _parseDob(profile.dob);
+    if (parsedDob != null) {
+      viewDobController.text = DateFormat("dd-MM-yyyy").format(parsedDob);
+    }
   }
 }
