@@ -14,13 +14,18 @@ class BleScanViewModel extends ReactiveViewModel {
 
   List<ScanResult> get discoveredDevices => _bleService.discoveredDevices;
   String get connectionStatus => _bleService.connectionStatus.value;
-  bool get isScanning => FlutterBluePlus.isScanningNow;
+  bool get isScanning => _bleService.isScanningBle.value;
+  String? scanError;
 
   void startScan() async {
+    scanError = null;
+    notifyListeners();
     try {
       await _bleService.startBleScan();
       notifyListeners();
     } catch (e) {
+      scanError = e.toString();
+      notifyListeners();
       print('Scan error: $e');
     }
   }

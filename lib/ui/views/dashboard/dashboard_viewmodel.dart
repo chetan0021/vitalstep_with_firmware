@@ -4,6 +4,7 @@ import 'package:stacked/stacked.dart';
 import 'package:vital_step/Model/test.dart';
 import 'package:vital_step/app/app.locator.dart';
 import 'package:vital_step/services/api_calls_service.dart';
+import 'package:vital_step/services/login_service.dart';
 import 'package:vital_step/services/mode_service.dart';
 import 'package:vital_step/services/patient_service.dart';
 
@@ -57,6 +58,7 @@ class DashboardViewModel extends BaseViewModel {
 
   Future<void> refreshData() async {
     try {
+      await locator<LoginService>().ensureValidSession();
       if (_modeService.isPatientMode && _modeService.hasActivePatient) {
         // Patient Mode: fetch from new Supabase
         final readings =

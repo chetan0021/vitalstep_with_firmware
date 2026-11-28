@@ -13,11 +13,16 @@ class WifiScanViewModel extends ReactiveViewModel {
 
   List<Map<String, dynamic>> get scannedNetworks => _bleService.scannedNetworks;
   bool get isScanningWifi => _bleService.isScanningWifi.value;
+  String? scanError;
 
   void startWifiScan() async {
+    scanError = null;
+    notifyListeners();
     try {
       await _bleService.requestWifiScan();
     } catch (e) {
+      scanError = e.toString();
+      notifyListeners();
       print('Wi-Fi Scan request error: $e');
     }
   }

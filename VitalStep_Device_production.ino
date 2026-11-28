@@ -1117,13 +1117,13 @@ static void bleStop(){
   if(bleServer) BLEDevice::getAdvertising()->stop();
 }
 
-static bool wifiConnect(const char* ssid,const char* pass,uint32_t ms){
+static bool wifiConnect(const char* ssid,const char* pass,uint32_t ms,bool allowDuringBle=false){
   WiFi.persistent(false); WiFi.mode(WIFI_STA); WiFi.setAutoReconnect(true);
   Serial.printf("[WIFI] Connecting to '%s' (timeout %d ms)...\n",ssid,ms);
   if(pass&&pass[0]) WiFi.begin(ssid,pass); else WiFi.begin(ssid);
   uint32_t t=millis(); 
   while(WiFi.status()!=WL_CONNECTED&&millis()-t<ms){
-    if(bleActive || reqBleStart){
+    if(!allowDuringBle && (bleActive || reqBleStart)){
       WiFi.disconnect(true, true);
       WiFi.mode(WIFI_OFF);
       return false;
@@ -1137,14 +1137,21 @@ static bool wifiConnect(const char* ssid,const char* pass,uint32_t ms){
   return connected;
 }
 static void bleSendScan(){
-  bleSetStatus("SCANNING"); WiFi.mode(WIFI_STA); int n=WiFi.scanNetworks();
-  for(int i=0;i<n;i++){
-    StaticJsonDocument<192> d; d["ssid"]=WiFi.SSID(i); d["rssi"]=WiFi.RSSI(i); d["secure"]=(WiFi.encryptionType(i)!=WIFI_AUTH_OPEN);
-    char out[192]; serializeJson(d,out,sizeof out);
-    if(bleScanCh){ bleScanCh->setValue(out); bleScanCh->notify(); }
-    vTaskDelay(30/portTICK_PERIOD_MS);
+  bleSetStatus("SCANNING");
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect(false);
+  vTaskDelay(100/portTICK_PERIOD_MS);
+  int n=WiFi.scanNetworks();
+  Serial.printf("[BLE] Wi-Fi scan found %d networks\n", n);
+  if(n>0){
+    for(int i=0;i<n;i++){
+      StaticJsonDocument<192> d; d["ssid"]=WiFi.SSID(i); d["rssi"]=WiFi.RSSI(i); d["secure"]=(WiFi.encryptionType(i)!=WIFI_AUTH_OPEN);
+      char out[192]; serializeJson(d,out,sizeof out);
+      if(bleScanCh){ bleScanCh->setValue(out); bleScanCh->notify(); }
+      vTaskDelay(60/portTICK_PERIOD_MS);
+    }
   }
-  StaticJsonDocument<64> dd; dd["done"]=true; dd["count"]=n; char o2[64]; serializeJson(dd,o2,sizeof o2);
+  StaticJsonDocument<64> dd; dd["done"]=true; dd["count"]=(n>0?n:0); char o2[64]; serializeJson(dd,o2,sizeof o2);
   if(bleScanCh){ bleScanCh->setValue(o2); bleScanCh->notify(); }
   WiFi.scanDelete(); bleSetStatus("SCAN_COMPLETE");
 }
@@ -1152,7 +1159,7 @@ static void bleProvisionStep(){                      // runs in the net task whi
   if(bleScanReq){ bleScanReq=false; bleSendScan(); }
   if(bleCredsRx){
     bleCredsRx=false; bleSetStatus("CONNECTING");
-    if(wifiConnect(blePendSsid,blePendPass,15000)){
+    if(wifiConnect(blePendSsid,blePendPass,20000,true)){
       wifiCredsSave(blePendSsid,blePendPass);
       char b[64]; snprintf(b,sizeof b,"CONNECTED:%s",WiFi.localIP().toString().c_str()); bleSetStatus(b);
       vTaskDelay(2100/portTICK_PERIOD_MS); bleDone=true;

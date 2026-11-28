@@ -20,12 +20,14 @@ class BleProvisioningService with ListenableServiceMixin {
   StreamSubscription<List<ScanResult>>? _scanSubscription;
   StreamSubscription<List<int>>? _wifiScanSubscription;
   StreamSubscription<List<int>>? _wifiStatusSubscription;
+  Timer? _wifiScanTimeoutTimer;
 
   ReactiveList<ScanResult> discoveredDevices = ReactiveList<ScanResult>();
   ReactiveList<Map<String, dynamic>> scannedNetworks = ReactiveList<Map<String, dynamic>>();
 
   ReactiveValue<String> connectionStatus = ReactiveValue<String>('Disconnected');
   ReactiveValue<String> wifiProvisionStatus = ReactiveValue<String>('');
+  ReactiveValue<bool> isScanningBle = ReactiveValue<bool>(false);
   ReactiveValue<bool> isScanningWifi = ReactiveValue<bool>(false);
 
   BleProvisioningService() {
@@ -34,18 +36,25 @@ class BleProvisioningService with ListenableServiceMixin {
       scannedNetworks,
       connectionStatus,
       wifiProvisionStatus,
+      isScanningBle,
       isScanningWifi,
     ]);
+    FlutterBluePlus.isScanning.listen((scanning) {
+      isScanningBle.value = scanning;
+    });
   }
 
   Future<void> startBleScan() async {
     discoveredDevices.clear();
+    isScanningBle.value = true;
     
     // Ensure Bluetooth is on
     if (await FlutterBluePlus.adapterState.first == BluetoothAdapterState.off) {
+      isScanningBle.value = false;
       throw Exception('Bluetooth is off');
     }
 
+    await _scanSubscription?.cancel();
     _scanSubscription = FlutterBluePlus.onScanResults.listen((results) {
       for (ScanResult r in results) {
         if (r.device.platformName.startsWith("PalmPressure") || r.advertisementData.advName.startsWith("PalmPressure")) {
@@ -57,11 +66,13 @@ class BleProvisioningService with ListenableServiceMixin {
     });
 
     await FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
+    isScanningBle.value = false;
   }
 
   Future<void> stopBleScan() async {
     await FlutterBluePlus.stopScan();
     await _scanSubscription?.cancel();
+    isScanningBle.value = false;
   }
 
   Future<void> connectToDevice(BluetoothDevice device) async {
@@ -69,6 +80,9 @@ class BleProvisioningService with ListenableServiceMixin {
     try {
       await device.connect(autoConnect: false, timeout: const Duration(seconds: 10), license: License.nonprofit);
       _connectedDevice = device;
+      try {
+        await device.requestMtu(512);
+      } catch (_) {}
       connectionStatus.value = 'Discovering Services...';
 
       List<BluetoothService> services = await device.discoverServices();
@@ -108,10 +122,11 @@ class BleProvisioningService with ListenableServiceMixin {
           try {
             final decoded = jsonDecode(jsonStr);
             if (decoded.containsKey('done') && decoded['done'] == true) {
+              _wifiScanTimeoutTimer?.cancel();
               isScanningWifi.value = false;
             } else if (decoded.containsKey('ssid')) {
-              // Ensure no duplicates
-              if (!scannedNetworks.any((net) => net['ssid'] == decoded['ssid'])) {
+              final ssid = (decoded['ssid'] ?? '').toString();
+              if (ssid.isNotEmpty && !scannedNetworks.any((net) => net['ssid'] == ssid)) {
                 scannedNetworks.add(decoded as Map<String, dynamic>);
               }
             }
@@ -129,12 +144,27 @@ class BleProvisioningService with ListenableServiceMixin {
   }
 
   Future<void> requestWifiScan() async {
-    if (_scanChar == null) throw Exception("Scan characteristic not found");
+    if (_scanChar == null) {
+      isScanningWifi.value = false;
+      throw Exception("Scan characteristic not found");
+    }
     scannedNetworks.clear();
     isScanningWifi.value = true;
-    
-    // Write any value to trigger scan
-    await _scanChar!.write(utf8.encode("SCAN"));
+    _wifiScanTimeoutTimer?.cancel();
+    _wifiScanTimeoutTimer = Timer(const Duration(seconds: 12), () {
+      if (isScanningWifi.value) {
+        isScanningWifi.value = false;
+      }
+    });
+
+    try {
+      // Write any value to trigger scan
+      await _scanChar!.write(utf8.encode("SCAN"));
+    } catch (e) {
+      _wifiScanTimeoutTimer?.cancel();
+      isScanningWifi.value = false;
+      rethrow;
+    }
   }
 
   Future<void> sendWifiCredentials(String ssid, String password) async {
@@ -174,8 +204,10 @@ class BleProvisioningService with ListenableServiceMixin {
   }
 
   Future<void> disconnect() async {
+    _wifiScanTimeoutTimer?.cancel();
     await _wifiScanSubscription?.cancel();
     await _wifiStatusSubscription?.cancel();
+    isScanningWifi.value = false;
     if (_connectedDevice != null) {
       await _connectedDevice!.disconnect();
       _connectedDevice = null;
