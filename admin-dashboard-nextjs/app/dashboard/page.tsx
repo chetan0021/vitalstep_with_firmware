@@ -15,10 +15,11 @@ type Stats = {
   patients: number
   devices: number
   measurements: number
+  audits?: number
 }
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats>({ inventory: 0, manufactured: 0, paired: 0, patients: 0, devices: 0, measurements: 0 })
+  const [stats, setStats] = useState<Stats>({ inventory: 0, manufactured: 0, paired: 0, patients: 0, devices: 0, measurements: 0, audits: 0 })
   const [audits, setAudits] = useState<any[]>([])
   const [measures, setMeasures] = useState<any[]>([])
   const [patients, setPatients] = useState<any[]>([])
@@ -42,11 +43,11 @@ export default function DashboardPage() {
       console.warn('API overview fetch fallback to direct Supabase query:', e)
       try {
         const [invRes, patRes, devRes, measRes, auditRes] = await Promise.all([
-          supabase.from('device_inventory').select('id, device_code, status, created_at'),
+          supabase.from('device_inventory').select('id, device_code, status, paired_user_id, created_at'),
           supabase.from('patients').select('id, user_id, name, email, phone, patient_code, dominant_hand, weight_kg, height_cm, hand_strength_lo, hand_strength_hi'),
           supabase.from('devices').select('id, user_id, device_code, device_name, is_active'),
-          supabase.from('measurements').select('id, device_id, hand, posture, trial1, trial2, trial3, best, recorded_at, created_at').order('recorded_at', { ascending: false }).limit(20),
-          supabase.from('device_audit').select('*').order('created_at', { ascending: false }).limit(20),
+          supabase.from('measurements').select('id, device_id, hand, posture, trial1, trial2, trial3, best, recorded_at, created_at', { count: 'exact' }).order('recorded_at', { ascending: false }).limit(20),
+          supabase.from('device_audit').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(50),
         ])
 
         const inv = invRes.data ?? []
@@ -65,11 +66,12 @@ export default function DashboardPage() {
 
         setStats({
           inventory: inv.length,
-          manufactured: inv.filter(d => (d.status ?? '').toLowerCase() === 'manufactured').length,
-          paired: inv.filter(d => (d.status ?? '').toLowerCase() === 'paired').length,
+          manufactured: inv.filter(d => (d.status ?? '').toLowerCase() === 'manufactured' && !d.paired_user_id).length,
+          paired: inv.filter(d => (d.status ?? '').toLowerCase() === 'paired' || !!d.paired_user_id).length,
           patients: pat.length,
           devices: dev.length,
-          measurements: meas.length,
+          measurements: measRes.count ?? meas.length,
+          audits: auditRes.count ?? aud.length,
         })
         setAudits(aud)
         setMeasures(meas)
@@ -142,7 +144,7 @@ export default function DashboardPage() {
             { label: 'Paired Devices', val: loading ? '…' : (stats.paired ?? 0), Icon: Cpu, color: '#8B5CF6', lightBg: '#F5F3FF', lightBorder: '#DDD6FE', darkBg: 'rgba(139,92,246,0.12)', darkBorder: 'rgba(139,92,246,0.35)' },
             { label: 'Active Fleet', val: loading ? '…' : (stats.devices ?? 0), Icon: Zap, color: '#F59E0B', lightBg: '#FFFBEB', lightBorder: '#FDE68A', darkBg: 'rgba(245,158,11,0.12)', darkBorder: 'rgba(245,158,11,0.35)' },
             { label: 'Manufactured', val: loading ? '…' : (stats.manufactured ?? 0), Icon: Layers, color: '#EC4899', lightBg: '#FFF1F2', lightBorder: '#FECDD3', darkBg: 'rgba(236,72,153,0.12)', darkBorder: 'rgba(236,72,153,0.35)' },
-            { label: 'Audit Events', val: loading ? '…' : (audits.length ?? 0), Icon: ShieldCheck, color: '#38BDF8', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(56,189,248,0.12)', darkBorder: 'rgba(56,189,248,0.35)' },
+            { label: 'Audit Events', val: loading ? '…' : (stats.audits ?? audits.length ?? 0), Icon: ShieldCheck, color: '#38BDF8', lightBg: '#F0F9FF', lightBorder: '#BAE6FD', darkBg: 'rgba(56,189,248,0.12)', darkBorder: 'rgba(56,189,248,0.35)' },
           ].map(({ label, val, Icon, color, lightBorder, darkBorder }) => (
             <div
               key={label}
